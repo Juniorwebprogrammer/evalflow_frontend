@@ -14,6 +14,7 @@ import { HttpFavoriteListRepository } from "@/features/favorite-lists/infrastruc
 import { HttpEvaluationCycleRepository } from "@/features/evaluation-cycles/infrastructure/http-evaluation-cycle-repository";
 import { HttpEvaluationSubmissionRepository } from "@/features/evaluation-submissions/infrastructure/http-evaluation-submission-repository";
 import { HttpDashboardRepository } from "@/features/dashboard/infrastructure/http-dashboard-repository";
+import { HttpEvaluationComparisonRepository } from "@/features/evaluation-comparisons/infrastructure/http-evaluation-comparison-repository";
 import { GetCompanyByName } from "@/features/company/application/get-company-by-name";
 import { GetCompanyByIdentificationId } from "@/features/company/application/get-company-by-identification-id";
 import { UpdateCompany } from "@/features/company/application/update-company";
@@ -73,6 +74,7 @@ import { SaveSubmissionAnswers } from "@/features/evaluation-submissions/applica
 import { GetCycleSubmissions } from "@/features/evaluation-submissions/application/get-cycle-submissions";
 import { DeleteSubmission } from "@/features/evaluation-submissions/application/delete-submission";
 import { GetDashboardStats } from "@/features/dashboard/application/get-dashboard-stats";
+import { GetCycleComparisons } from "@/features/evaluation-comparisons/application/get-cycle-comparisons";
 
 /**
  * Composition root — wires the concrete infrastructure into the use cases.
@@ -95,6 +97,7 @@ const favoriteListRepository = new HttpFavoriteListRepository(backendClient);
 const evaluationCycleRepository = new HttpEvaluationCycleRepository(backendClient);
 const evaluationSubmissionRepository = new HttpEvaluationSubmissionRepository(backendClient);
 const dashboardRepository = new HttpDashboardRepository(backendClient);
+const evaluationComparisonRepository = new HttpEvaluationComparisonRepository(backendClient);
 
 export const useCases = {
   getCompanyByName: new GetCompanyByName(companyRepository),
@@ -158,4 +161,5 @@ export const useCases = {
   getCycleSubmissions: new GetCycleSubmissions(evaluationSubmissionRepository),
   deleteSubmission: new DeleteSubmission(evaluationSubmissionRepository),
   getDashboardStats: new GetDashboardStats(dashboardRepository),
+  getCycleComparisons: new GetCycleComparisons(evaluationComparisonRepository),
 };

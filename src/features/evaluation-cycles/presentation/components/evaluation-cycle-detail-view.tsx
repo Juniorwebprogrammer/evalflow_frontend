@@ -15,6 +15,7 @@ import {
   evaluationCycleStatusLabel,
 } from "@/features/evaluation-cycles/presentation/components/evaluation-cycle-status";
 import { evaluationTypeLabel } from "@/features/evaluation-cycles/presentation/components/evaluation-cycle-type-label";
+import { EvaluationType } from "@/features/evaluation-cycles/domain/evaluation-cycle";
 import { useTemplates } from "@/features/templates/presentation/hooks/use-templates";
 import { useCycleSubmissions } from "@/features/evaluation-submissions/presentation/hooks/use-cycle-submissions";
 import { useDeleteSubmission } from "@/features/evaluation-submissions/presentation/hooks/use-delete-submission";
@@ -32,6 +33,7 @@ import {
   DocIcon,
   EditIcon,
   PowerIcon,
+  ScaleIcon,
   SparkleIcon,
   TrashIcon,
   UsersIcon,
@@ -129,6 +131,15 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
                 <SparkleIcon className="h-4 w-4" />
                 Generar formularios
               </Button>
+              {cycle.tipoEvaluacion === EvaluationType.Evaluacion360 && (
+                <Link
+                  href={`/dashboard/ciclos-evaluacion/${cycleId}/comparacion`}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  <ScaleIcon className="h-4 w-4" />
+                  Comparar evaluaciones
+                </Link>
+              )}
               <Button
                 type="button"
                 variant="outline"
