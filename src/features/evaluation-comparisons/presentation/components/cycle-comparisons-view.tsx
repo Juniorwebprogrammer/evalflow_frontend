@@ -16,6 +16,13 @@ import {
   gapDirectionLabel,
 } from "@/features/evaluation-comparisons/presentation/components/alignment-level";
 import { useMyFeatures } from "@/features/auth/presentation/hooks/use-my-features";
+import { useCycleClarifications } from "@/features/clarifications/presentation/hooks/use-cycle-clarifications";
+import type { ClarificationResponse } from "@/features/clarifications/presentation/api/clarification-client";
+import { ClarificationsList } from "@/features/clarifications/presentation/components/clarifications-list";
+import {
+  RequestClarificationModal,
+  type ClarificationTarget,
+} from "@/features/clarifications/presentation/components/request-clarification-modal";
 import { QuestionType } from "@/features/questions/domain/question";
 import { isPrivilegedRole } from "@/shared/lib/roles";
 import { ApiError } from "@/shared/lib/api-error";
@@ -25,6 +32,7 @@ import {
   ArrowRightIcon,
   CheckCircleIcon,
   ClockIcon,
+  MailIcon,
   ScaleIcon,
   SearchIcon,
   UsersIcon,
@@ -37,6 +45,17 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
   const [search, setSearch] = useState("");
   const [onlyImbalances, setOnlyImbalances] = useState(false);
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const [clarificationTarget, setClarificationTarget] = useState<ClarificationTarget | null>(null);
+  const { data: clarifications } = useCycleClarifications(cycleId, { enabled: canManage });
+
+  const clarificationsByKey = useMemo(() => {
+    const grouped = new Map<string, ClarificationResponse[]>();
+    for (const clarification of clarifications ?? []) {
+      const key = comparisonKey(clarification.evaluatedUserId, clarification.templateId);
+      grouped.set(key, [...(grouped.get(key) ?? []), clarification]);
+    }
+    return grouped;
+  }, [clarifications]);
 
   const comparisons = useMemo(() => data?.comparisons ?? [], [data]);
   const comparable = comparisons.filter((c) => c.isComparable);
@@ -144,39 +163,65 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
 
           <div className="mt-4 space-y-3">
             {visible.map((comparison) => {
-              const key = `${comparison.evaluatedUserId}-${comparison.templateId}`;
+              const key = comparisonKey(comparison.evaluatedUserId, comparison.templateId);
               return (
                 <EmployeeComparisonCard
                   key={key}
                   comparison={comparison}
+                  clarifications={clarificationsByKey.get(key) ?? []}
                   expanded={expandedKey === key}
                   onToggle={() => setExpandedKey(expandedKey === key ? null : key)}
+                  onRequestClarification={(question) =>
+                    setClarificationTarget({
+                      evaluatedUserId: comparison.evaluatedUserId,
+                      evaluatedUserName: comparison.evaluatedUserName,
+                      managerName: comparison.managerName,
+                      templateId: comparison.templateId,
+                      templateTitle: comparison.templateTitle,
+                      question,
+                    })
+                  }
                 />
               );
             })}
           </div>
         </section>
       )}
+
+      {clarificationTarget && (
+        <RequestClarificationModal
+          cycleId={cycleId}
+          target={clarificationTarget}
+          onClose={() => setClarificationTarget(null)}
+        />
+      )}
     </div>
   );
 }
 
+type RequestClarification = (question: { questionId: number; texto: string } | null) => void;
+
 function EmployeeComparisonCard({
   comparison,
+  clarifications,
   expanded,
   onToggle,
+  onRequestClarification,
 }: {
   comparison: EmployeeComparisonResponse;
+  clarifications: ClarificationResponse[];
   expanded: boolean;
   onToggle: () => void;
+  onRequestClarification: RequestClarification;
 }) {
   const summary = comparison.summary;
+  const pendingClarifications = clarifications.filter((c) => c.estado !== "Respondida").length;
 
   return (
     <div className="rounded-xl border border-slate-100">
       <div className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="font-medium text-slate-800">{comparison.evaluatedUserName}</p>
+          <p className="font-medium text-slate-800">{comparison.evaluatedUserName} - {comparison.evaluatedRol}</p>
           <p className="text-xs text-slate-400">
             {comparison.templateTitle}
             {comparison.managerName ? ` · Superior: ${comparison.managerName}` : ""}
@@ -200,6 +245,22 @@ function EmployeeComparisonCard({
                   ? `${summary.desequilibrios} desequilibrio${summary.desequilibrios === 1 ? "" : "s"}`
                   : "Equilibrado"}
               </span>
+              {clarifications.length > 0 && (
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-600"
+                  title={`${pendingClarifications} pendiente${pendingClarifications === 1 ? "" : "s"} de respuesta`}
+                >
+                  <MailIcon className="h-3.5 w-3.5" />
+                  {clarifications.length} solicitud{clarifications.length === 1 ? "" : "es"}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => onRequestClarification(null)}
+                className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
+              >
+                Solicitar información
+              </button>
               <button
                 type="button"
                 onClick={onToggle}
@@ -259,7 +320,11 @@ function EmployeeComparisonCard({
       {expanded && (
         <div className="space-y-5 border-t border-slate-100 bg-slate-50/50 px-4 py-4">
           {comparison.topics.length > 0 && <TopicsTable topics={comparison.topics} />}
-          <QuestionsList questions={comparison.questions} />
+          <QuestionsList
+            questions={comparison.questions}
+            onRequestClarification={onRequestClarification}
+          />
+          {clarifications.length > 0 && <ClarificationsList clarifications={clarifications} />}
         </div>
       )}
     </div>
@@ -302,7 +367,13 @@ function TopicsTable({ topics }: { topics: TopicComparisonResponse[] }) {
   );
 }
 
-function QuestionsList({ questions }: { questions: QuestionComparisonResponse[] }) {
+function QuestionsList({
+  questions,
+  onRequestClarification,
+}: {
+  questions: QuestionComparisonResponse[];
+  onRequestClarification: RequestClarification;
+}) {
   return (
     <div>
       <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Por pregunta</h3>
@@ -317,7 +388,21 @@ function QuestionsList({ questions }: { questions: QuestionComparisonResponse[] 
                 <p className="font-medium text-slate-800">{question.texto}</p>
                 <p className="text-xs text-slate-400">{question.topic}</p>
               </div>
-              <LevelBadge level={question.level} />
+              <div className="flex shrink-0 items-center gap-2">
+                {hasDiscrepancy(question) && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onRequestClarification({ questionId: question.questionId, texto: question.texto })
+                    }
+                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[var(--brand)] transition hover:bg-[var(--brand)]/10"
+                  >
+                    <MailIcon className="h-3.5 w-3.5" />
+                    Pedir explicación
+                  </button>
+                )}
+                <LevelBadge level={question.level} />
+              </div>
             </div>
 
             {question.tipo === QuestionType.Seleccion ? (
@@ -394,6 +479,14 @@ function pendingLabel(comparison: EmployeeComparisonResponse): string {
   if (!comparison.selfCompleted && !comparison.managerCompleted) return "Faltan ambas evaluaciones";
   if (!comparison.selfCompleted) return "Falta la autoevaluación";
   return "Falta la evaluación del superior";
+}
+
+function comparisonKey(evaluatedUserId: number, templateId: number): string {
+  return `${evaluatedUserId}-${templateId}`;
+}
+
+function hasDiscrepancy(question: QuestionComparisonResponse): boolean {
+  return question.level === "Desequilibrio" || question.level === "Leve";
 }
 
 function averageOf(values: (number | null)[]): number | null {

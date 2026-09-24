@@ -53,6 +53,7 @@ interface ComparisonSummaryDto {
 interface EmployeeComparisonDto {
   evaluatedUserId?: number;
   evaluatedUserName?: string;
+  evaluatedRol?: string;
   templateId?: number;
   templateTitle?: string;
   managerUserId?: number | null;
@@ -119,6 +120,7 @@ function mapEmployeeComparison(dto: EmployeeComparisonDto): EmployeeComparison {
   return {
     evaluatedUserId: dto.evaluatedUserId ?? 0,
     evaluatedUserName: dto.evaluatedUserName ?? "",
+    evaluatedRol: dto.evaluatedRol ?? "",
     templateId: dto.templateId ?? 0,
     templateTitle: dto.templateTitle ?? "",
     managerUserId: dto.managerUserId ?? null,

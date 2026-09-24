@@ -17,6 +17,7 @@ import {
   StarIcon,
   LogoutIcon,
   ChevronLeftIcon,
+  MailIcon,
 } from "@/shared/ui/icons";
 import { logout } from "@/app/dashboard/actions";
 import {
@@ -32,6 +33,7 @@ const NAV = [
   { icon: StarIcon, label: "Listas favoritas", href: "/dashboard/listas-favoritas" },
   { icon: UsersIcon, label: "Empleados", href: "/dashboard/usuarios" },
   { icon: BarsIcon, label: "Mis evaluaciones", href: "/dashboard/mis-evaluaciones" },
+  { icon: MailIcon, label: "Solicitudes de información", href: "/dashboard/solicitudes-informacion" },
   { icon: SettingsIcon, label: "Configuración" },
 ];
 

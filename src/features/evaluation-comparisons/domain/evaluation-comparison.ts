@@ -45,6 +45,7 @@ export interface ComparisonSummary {
 export interface EmployeeComparison {
   evaluatedUserId: number;
   evaluatedUserName: string;
+  evaluatedRol: string;
   templateId: number;
   templateTitle: string;
   managerUserId: number | null;

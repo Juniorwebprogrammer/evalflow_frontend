@@ -15,6 +15,7 @@ import { HttpEvaluationCycleRepository } from "@/features/evaluation-cycles/infr
 import { HttpEvaluationSubmissionRepository } from "@/features/evaluation-submissions/infrastructure/http-evaluation-submission-repository";
 import { HttpDashboardRepository } from "@/features/dashboard/infrastructure/http-dashboard-repository";
 import { HttpEvaluationComparisonRepository } from "@/features/evaluation-comparisons/infrastructure/http-evaluation-comparison-repository";
+import { HttpClarificationRepository } from "@/features/clarifications/infrastructure/http-clarification-repository";
 import { GetCompanyByName } from "@/features/company/application/get-company-by-name";
 import { GetCompanyByIdentificationId } from "@/features/company/application/get-company-by-identification-id";
 import { UpdateCompany } from "@/features/company/application/update-company";
@@ -75,6 +76,10 @@ import { GetCycleSubmissions } from "@/features/evaluation-submissions/applicati
 import { DeleteSubmission } from "@/features/evaluation-submissions/application/delete-submission";
 import { GetDashboardStats } from "@/features/dashboard/application/get-dashboard-stats";
 import { GetCycleComparisons } from "@/features/evaluation-comparisons/application/get-cycle-comparisons";
+import { CreateClarification } from "@/features/clarifications/application/create-clarification";
+import { GetCycleClarifications } from "@/features/clarifications/application/get-cycle-clarifications";
+import { GetMyClarifications } from "@/features/clarifications/application/get-my-clarifications";
+import { RespondClarification } from "@/features/clarifications/application/respond-clarification";
 
 /**
  * Composition root — wires the concrete infrastructure into the use cases.
@@ -98,6 +103,7 @@ const evaluationCycleRepository = new HttpEvaluationCycleRepository(backendClien
 const evaluationSubmissionRepository = new HttpEvaluationSubmissionRepository(backendClient);
 const dashboardRepository = new HttpDashboardRepository(backendClient);
 const evaluationComparisonRepository = new HttpEvaluationComparisonRepository(backendClient);
+const clarificationRepository = new HttpClarificationRepository(backendClient);
 
 export const useCases = {
   getCompanyByName: new GetCompanyByName(companyRepository),
@@ -162,4 +168,8 @@ export const useCases = {
   deleteSubmission: new DeleteSubmission(evaluationSubmissionRepository),
   getDashboardStats: new GetDashboardStats(dashboardRepository),
   getCycleComparisons: new GetCycleComparisons(evaluationComparisonRepository),
+  createClarification: new CreateClarification(clarificationRepository),
+  getCycleClarifications: new GetCycleClarifications(clarificationRepository),
+  getMyClarifications: new GetMyClarifications(clarificationRepository),
+  respondClarification: new RespondClarification(clarificationRepository),
 };
