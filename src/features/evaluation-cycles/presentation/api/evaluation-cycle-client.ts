@@ -10,6 +10,7 @@ export interface EvaluationCycleResponse {
   fechaFin: string;
   templateIds: number[];
   tipoEvaluacion: EvaluationType;
+  fechaCompletado: string | null;
 }
 
 /** Lists every evaluation cycle of the caller's company via our own route handler. */

@@ -24,8 +24,10 @@ const BADGE_CLASS: Record<EvaluationCycleStatus, string> = {
  * backend doesn't provide.
  */
 export function evaluationCycleStatus(
-  cycle: Pick<EvaluationCycleResponse, "activo" | "fechaInicio" | "fechaFin">,
+  cycle: Pick<EvaluationCycleResponse, "activo" | "fechaInicio" | "fechaFin" | "fechaCompletado">,
 ): EvaluationCycleStatus {
+  if (cycle.fechaCompletado) return "completado";
+
   const now = new Date();
   const start = new Date(cycle.fechaInicio);
 

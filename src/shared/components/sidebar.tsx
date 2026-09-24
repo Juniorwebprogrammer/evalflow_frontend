@@ -18,6 +18,7 @@ import {
   LogoutIcon,
   ChevronLeftIcon,
   MailIcon,
+  TrendUpIcon,
 } from "@/shared/ui/icons";
 import { logout } from "@/app/dashboard/actions";
 import {
@@ -34,6 +35,7 @@ const NAV = [
   { icon: UsersIcon, label: "Empleados", href: "/dashboard/usuarios" },
   { icon: BarsIcon, label: "Mis evaluaciones", href: "/dashboard/mis-evaluaciones" },
   { icon: MailIcon, label: "Solicitudes de información", href: "/dashboard/solicitudes-informacion" },
+  { icon: TrendUpIcon, label: "Resultados de evaluación", href: "/dashboard/resultados-evaluacion" },
   { icon: SettingsIcon, label: "Configuración" },
 ];
 

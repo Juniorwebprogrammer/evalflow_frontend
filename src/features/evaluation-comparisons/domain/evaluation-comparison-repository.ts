@@ -1,4 +1,8 @@
-import type { CycleComparisons } from "@/features/evaluation-comparisons/domain/evaluation-comparison";
+import type {
+  AcceptDiscrepanciesInput,
+  AcceptedDiscrepancy,
+  CycleComparisons,
+} from "@/features/evaluation-comparisons/domain/evaluation-comparison";
 
 export interface EvaluationComparisonRepository {
   getByCycle(
@@ -6,4 +10,10 @@ export interface EvaluationComparisonRepository {
     evaluatedUserId: number | null,
     accessToken: string,
   ): Promise<CycleComparisons>;
+
+  acceptDiscrepancies(
+    cycleId: number,
+    input: AcceptDiscrepanciesInput,
+    accessToken: string,
+  ): Promise<AcceptedDiscrepancy[]>;
 }

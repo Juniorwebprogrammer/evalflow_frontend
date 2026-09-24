@@ -4,6 +4,8 @@ export type AlignmentLevel = "Alineado" | "Leve" | "Desequilibrio" | "NoComparab
 
 export type GapDirection = "Ninguna" | "Sobrevaloracion" | "Infravaloracion";
 
+export type AcceptedAnswerSource = "Superior" | "Autoevaluacion";
+
 export interface QuestionComparison {
   questionId: number;
   texto: string;
@@ -17,6 +19,7 @@ export interface QuestionComparison {
   gap: number | null;
   level: AlignmentLevel;
   direction: GapDirection;
+  acceptedSource: AcceptedAnswerSource | null;
 }
 
 export interface TopicComparison {
@@ -56,10 +59,27 @@ export interface EmployeeComparison {
   summary: ComparisonSummary | null;
   topics: TopicComparison[];
   questions: QuestionComparison[];
+  pendingImbalances: number;
 }
 
 export interface CycleComparisons {
   cycleId: number;
   cycleName: string;
+  isCompleted: boolean;
+  completedAt: string | null;
+  pendingImbalances: number;
   comparisons: EmployeeComparison[];
+}
+
+export interface AcceptDiscrepanciesInput {
+  evaluatedUserId: number;
+  templateId: number;
+  questionIds: number[];
+  source: AcceptedAnswerSource;
+}
+
+export interface AcceptedDiscrepancy {
+  questionId: number;
+  source: AcceptedAnswerSource;
+  acceptedAt: string;
 }

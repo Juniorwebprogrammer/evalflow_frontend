@@ -90,6 +90,7 @@ export function EvaluationCycleForm({
           // Preserve the cycle's known membership — editing its own fields
           // must not reset which templates it contains.
           templateIds: cycle.templateIds,
+          fechaCompletado: cycle.fechaCompletado,
         };
       } else {
         const result = await createEvaluationCycle(form);
@@ -102,6 +103,7 @@ export function EvaluationCycleForm({
           fechaFin: form.fechaFin,
           tipoEvaluacion: form.tipoEvaluacion,
           templateIds: [],
+          fechaCompletado: null,
         };
       }
       setSaved(true);

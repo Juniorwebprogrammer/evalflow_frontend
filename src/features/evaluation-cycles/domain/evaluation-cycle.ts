@@ -58,4 +58,5 @@ export interface EvaluationCycle {
   fechaFin: string;
   templateIds: number[];
   tipoEvaluacion: EvaluationType;
+  fechaCompletado: string | null;
 }

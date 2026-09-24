@@ -23,7 +23,16 @@ import {
   RequestClarificationModal,
   type ClarificationTarget,
 } from "@/features/clarifications/presentation/components/request-clarification-modal";
+import {
+  AcceptDiscrepancyModal,
+  type AcceptDiscrepancyTarget,
+} from "@/features/evaluation-comparisons/presentation/components/accept-discrepancy-modal";
+import { CompleteCycleModal } from "@/features/evaluation-results/presentation/components/complete-cycle-modal";
+import { DownloadReportLink } from "@/features/evaluation-results/presentation/components/download-report-link";
+import { useCycleEvaluationResults } from "@/features/evaluation-results/presentation/hooks/use-evaluation-results";
 import { QuestionType } from "@/features/questions/domain/question";
+import { Button } from "@/shared/ui/button";
+import { formatDate } from "@/shared/lib/format-date";
 import { isPrivilegedRole } from "@/shared/lib/roles";
 import { ApiError } from "@/shared/lib/api-error";
 import { Notice } from "@/shared/ui/notice";
@@ -47,6 +56,19 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const [clarificationTarget, setClarificationTarget] = useState<ClarificationTarget | null>(null);
   const { data: clarifications } = useCycleClarifications(cycleId, { enabled: canManage });
+  const [acceptTarget, setAcceptTarget] = useState<AcceptDiscrepancyTarget | null>(null);
+  const [showComplete, setShowComplete] = useState(false);
+  const isCompleted = data?.isCompleted ?? false;
+  const pendingImbalances = data?.pendingImbalances ?? 0;
+  const { data: results } = useCycleEvaluationResults(cycleId, { enabled: canManage && isCompleted });
+
+  const resultIdByKey = useMemo(() => {
+    const byKey = new Map<string, number>();
+    for (const result of results ?? []) {
+      byKey.set(comparisonKey(result.evaluatedUserId, result.templateId), result.id);
+    }
+    return byKey;
+  }, [results]);
 
   const clarificationsByKey = useMemo(() => {
     const grouped = new Map<string, ClarificationResponse[]>();
@@ -79,18 +101,51 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
       </Link>
 
       <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-        <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)]/10 text-[var(--brand)]">
-            <ScaleIcon className="h-5 w-5" />
-          </span>
-          <div>
-            <h1 className="text-xl font-bold text-slate-900">Comparación de evaluaciones</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              {data?.cycleName ? `${data.cycleName} · ` : ""}Autoevaluación frente a la evaluación
-              del superior, pregunta a pregunta.
-            </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)]/10 text-[var(--brand)]">
+              <ScaleIcon className="h-5 w-5" />
+            </span>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900">Comparación de evaluaciones</h1>
+              <p className="mt-1 text-sm text-slate-500">
+                {data?.cycleName ? `${data.cycleName} · ` : ""}Autoevaluación frente a la evaluación
+                del superior, pregunta a pregunta.
+              </p>
+            </div>
           </div>
+
+          {data && !isCompleted && (
+            <div className="flex flex-col items-end gap-1">
+              <Button
+                type="button"
+                onClick={() => setShowComplete(true)}
+                disabled={pendingImbalances > 0}
+                title={
+                  pendingImbalances > 0
+                    ? "Acepta todos los desequilibrios para poder completar la evaluación"
+                    : undefined
+                }
+              >
+                <CheckCircleIcon className="h-4 w-4" />
+                Completar evaluación
+              </Button>
+              {pendingImbalances > 0 && (
+                <p className="text-xs text-red-600">
+                  {pendingImbalances} desequilibrio{pendingImbalances === 1 ? "" : "s"} sin aceptar
+                </p>
+              )}
+            </div>
+          )}
         </div>
+
+        {isCompleted && (
+          <Notice tone="success" icon={<CheckCircleIcon className="h-5 w-5" />} className="mt-5">
+            Evaluación completada
+            {data?.completedAt ? ` el ${formatDate(data.completedAt)}` : ""}. Los resultados ya están
+            guardados y cada empleado puede descargar su informe.
+          </Notice>
+        )}
 
         {data && (
           <div className="mt-5 grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-4">
@@ -169,6 +224,18 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                   key={key}
                   comparison={comparison}
                   clarifications={clarificationsByKey.get(key) ?? []}
+                  isCompleted={isCompleted}
+                  resultId={resultIdByKey.get(key) ?? null}
+                  onAcceptDiscrepancies={(questions) =>
+                    setAcceptTarget({
+                      evaluatedUserId: comparison.evaluatedUserId,
+                      evaluatedUserName: comparison.evaluatedUserName,
+                      managerName: comparison.managerName,
+                      templateId: comparison.templateId,
+                      templateTitle: comparison.templateTitle,
+                      questions,
+                    })
+                  }
                   expanded={expandedKey === key}
                   onToggle={() => setExpandedKey(expandedKey === key ? null : key)}
                   onRequestClarification={(question) =>
@@ -195,26 +262,54 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
           onClose={() => setClarificationTarget(null)}
         />
       )}
+
+      {acceptTarget && (
+        <AcceptDiscrepancyModal
+          cycleId={cycleId}
+          target={acceptTarget}
+          onClose={() => setAcceptTarget(null)}
+        />
+      )}
+
+      {showComplete && data && (
+        <CompleteCycleModal
+          cycleId={cycleId}
+          cycleName={data.cycleName}
+          onClose={() => setShowComplete(false)}
+        />
+      )}
     </div>
   );
 }
 
 type RequestClarification = (question: { questionId: number; texto: string } | null) => void;
 
+type AcceptDiscrepancies = (questions: QuestionComparisonResponse[]) => void;
+
 function EmployeeComparisonCard({
   comparison,
   clarifications,
+  isCompleted,
+  resultId,
+  onAcceptDiscrepancies,
   expanded,
   onToggle,
   onRequestClarification,
 }: {
   comparison: EmployeeComparisonResponse;
   clarifications: ClarificationResponse[];
+  isCompleted: boolean;
+  resultId: number | null;
+  onAcceptDiscrepancies: AcceptDiscrepancies;
   expanded: boolean;
   onToggle: () => void;
   onRequestClarification: RequestClarification;
 }) {
   const summary = comparison.summary;
+  const pendingImbalances = comparison.questions.filter(
+    (q) => q.level === "Desequilibrio" && q.acceptedSource === null,
+  );
+  const imbalancesAccepted = summary?.hasImbalances === true && pendingImbalances.length === 0;
   const pendingClarifications = clarifications.filter((c) => c.estado !== "Respondida").length;
 
   return (
@@ -233,17 +328,19 @@ function EmployeeComparisonCard({
             <>
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                  summary.hasImbalances ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600"
+                  pendingImbalances.length > 0 ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600"
                 }`}
               >
-                {summary.hasImbalances ? (
+                {pendingImbalances.length > 0 ? (
                   <AlertTriangleIcon className="h-3.5 w-3.5" />
                 ) : (
                   <CheckCircleIcon className="h-3.5 w-3.5" />
                 )}
-                {summary.hasImbalances
-                  ? `${summary.desequilibrios} desequilibrio${summary.desequilibrios === 1 ? "" : "s"}`
-                  : "Equilibrado"}
+                {pendingImbalances.length > 0
+                  ? `${pendingImbalances.length} desequilibrio${pendingImbalances.length === 1 ? "" : "s"}`
+                  : imbalancesAccepted
+                    ? "Desequilibrios aceptados"
+                    : "Equilibrado"}
               </span>
               {clarifications.length > 0 && (
                 <span
@@ -254,13 +351,27 @@ function EmployeeComparisonCard({
                   {clarifications.length} solicitud{clarifications.length === 1 ? "" : "es"}
                 </span>
               )}
-              <button
-                type="button"
-                onClick={() => onRequestClarification(null)}
-                className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
-              >
-                Solicitar información
-              </button>
+              {!isCompleted && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onRequestClarification(null)}
+                    className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
+                  >
+                    Solicitar información
+                  </button>
+                  {pendingImbalances.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => onAcceptDiscrepancies(pendingImbalances)}
+                      className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                    >
+                      Aceptar desequilibrio{pendingImbalances.length === 1 ? "" : "s"}
+                    </button>
+                  )}
+                </>
+              )}
+              {resultId !== null && <DownloadReportLink resultId={resultId} />}
               <button
                 type="button"
                 onClick={onToggle}
@@ -322,7 +433,9 @@ function EmployeeComparisonCard({
           {comparison.topics.length > 0 && <TopicsTable topics={comparison.topics} />}
           <QuestionsList
             questions={comparison.questions}
+            isCompleted={isCompleted}
             onRequestClarification={onRequestClarification}
+            onAcceptDiscrepancies={onAcceptDiscrepancies}
           />
           {clarifications.length > 0 && <ClarificationsList clarifications={clarifications} />}
         </div>
@@ -369,10 +482,14 @@ function TopicsTable({ topics }: { topics: TopicComparisonResponse[] }) {
 
 function QuestionsList({
   questions,
+  isCompleted,
   onRequestClarification,
+  onAcceptDiscrepancies,
 }: {
   questions: QuestionComparisonResponse[];
+  isCompleted: boolean;
   onRequestClarification: RequestClarification;
+  onAcceptDiscrepancies: AcceptDiscrepancies;
 }) {
   return (
     <div>
@@ -388,18 +505,33 @@ function QuestionsList({
                 <p className="font-medium text-slate-800">{question.texto}</p>
                 <p className="text-xs text-slate-400">{question.topic}</p>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
-                {hasDiscrepancy(question) && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onRequestClarification({ questionId: question.questionId, texto: question.texto })
-                    }
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[var(--brand)] transition hover:bg-[var(--brand)]/10"
-                  >
-                    <MailIcon className="h-3.5 w-3.5" />
-                    Pedir explicación
-                  </button>
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
+                {hasDiscrepancy(question) && !isCompleted && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onRequestClarification({ questionId: question.questionId, texto: question.texto })
+                      }
+                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[var(--brand)] transition hover:bg-[var(--brand)]/10"
+                    >
+                      <MailIcon className="h-3.5 w-3.5" />
+                      Pedir explicación
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onAcceptDiscrepancies([question])}
+                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                    >
+                      <CheckCircleIcon className="h-3.5 w-3.5" />
+                      {question.acceptedSource ? "Cambiar" : "Aceptar"}
+                    </button>
+                  </>
+                )}
+                {question.acceptedSource && (
+                  <span className="inline-flex shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                    Aceptada: {question.acceptedSource === "Superior" ? "superior" : "autoevaluación"}
+                  </span>
                 )}
                 <LevelBadge level={question.level} />
               </div>

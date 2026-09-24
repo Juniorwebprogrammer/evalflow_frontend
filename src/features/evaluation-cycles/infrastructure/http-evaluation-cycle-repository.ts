@@ -51,6 +51,8 @@ interface EvaluationCycleDto {
   templates?: Array<{ Id?: number; id?: number }>;
   TipoEvaluacion?: EvaluationType;
   tipoEvaluacion?: EvaluationType;
+  FechaCompletado?: string | null;
+  fechaCompletado?: string | null;
 }
 
 function mapEvaluationCycle(dto: EvaluationCycleDto): EvaluationCycle {
@@ -70,6 +72,7 @@ function mapEvaluationCycle(dto: EvaluationCycleDto): EvaluationCycle {
     fechaFin: dto.FechaFin ?? dto.fechaFin ?? "",
     templateIds,
     tipoEvaluacion: dto.TipoEvaluacion ?? dto.tipoEvaluacion ?? EvaluationType.Evaluacion360,
+    fechaCompletado: dto.FechaCompletado ?? dto.fechaCompletado ?? null,
   };
 }
 

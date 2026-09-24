@@ -1,5 +1,8 @@
 import "server-only";
 import type {
+  AcceptDiscrepanciesInput,
+  AcceptedAnswerSource,
+  AcceptedDiscrepancy,
   AlignmentLevel,
   ComparisonSummary,
   CycleComparisons,
@@ -25,6 +28,7 @@ interface QuestionComparisonDto {
   gap?: number | null;
   level?: AlignmentLevel;
   direction?: GapDirection;
+  acceptedSource?: AcceptedAnswerSource | null;
 }
 
 interface TopicComparisonDto {
@@ -64,12 +68,22 @@ interface EmployeeComparisonDto {
   summary?: ComparisonSummaryDto | null;
   topics?: TopicComparisonDto[];
   questions?: QuestionComparisonDto[];
+  pendingImbalances?: number;
 }
 
 interface CycleComparisonsDto {
   cycleId?: number;
   cycleName?: string;
+  isCompleted?: boolean;
+  completedAt?: string | null;
+  pendingImbalances?: number;
   comparisons?: EmployeeComparisonDto[];
+}
+
+interface AcceptedDiscrepancyDto {
+  questionId?: number;
+  source?: AcceptedAnswerSource;
+  acceptedAt?: string;
 }
 
 function mapQuestion(dto: QuestionComparisonDto): QuestionComparison {
@@ -86,6 +100,7 @@ function mapQuestion(dto: QuestionComparisonDto): QuestionComparison {
     gap: dto.gap ?? null,
     level: dto.level ?? "NoComparable",
     direction: dto.direction ?? "Ninguna",
+    acceptedSource: dto.acceptedSource ?? null,
   };
 }
 
@@ -131,6 +146,7 @@ function mapEmployeeComparison(dto: EmployeeComparisonDto): EmployeeComparison {
     summary: dto.summary ? mapSummary(dto.summary) : null,
     topics: (dto.topics ?? []).map(mapTopic),
     questions: (dto.questions ?? []).map(mapQuestion).sort((a, b) => a.orden - b.orden),
+    pendingImbalances: dto.pendingImbalances ?? 0,
   };
 }
 
@@ -151,7 +167,26 @@ export class HttpEvaluationComparisonRepository implements EvaluationComparisonR
     return {
       cycleId: dto?.cycleId ?? cycleId,
       cycleName: dto?.cycleName ?? "",
+      isCompleted: dto?.isCompleted ?? false,
+      completedAt: dto?.completedAt ?? null,
+      pendingImbalances: dto?.pendingImbalances ?? 0,
       comparisons: (dto?.comparisons ?? []).map(mapEmployeeComparison),
     };
+  }
+
+  async acceptDiscrepancies(
+    cycleId: number,
+    input: AcceptDiscrepanciesInput,
+    accessToken: string,
+  ): Promise<AcceptedDiscrepancy[]> {
+    const dto = await this.client.request<AcceptedDiscrepancyDto[]>(
+      `/evaluation-cycles/${cycleId}/discrepancies/acceptances`,
+      { method: "PUT", body: input, accessToken },
+    );
+    return (dto ?? []).map((a) => ({
+      questionId: a.questionId ?? 0,
+      source: a.source ?? input.source,
+      acceptedAt: a.acceptedAt ?? "",
+    }));
   }
 }

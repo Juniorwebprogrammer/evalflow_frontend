@@ -11,6 +11,12 @@ interface RequestOptions {
   accessToken?: string;
 }
 
+export interface BackendFile {
+  body: ArrayBuffer;
+  contentType: string;
+  contentDisposition: string | null;
+}
+
 /**
  * Thin server-side HTTP client for the EvalFlow backend.
  * Injects the api key header on every request and normalizes errors into
@@ -58,6 +64,40 @@ export class BackendClient {
 
     const text = await response.text();
     return text ? (JSON.parse(text) as T) : null;
+  }
+
+  /** Downloads a binary payload (e.g. a PDF) instead of parsing JSON. */
+  async requestFile(
+    path: string,
+    options: Pick<RequestOptions, "accessToken"> = {},
+  ): Promise<BackendFile> {
+    const url = `${serverEnv.backendUrl}${path.startsWith("/") ? path : `/${path}`}`;
+    const headers: Record<string, string> = {
+      [serverEnv.apiKeyHeader]: serverEnv.apiKey,
+    };
+    if (options.accessToken) {
+      headers.Authorization = `Bearer ${options.accessToken}`;
+    }
+
+    let response: Response;
+    try {
+      response = await fetch(url, { method: "GET", headers, cache: "no-store" });
+    } catch {
+      throw new UpstreamError("No se pudo contactar con el servidor de EvalFlow");
+    }
+
+    if (response.status === 404) {
+      throw new NotFoundError(await this.safeErrorMessage(response));
+    }
+    if (!response.ok) {
+      throw new UpstreamError(await this.safeErrorMessage(response), response.status);
+    }
+
+    return {
+      body: await response.arrayBuffer(),
+      contentType: response.headers.get("content-type") ?? "application/octet-stream",
+      contentDisposition: response.headers.get("content-disposition"),
+    };
   }
 
   private async safeErrorMessage(response: Response): Promise<string> {

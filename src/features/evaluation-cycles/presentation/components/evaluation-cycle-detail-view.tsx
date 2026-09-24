@@ -20,6 +20,8 @@ import { useTemplates } from "@/features/templates/presentation/hooks/use-templa
 import { useCycleSubmissions } from "@/features/evaluation-submissions/presentation/hooks/use-cycle-submissions";
 import { useDeleteSubmission } from "@/features/evaluation-submissions/presentation/hooks/use-delete-submission";
 import { useMyFeatures } from "@/features/auth/presentation/hooks/use-my-features";
+import { CompleteCycleModal } from "@/features/evaluation-results/presentation/components/complete-cycle-modal";
+import { CycleResultsSection } from "@/features/evaluation-results/presentation/components/cycle-results-section";
 import { isPrivilegedRole } from "@/shared/lib/roles";
 import { Notice } from "@/shared/ui/notice";
 import { Button } from "@/shared/ui/button";
@@ -41,7 +43,7 @@ import {
 import { ApiError } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 
-type ModalAction = "edit" | "delete" | "manage-templates" | null;
+type ModalAction = "edit" | "delete" | "manage-templates" | "complete" | null;
 
 /**
  * Evaluation cycle detail. The backend has no `GET /evaluation-cycles/{id}`,
@@ -89,6 +91,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
   }
 
   const status = evaluationCycleStatus(cycle);
+  const isCompleted = cycle.fechaCompletado !== null;
   const cycleTemplates = (templates ?? []).filter((t) => cycle.templateIds.includes(t.id));
 
   return (
@@ -125,11 +128,25 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
             </div>
           </div>
 
-          {canManage && (
+          {canManage && isCompleted && cycle.tipoEvaluacion === EvaluationType.Evaluacion360 && (
+            <Link
+              href={`/dashboard/ciclos-evaluacion/${cycleId}/comparacion`}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              <ScaleIcon className="h-4 w-4" />
+              Ver comparación
+            </Link>
+          )}
+
+          {canManage && !isCompleted && (
             <div className="flex flex-wrap items-center gap-2">
               <Button type="button" loading={isGenerating} onClick={() => generate()}>
                 <SparkleIcon className="h-4 w-4" />
                 Generar formularios
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setModalAction("complete")}>
+                <CheckCircleIcon className="h-4 w-4" />
+                Completar evaluación
               </Button>
               {cycle.tipoEvaluacion === EvaluationType.Evaluacion360 && (
                 <Link
@@ -209,7 +226,15 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
             {toggleError}
           </Notice>
         )}
+        {isCompleted && (
+          <Notice tone="success" icon={<CheckCircleIcon className="h-5 w-5" />} className="mt-5">
+            Evaluación completada el {formatDate(cycle.fechaCompletado ?? "")}. El ciclo está cerrado y
+            los resultados de cada empleado ya están guardados.
+          </Notice>
+        )}
       </section>
+
+      {canManage && isCompleted && <CycleResultsSection cycleId={cycleId} />}
 
       <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
         <h2 className="text-sm font-bold text-slate-900">
@@ -238,6 +263,13 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
 
       {canManage && <CycleProgressSection cycleId={cycleId} enabled={canManage} />}
 
+      {modalAction === "complete" && (
+        <CompleteCycleModal
+          cycleId={cycleId}
+          cycleName={cycle.nombre}
+          onClose={() => setModalAction(null)}
+        />
+      )}
       {modalAction === "edit" && (
         <EvaluationCycleFormModal cycle={cycle} onClose={() => setModalAction(null)} />
       )}
