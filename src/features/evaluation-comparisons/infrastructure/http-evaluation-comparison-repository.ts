@@ -13,6 +13,7 @@ import type {
 } from "@/features/evaluation-comparisons/domain/evaluation-comparison";
 import type { EvaluationComparisonRepository } from "@/features/evaluation-comparisons/domain/evaluation-comparison-repository";
 import { QuestionType } from "@/features/questions/domain/question";
+import { EvaluationType } from "@/features/evaluation-cycles/domain/evaluation-cycle";
 import { BackendClient } from "@/core/http/backend-client";
 
 interface QuestionComparisonDto {
@@ -74,6 +75,7 @@ interface EmployeeComparisonDto {
 interface CycleComparisonsDto {
   cycleId?: number;
   cycleName?: string;
+  tipoEvaluacion?: EvaluationType;
   isCompleted?: boolean;
   completedAt?: string | null;
   pendingImbalances?: number;
@@ -167,6 +169,7 @@ export class HttpEvaluationComparisonRepository implements EvaluationComparisonR
     return {
       cycleId: dto?.cycleId ?? cycleId,
       cycleName: dto?.cycleName ?? "",
+      tipoEvaluacion: dto?.tipoEvaluacion ?? EvaluationType.Evaluacion360,
       isCompleted: dto?.isCompleted ?? false,
       completedAt: dto?.completedAt ?? null,
       pendingImbalances: dto?.pendingImbalances ?? 0,

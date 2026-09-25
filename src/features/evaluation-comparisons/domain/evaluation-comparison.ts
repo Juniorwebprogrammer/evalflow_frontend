@@ -1,4 +1,5 @@
 import type { QuestionType } from "@/features/questions/domain/question";
+import type { EvaluationType } from "@/features/evaluation-cycles/domain/evaluation-cycle";
 
 export type AlignmentLevel = "Alineado" | "Leve" | "Desequilibrio" | "NoComparable";
 
@@ -65,6 +66,11 @@ export interface EmployeeComparison {
 export interface CycleComparisons {
   cycleId: number;
   cycleName: string;
+  /**
+   * 360 cycles compare self vs manager answers; Auto and 180 cycles only have
+   * one evaluation per employee, returned as-is for review.
+   */
+  tipoEvaluacion: EvaluationType;
   isCompleted: boolean;
   completedAt: string | null;
   pendingImbalances: number;

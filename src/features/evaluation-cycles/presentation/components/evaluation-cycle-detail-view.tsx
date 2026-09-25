@@ -128,13 +128,13 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
             </div>
           </div>
 
-          {canManage && isCompleted && cycle.tipoEvaluacion === EvaluationType.Evaluacion360 && (
+          {canManage && isCompleted && (
             <Link
               href={`/dashboard/ciclos-evaluacion/${cycleId}/comparacion`}
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
             >
               <ScaleIcon className="h-4 w-4" />
-              Ver comparación
+              {cycle.tipoEvaluacion === EvaluationType.Evaluacion360 ? "Ver comparación" : "Ver resultados"}
             </Link>
           )}
 
@@ -148,15 +148,13 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
                 <CheckCircleIcon className="h-4 w-4" />
                 Completar evaluación
               </Button>
-              {cycle.tipoEvaluacion === EvaluationType.Evaluacion360 && (
-                <Link
-                  href={`/dashboard/ciclos-evaluacion/${cycleId}/comparacion`}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                >
-                  <ScaleIcon className="h-4 w-4" />
-                  Comparar evaluaciones
-                </Link>
-              )}
+              <Link
+                href={`/dashboard/ciclos-evaluacion/${cycleId}/comparacion`}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                <ScaleIcon className="h-4 w-4" />
+                {cycle.tipoEvaluacion === EvaluationType.Evaluacion360 ? "Comparar evaluaciones" : "Revisar resultados"}
+              </Link>
               <Button
                 type="button"
                 variant="outline"

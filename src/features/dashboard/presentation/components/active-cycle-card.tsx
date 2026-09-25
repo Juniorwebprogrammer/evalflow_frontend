@@ -72,15 +72,13 @@ export function ActiveCycleCard() {
       </div>
 
       <div className="mt-6 flex gap-3">
-        <button
-          type="button"
-          disabled
-          title="Próximamente"
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white opacity-50"
+        <Link
+          href={`/dashboard/ciclos-evaluacion/${cycle.id}/comparacion`}
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)]"
         >
           <BarsIcon style={{ width: 16, height: 16 }} />
-          Ver comparaciones
-        </button>
+          Ver resultados
+        </Link>
         <Link
           href={`/dashboard/ciclos-evaluacion/${cycle.id}`}
           className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"

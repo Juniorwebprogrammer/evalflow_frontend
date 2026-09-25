@@ -31,6 +31,7 @@ import { CompleteCycleModal } from "@/features/evaluation-results/presentation/c
 import { DownloadReportLink } from "@/features/evaluation-results/presentation/components/download-report-link";
 import { useCycleEvaluationResults } from "@/features/evaluation-results/presentation/hooks/use-evaluation-results";
 import { QuestionType } from "@/features/questions/domain/question";
+import { EvaluationType } from "@/features/evaluation-cycles/domain/evaluation-cycle";
 import { Button } from "@/shared/ui/button";
 import { formatDate } from "@/shared/lib/format-date";
 import { isPrivilegedRole } from "@/shared/lib/roles";
@@ -80,9 +81,12 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
   }, [clarifications]);
 
   const comparisons = useMemo(() => data?.comparisons ?? [], [data]);
-  const comparable = comparisons.filter((c) => c.isComparable);
+  const source = reviewSource(data?.tipoEvaluacion);
+  const isReview = source !== null;
+  const comparable = comparisons.filter((c) => isReady(c, source));
   const withImbalances = comparable.filter((c) => c.summary?.hasImbalances);
   const averageAlignment = averageOf(comparable.map((c) => c.summary?.alignmentPercentage ?? null));
+  const averageScore = averageOf(comparable.map((c) => (c.summary ? sourceAverage(c.summary, source) : null)));
 
   const visible = comparisons.filter((c) => {
     const matchesSearch = c.evaluatedUserName.toLowerCase().includes(search.trim().toLowerCase());
@@ -107,10 +111,14 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
               <ScaleIcon className="h-5 w-5" />
             </span>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Comparación de evaluaciones</h1>
+              <h1 className="text-xl font-bold text-slate-900">
+                {isReview ? "Revisión de resultados" : "Comparación de evaluaciones"}
+              </h1>
               <p className="mt-1 text-sm text-slate-500">
-                {data?.cycleName ? `${data.cycleName} · ` : ""}Autoevaluación frente a la evaluación
-                del superior, pregunta a pregunta.
+                {data?.cycleName ? `${data.cycleName} · ` : ""}
+                {isReview
+                  ? `Respuestas de la ${source === "self" ? "autoevaluación" : "evaluación del superior"} de cada empleado. Revísalas y completa la evaluación para generar los informes.`
+                  : "Autoevaluación frente a la evaluación del superior, pregunta a pregunta."}
               </p>
             </div>
           </div>
@@ -147,7 +155,16 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
           </Notice>
         )}
 
-        {data && (
+        {data && isReview && (
+          <div className="mt-5 grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-4">
+            <Stat label="Evaluaciones" value={String(comparisons.length)} />
+            <Stat label="Completadas" value={String(comparable.length)} tone="success" />
+            <Stat label="Pendientes" value={String(comparisons.length - comparable.length)} tone="danger" />
+            <Stat label="Puntuación media" value={formatScore(averageScore)} />
+          </div>
+        )}
+
+        {data && !isReview && (
           <div className="mt-5 grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-4">
             <Stat label="Evaluaciones" value={String(comparisons.length)} />
             <Stat label="Comparables" value={String(comparable.length)} />
@@ -163,15 +180,15 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
 
       {!isLoadingFeatures && !canManage && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          Solo Owner y RRHH pueden ver la comparación de evaluaciones.
+          Solo Owner y RRHH pueden ver los resultados de las evaluaciones.
         </Notice>
       )}
 
-      {isLoading && <p className="text-sm text-slate-500">Cargando comparación…</p>}
+      {isLoading && <p className="text-sm text-slate-500">Cargando resultados…</p>}
 
       {error && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          {error instanceof ApiError ? error.message : "No se pudo cargar la comparación."}
+          {error instanceof ApiError ? error.message : "No se pudieron cargar los resultados."}
         </Notice>
       )}
 
@@ -184,15 +201,17 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
             </h2>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <label className="flex items-center gap-2 text-sm text-slate-600">
-                <input
-                  type="checkbox"
-                  checked={onlyImbalances}
-                  onChange={(e) => setOnlyImbalances(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]/30"
-                />
-                Solo con desequilibrios
-              </label>
+              {!isReview && (
+                <label className="flex items-center gap-2 text-sm text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={onlyImbalances}
+                    onChange={(e) => setOnlyImbalances(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]/30"
+                  />
+                  Solo con desequilibrios
+                </label>
+              )}
               <div className="relative">
                 <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
@@ -223,6 +242,7 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                 <EmployeeComparisonCard
                   key={key}
                   comparison={comparison}
+                  source={source}
                   clarifications={clarificationsByKey.get(key) ?? []}
                   isCompleted={isCompleted}
                   resultId={resultIdByKey.get(key) ?? null}
@@ -286,8 +306,15 @@ type RequestClarification = (question: { questionId: number; texto: string } | n
 
 type AcceptDiscrepancies = (questions: QuestionComparisonResponse[]) => void;
 
+/**
+ * Which single evaluation a non-360 cycle is reviewed from: "self" for Auto,
+ * "manager" for 180. `null` means a 360 cycle (self vs manager comparison).
+ */
+type ReviewSource = "self" | "manager" | null;
+
 function EmployeeComparisonCard({
   comparison,
+  source,
   clarifications,
   isCompleted,
   resultId,
@@ -297,6 +324,7 @@ function EmployeeComparisonCard({
   onRequestClarification,
 }: {
   comparison: EmployeeComparisonResponse;
+  source: ReviewSource;
   clarifications: ClarificationResponse[];
   isCompleted: boolean;
   resultId: number | null;
@@ -311,6 +339,7 @@ function EmployeeComparisonCard({
   );
   const imbalancesAccepted = summary?.hasImbalances === true && pendingImbalances.length === 0;
   const pendingClarifications = clarifications.filter((c) => c.estado !== "Respondida").length;
+  const isReview = source !== null;
 
   return (
     <div className="rounded-xl border border-slate-100">
@@ -324,8 +353,14 @@ function EmployeeComparisonCard({
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-2">
-          {comparison.isComparable && summary ? (
+          {isReady(comparison, source) && summary ? (
             <>
+              {isReview ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
+                  <CheckCircleIcon className="h-3.5 w-3.5" />
+                  {isCompleted ? "Informe generado" : "Lista para informe"}
+                </span>
+              ) : (
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
                   pendingImbalances.length > 0 ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600"
@@ -342,6 +377,7 @@ function EmployeeComparisonCard({
                     ? "Desequilibrios aceptados"
                     : "Equilibrado"}
               </span>
+              )}
               {clarifications.length > 0 && (
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-600"
@@ -351,7 +387,7 @@ function EmployeeComparisonCard({
                   {clarifications.length} solicitud{clarifications.length === 1 ? "" : "es"}
                 </span>
               )}
-              {!isCompleted && (
+              {!isCompleted && !isReview && (
                 <>
                   <button
                     type="button"
@@ -383,13 +419,25 @@ function EmployeeComparisonCard({
           ) : (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-600">
               <ClockIcon className="h-3.5 w-3.5" />
-              {pendingLabel(comparison)}
+              {pendingLabel(comparison, source)}
             </span>
           )}
         </div>
       </div>
 
-      {comparison.isComparable && summary && (
+      {isReview && isReady(comparison, source) && summary && (
+        <div className="flex flex-wrap gap-x-5 gap-y-1 border-t border-slate-100 px-4 py-3 text-xs text-slate-500">
+          <span>
+            <strong className="text-slate-700">{summary.totalQuestions}</strong> preguntas
+          </span>
+          <span>
+            Media {sourceLabel(source).toLowerCase()}{" "}
+            <strong className="text-slate-700">{formatScore(sourceAverage(summary, source))}</strong>
+          </span>
+        </div>
+      )}
+
+      {!isReview && comparison.isComparable && summary && (
         <div className="border-t border-slate-100 px-4 py-3">
           <div className="flex items-center gap-3">
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
@@ -430,9 +478,10 @@ function EmployeeComparisonCard({
 
       {expanded && (
         <div className="space-y-5 border-t border-slate-100 bg-slate-50/50 px-4 py-4">
-          {comparison.topics.length > 0 && <TopicsTable topics={comparison.topics} />}
+          {comparison.topics.length > 0 && <TopicsTable topics={comparison.topics} source={source} />}
           <QuestionsList
             questions={comparison.questions}
+            source={source}
             isCompleted={isCompleted}
             onRequestClarification={onRequestClarification}
             onAcceptDiscrepancies={onAcceptDiscrepancies}
@@ -444,7 +493,37 @@ function EmployeeComparisonCard({
   );
 }
 
-function TopicsTable({ topics }: { topics: TopicComparisonResponse[] }) {
+function TopicsTable({ topics, source }: { topics: TopicComparisonResponse[]; source: ReviewSource }) {
+  if (source !== null) {
+    return (
+      <div>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Por tema</h3>
+        <div className="mt-2 overflow-x-auto rounded-lg border border-slate-100 bg-white">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-100 text-left text-xs text-slate-400">
+                <th className="px-3 py-2 font-medium">Tema</th>
+                <th className="px-3 py-2 font-medium">Preguntas</th>
+                <th className="px-3 py-2 font-medium">{sourceLabel(source)}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topics.map((topic) => (
+                <tr key={topic.topic} className="border-b border-slate-50 last:border-0">
+                  <td className="px-3 py-2 font-medium text-slate-700">{topic.topic}</td>
+                  <td className="px-3 py-2 text-slate-600">{topic.numericQuestions}</td>
+                  <td className="px-3 py-2 text-slate-600">
+                    {formatScore(source === "self" ? topic.averageSelf : topic.averageManager)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Por tema</h3>
@@ -482,11 +561,13 @@ function TopicsTable({ topics }: { topics: TopicComparisonResponse[] }) {
 
 function QuestionsList({
   questions,
+  source,
   isCompleted,
   onRequestClarification,
   onAcceptDiscrepancies,
 }: {
   questions: QuestionComparisonResponse[];
+  source: ReviewSource;
   isCompleted: boolean;
   onRequestClarification: RequestClarification;
   onAcceptDiscrepancies: AcceptDiscrepancies;
@@ -533,11 +614,27 @@ function QuestionsList({
                     Aceptada: {question.acceptedSource === "Superior" ? "superior" : "autoevaluación"}
                   </span>
                 )}
-                <LevelBadge level={question.level} />
+                {source === null && <LevelBadge level={question.level} />}
               </div>
             </div>
 
-            {question.tipo === QuestionType.Seleccion ? (
+            {source !== null ? (
+              question.tipo === QuestionType.Seleccion ? (
+                <div className="mt-2 text-xs">
+                  <AnswerOptions
+                    label={sourceLabel(source)}
+                    options={source === "self" ? question.selfOptions : question.managerOptions}
+                  />
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-slate-500">
+                  {sourceLabel(source)}{" "}
+                  <strong className="text-slate-700">
+                    {formatScore(source === "self" ? question.selfValue : question.managerValue)}
+                  </strong>
+                </p>
+              )
+            ) : question.tipo === QuestionType.Seleccion ? (
               <div className="mt-2 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
                 <AnswerOptions label="Autoevaluación" options={question.selfOptions} />
                 <AnswerOptions label="Superior" options={question.managerOptions} />
@@ -606,8 +703,34 @@ function Stat({
   );
 }
 
-function pendingLabel(comparison: EmployeeComparisonResponse): string {
+function reviewSource(tipo: EvaluationType | undefined): ReviewSource {
+  if (tipo === EvaluationType.Auto) return "self";
+  if (tipo === EvaluationType.Evaluacion180) return "manager";
+  return null;
+}
+
+function sourceLabel(source: ReviewSource): string {
+  return source === "self" ? "Autoevaluación" : "Superior";
+}
+
+function sourceAverage(
+  summary: NonNullable<EmployeeComparisonResponse["summary"]>,
+  source: ReviewSource,
+): number | null {
+  return source === "self" ? summary.averageSelf : summary.averageManager;
+}
+
+/** Whether the employee's answers can be shown: both evaluations in 360, the single one otherwise. */
+function isReady(comparison: EmployeeComparisonResponse, source: ReviewSource): boolean {
+  if (source === "self") return comparison.selfCompleted;
+  if (source === "manager") return comparison.managerCompleted;
+  return comparison.isComparable;
+}
+
+function pendingLabel(comparison: EmployeeComparisonResponse, source: ReviewSource): string {
+  if (source === "self") return "Falta la autoevaluación";
   if (comparison.managerUserId === null) return "Sin evaluación del superior";
+  if (source === "manager") return "Falta la evaluación del superior";
   if (!comparison.selfCompleted && !comparison.managerCompleted) return "Faltan ambas evaluaciones";
   if (!comparison.selfCompleted) return "Falta la autoevaluación";
   return "Falta la evaluación del superior";
