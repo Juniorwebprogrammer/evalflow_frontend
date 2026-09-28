@@ -6,9 +6,10 @@ import { listEvaluationCycles } from "@/features/evaluation-cycles/presentation/
 export const EVALUATION_CYCLES_QUERY_KEY = ["evaluation-cycles"] as const;
 
 /** Reads the caller's company evaluation cycles (backend `GET /evaluation-cycles`). */
-export function useEvaluationCycles() {
+export function useEvaluationCycles(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: EVALUATION_CYCLES_QUERY_KEY,
+    enabled: options?.enabled ?? true,
     queryFn: listEvaluationCycles,
   });
 }

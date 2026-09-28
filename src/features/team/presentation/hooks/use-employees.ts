@@ -6,9 +6,10 @@ import { listEmployees } from "@/features/team/presentation/api/team-client";
 export const EMPLOYEES_QUERY_KEY = ["employees"] as const;
 
 /** Reads the caller's company employee directory (backend `Team/list`). */
-export function useEmployees() {
+export function useEmployees(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: EMPLOYEES_QUERY_KEY,
+    enabled: options?.enabled ?? true,
     queryFn: listEmployees,
   });
 }
