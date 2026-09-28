@@ -144,7 +144,7 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
           disabled={signingOut}
           onClick={() => {
             setSigningOut(true);
-            logout();
+            logout(profile.nombreEmpresa);
           }}
           className="text-slate-400 transition hover:text-white disabled:opacity-50"
         >
