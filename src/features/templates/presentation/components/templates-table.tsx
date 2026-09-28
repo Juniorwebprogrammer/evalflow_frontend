@@ -20,7 +20,7 @@ import {
 } from "@/shared/ui/icons";
 import { ApiError } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
-import { useMyFeatures } from "@/features/auth/presentation/hooks/use-my-features";
+import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { isPrivilegedRole } from "@/shared/lib/roles";
 
 type Action =
@@ -36,8 +36,8 @@ type Action =
  */
 export function TemplatesTable() {
   const { data: templates, isLoading, error } = useTemplates();
-  const { data: myFeatures } = useMyFeatures();
-  const canManage = isPrivilegedRole(myFeatures?.role);
+  const { role } = useMyRole();
+  const canManage = isPrivilegedRole(role);
 
   const [search, setSearch] = useState("");
   const [openMenuFor, setOpenMenuFor] = useState<number | null>(null);

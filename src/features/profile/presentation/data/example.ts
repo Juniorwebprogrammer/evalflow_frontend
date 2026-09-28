@@ -20,9 +20,3 @@ export const DEPARTMENTS = [
 ];
 
 export const LANGUAGES = ["Español", "English", "Català", "Français"];
-
-export const ACTIVITY_STATS = [
-  { label: "Ciclos gestionados", value: 7 },
-  { label: "Análisis IA generados", value: 23 },
-  { label: "Empleados supervisados", value: 48 },
-];

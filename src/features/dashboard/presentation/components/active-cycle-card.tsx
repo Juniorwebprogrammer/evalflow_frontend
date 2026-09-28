@@ -4,14 +4,14 @@ import Link from "next/link";
 import { BarsIcon, EyeIcon } from "@/shared/ui/icons";
 import { useDashboardStats } from "@/features/dashboard/presentation/hooks/use-dashboard-stats";
 import { formatDate } from "@/shared/lib/format-date";
-import { useMyFeatures } from "@/features/auth/presentation/hooks/use-my-features";
+import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { isPrivilegedRole } from "@/shared/lib/roles";
 
 export function ActiveCycleCard() {
   const { data: stats, isLoading } = useDashboardStats();
-  const { data: myFeatures } = useMyFeatures();
+  const { role } = useMyRole();
   // Cycle screens are Owner/Rrhh-only — employees don't get links to them.
-  const canManage = isPrivilegedRole(myFeatures?.role);
+  const canManage = isPrivilegedRole(role);
 
   if (isLoading) {
     return <div className="h-64 animate-pulse rounded-2xl bg-slate-100 lg:col-span-2" />;

@@ -15,7 +15,7 @@ import {
   formatScore,
   gapDirectionLabel,
 } from "@/features/evaluation-comparisons/presentation/components/alignment-level";
-import { useMyFeatures } from "@/features/auth/presentation/hooks/use-my-features";
+import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { useCycleClarifications } from "@/features/clarifications/presentation/hooks/use-cycle-clarifications";
 import type { ClarificationResponse } from "@/features/clarifications/presentation/api/clarification-client";
 import { ClarificationsList } from "@/features/clarifications/presentation/components/clarifications-list";
@@ -49,8 +49,8 @@ import {
 } from "@/shared/ui/icons";
 
 export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
-  const { data: myFeatures, isLoading: isLoadingFeatures } = useMyFeatures();
-  const canManage = isPrivilegedRole(myFeatures?.role);
+  const { role, isLoading: isLoadingRole } = useMyRole();
+  const canManage = isPrivilegedRole(role);
   const { data, isLoading, error } = useCycleComparisons(cycleId, { enabled: canManage });
   const [search, setSearch] = useState("");
   const [onlyImbalances, setOnlyImbalances] = useState(false);
@@ -178,7 +178,7 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
         )}
       </section>
 
-      {!isLoadingFeatures && !canManage && (
+      {!isLoadingRole && !canManage && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
           Solo Owner y RRHH pueden ver los resultados de las evaluaciones.
         </Notice>

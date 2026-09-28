@@ -9,7 +9,6 @@ import {
   canOpenProfileTab,
   type ProfileTab,
 } from "@/features/profile/presentation/components/profile-nav";
-import { ActivityCard } from "@/features/profile/presentation/components/activity-card";
 import { PersonalDataPanel } from "@/features/profile/presentation/components/panels/personal-data-panel";
 import { SecurityPanel } from "@/features/profile/presentation/components/panels/security-panel";
 import { RolePanel } from "@/features/profile/presentation/components/panels/role-panel";
@@ -25,9 +24,8 @@ export function ProfileView({ initialProfile }: { initialProfile: Profile }) {
       <ProfileHeader profile={profile} />
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-        <div className="space-y-4">
+        <div>
           <ProfileNav rol={profile.rol} active={tab} onChange={setTab} />
-          <ActivityCard />
         </div>
 
         <div>

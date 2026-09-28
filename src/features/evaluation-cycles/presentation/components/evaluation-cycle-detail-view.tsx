@@ -19,7 +19,7 @@ import { EvaluationType } from "@/features/evaluation-cycles/domain/evaluation-c
 import { useTemplates } from "@/features/templates/presentation/hooks/use-templates";
 import { useCycleSubmissions } from "@/features/evaluation-submissions/presentation/hooks/use-cycle-submissions";
 import { useDeleteSubmission } from "@/features/evaluation-submissions/presentation/hooks/use-delete-submission";
-import { useMyFeatures } from "@/features/auth/presentation/hooks/use-my-features";
+import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { CompleteCycleModal } from "@/features/evaluation-results/presentation/components/complete-cycle-modal";
 import { CycleResultsSection } from "@/features/evaluation-results/presentation/components/cycle-results-section";
 import { isPrivilegedRole } from "@/shared/lib/roles";
@@ -59,8 +59,8 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
   const router = useRouter();
   const { data: cycles, isLoading, error } = useEvaluationCycles();
   const { data: templates } = useTemplates();
-  const { data: myFeatures } = useMyFeatures();
-  const canManage = isPrivilegedRole(myFeatures?.role);
+  const { role } = useMyRole();
+  const canManage = isPrivilegedRole(role);
   const { generate, isGenerating, error: generateError, message } =
     useGenerateSubmissions(cycleId);
   const { toggle: toggleActive, isToggling, error: toggleError } = useToggleCycleActive();

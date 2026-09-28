@@ -10,14 +10,14 @@ import { Button } from "@/shared/ui/button";
 import { AlertTriangleIcon, ArrowRightIcon, DocIcon, EditIcon, UsersIcon } from "@/shared/ui/icons";
 import { ApiError } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
-import { useMyFeatures } from "@/features/auth/presentation/hooks/use-my-features";
+import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { isPrivilegedRole } from "@/shared/lib/roles";
 
 /** Template detail (backend `GET /templates/{id}`) plus its questions manager. */
 export function TemplateDetailView({ templateId }: { templateId: number }) {
   const { data: template, isLoading, error } = useTemplate(templateId);
-  const { data: myFeatures } = useMyFeatures();
-  const canManage = isPrivilegedRole(myFeatures?.role);
+  const { role } = useMyRole();
+  const canManage = isPrivilegedRole(role);
   const [editing, setEditing] = useState(false);
 
   if (isLoading) {

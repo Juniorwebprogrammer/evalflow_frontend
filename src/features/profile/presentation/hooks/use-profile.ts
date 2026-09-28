@@ -68,3 +68,17 @@ export function useChangePassword() {
       changePassword(input),
   });
 }
+
+/**
+ * The signed-in user's role, from the `["profile"]` query (already seeded by
+ * the dashboard shell, so it's available instantly). Preferred over
+ * `Auth/my-features` for permission checks: that endpoint answers 404 — and
+ * an empty role — when a role has no features configured.
+ */
+export function useMyRole() {
+  const { data, isLoading } = useQuery({
+    queryKey: PROFILE_QUERY_KEY,
+    queryFn: fetchProfile,
+  });
+  return { role: data?.rol ?? "", isLoading };
+}
