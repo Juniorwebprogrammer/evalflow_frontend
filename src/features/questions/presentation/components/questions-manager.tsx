@@ -14,6 +14,7 @@ import { QuestionType } from "@/features/questions/domain/question";
 import { QuestionFormModal } from "@/features/questions/presentation/components/question-form-modal";
 import { DeleteQuestionModal } from "@/features/questions/presentation/components/delete-question-modal";
 import { Notice } from "@/shared/ui/notice";
+import { Spinner } from "@/shared/ui/spinner";
 import { Button } from "@/shared/ui/button";
 import {
   AlertTriangleIcon,
@@ -308,6 +309,12 @@ export function QuestionsManager({
         </div>
       )}
 
+      {reordering && (
+        <p className="flex items-center gap-2 text-sm text-slate-500">
+          <Spinner />
+          Guardando el nuevo orden…
+        </p>
+      )}
       {reorderError && <Notice tone="error">{reorderError}</Notice>}
 
       {action?.type === "create" && (

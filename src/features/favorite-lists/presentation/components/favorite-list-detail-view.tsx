@@ -16,6 +16,7 @@ import { useTemplates } from "@/features/templates/presentation/hooks/use-templa
 import { FavoriteListFormModal } from "@/features/favorite-lists/presentation/components/favorite-list-form-modal";
 import { DeleteFavoriteListModal } from "@/features/favorite-lists/presentation/components/delete-favorite-list-modal";
 import { Notice } from "@/shared/ui/notice";
+import { Spinner } from "@/shared/ui/spinner";
 import { Button } from "@/shared/ui/button";
 import {
   AlertTriangleIcon,
@@ -161,7 +162,7 @@ export function FavoriteListDetailView({ listId }: { listId: number }) {
                     className="h-4 w-4 shrink-0 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]/30 disabled:opacity-50"
                   />
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--brand)]/10 text-[var(--brand)]">
-                    <DocIcon className="h-4 w-4" />
+                    {pending ? <Spinner /> : <DocIcon className="h-4 w-4" />}
                   </span>
                   <Link
                     href={`/dashboard/plantillas/${template.id}`}

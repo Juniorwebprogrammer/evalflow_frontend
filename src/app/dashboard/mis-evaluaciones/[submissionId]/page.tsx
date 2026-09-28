@@ -1,30 +1,17 @@
-import { redirect } from "next/navigation";
-import { readSession } from "@/features/auth/infrastructure/session-cookies";
-import { useCases } from "@/core/di/container";
-import { AppShell } from "@/shared/components/app-shell";
+import { getCurrentProfile } from "@/app/dashboard/current-profile";
 import { SubmissionFormView } from "@/features/evaluation-submissions/presentation/components/submission-form-view";
 
 export default async function MiEvaluacionDetailPage({
   params,
 }: PageProps<"/dashboard/mis-evaluaciones/[submissionId]">) {
-  const session = await readSession();
-  if (!session) redirect("/login");
-
-  let profile;
-  try {
-    profile = await useCases.getMyProfile.execute(session.jwt);
-  } catch {
-    // Token invalid/expired or backend unreachable → back to login.
-    redirect("/login");
-  }
+  // Auth check (redirects to /login); memoized with the layout's call.
+  await getCurrentProfile();
 
   const { submissionId } = await params;
 
   return (
-    <AppShell initialProfile={profile}>
-      <div className="mx-auto max-w-6xl px-8 py-7">
-        <SubmissionFormView submissionId={Number(submissionId)} />
-      </div>
-    </AppShell>
+    <div className="mx-auto max-w-6xl px-8 py-7">
+      <SubmissionFormView submissionId={Number(submissionId)} />
+    </div>
   );
 }

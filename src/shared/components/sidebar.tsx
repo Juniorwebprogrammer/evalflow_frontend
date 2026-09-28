@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import type { Profile } from "@/features/profile/domain/profile";
 import { useProfile } from "@/features/profile/presentation/hooks/use-profile";
 import { initials as toInitials } from "@/features/team/presentation/lib/format";
 import { Logo } from "@/shared/ui/logo";
+import { Spinner } from "@/shared/ui/spinner";
 import {
   GridIcon,
   ClipboardIcon,
@@ -104,7 +105,8 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
           return (
             <Link key={label} href={href} title={label} className={className}>
               <Icon className="h-4.5 w-4.5 shrink-0" style={{ width: 18, height: 18 }} />
-              {!collapsed && label}
+              {!collapsed && <span className="flex-1">{label}</span>}
+              {!collapsed && <NavPendingIndicator />}
             </Link>
           );
         })}
@@ -146,9 +148,27 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
           }}
           className="text-slate-400 transition hover:text-white disabled:opacity-50"
         >
-          <LogoutIcon style={{ width: 18, height: 18 }} />
+          {signingOut ? (
+            <Spinner className="h-[18px] w-[18px]" />
+          ) : (
+            <LogoutIcon style={{ width: 18, height: 18 }} />
+          )}
         </button>
       </div>
     </aside>
+  );
+}
+
+/**
+ * Spinner shown on the clicked nav link until the navigation commits.
+ * Always rendered (opacity toggled) so it never shifts the label.
+ */
+function NavPendingIndicator() {
+  const { pending } = useLinkStatus();
+  return (
+    <Spinner
+      aria-hidden={!pending}
+      className={`h-3.5 w-3.5 transition-opacity ${pending ? "opacity-100" : "opacity-0"}`}
+    />
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { Select } from "@/shared/ui/select";
+import { Spinner } from "@/shared/ui/spinner";
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
 import {
@@ -216,7 +217,11 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
                     onClick={() => handleRemove(String(u.id))}
                     className="text-slate-400 transition hover:text-red-600 disabled:opacity-40"
                   >
-                    <XIcon className="h-4 w-4" />
+                    {busyEmployeeId === String(u.id) ? (
+                      <Spinner />
+                    ) : (
+                      <XIcon className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </li>

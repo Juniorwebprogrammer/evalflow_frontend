@@ -1,6 +1,7 @@
 "use client";
 
 import type { ButtonHTMLAttributes } from "react";
+import { Spinner } from "@/shared/ui/spinner";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "ghost" | "outline" | "danger";
@@ -27,12 +28,11 @@ export function Button({
   return (
     <button
       disabled={disabled || loading}
+      aria-busy={loading || undefined}
       className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${styles[variant]} ${className}`}
       {...props}
     >
-      {loading && (
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-      )}
+      {loading && <Spinner />}
       {children}
     </button>
   );

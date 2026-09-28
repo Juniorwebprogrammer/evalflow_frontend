@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Profile } from "@/features/profile/domain/profile";
 import { Field } from "@/shared/ui/field";
+import { Spinner } from "@/shared/ui/spinner";
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
 import { LockIcon, KeyIcon, CheckCircleIcon } from "@/shared/ui/icons";
@@ -163,10 +164,12 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
             }`}
           >
             <span
-              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+              className={`absolute top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[var(--brand)] shadow transition ${
                 profile.twoFactorEnabled ? "left-[22px]" : "left-0.5"
               }`}
-            />
+            >
+              {toggle2FAMutation.isPending && <Spinner className="h-3 w-3" />}
+            </span>
           </button>
         </div>
 

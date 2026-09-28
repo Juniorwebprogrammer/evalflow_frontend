@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Modal } from "@/shared/ui/modal";
+import { Spinner } from "@/shared/ui/spinner";
 import { Notice } from "@/shared/ui/notice";
 import { AlertTriangleIcon, ClipboardIcon, DocIcon } from "@/shared/ui/icons";
 import {
@@ -102,7 +103,11 @@ export function ManageCycleTemplatesModal({
                   onChange={() => handleToggle(template.id)}
                   className="h-4 w-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]/30 disabled:opacity-50"
                 />
-                <DocIcon className="h-4 w-4 shrink-0 text-slate-400" />
+                {pending ? (
+                  <Spinner className="h-4 w-4 text-[var(--brand)]" />
+                ) : (
+                  <DocIcon className="h-4 w-4 shrink-0 text-slate-400" />
+                )}
                 <span className="flex-1 truncate">{template.titulo}</span>
               </label>
             );

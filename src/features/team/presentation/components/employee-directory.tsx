@@ -18,6 +18,7 @@ import { TeamModal } from "@/features/team/presentation/components/team-modal";
 import { exportEmployeesToCsv } from "@/features/team/presentation/lib/export-employees";
 import { initials } from "@/features/team/presentation/lib/format";
 import { Button } from "@/shared/ui/button";
+import { Spinner } from "@/shared/ui/spinner";
 import { Notice } from "@/shared/ui/notice";
 import { DropdownMenu } from "@/shared/ui/dropdown-menu";
 import {
@@ -225,15 +226,22 @@ export function EmployeeDirectory() {
                   </td>
 
                   <td className="whitespace-nowrap px-5 py-3">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        employee.activo
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-slate-100 text-slate-500"
-                      }`}
-                    >
-                      {employee.activo ? "Activo" : "Inactivo"}
-                    </span>
+                    {togglingId === employee.id ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
+                        <Spinner className="h-3 w-3" />
+                        Actualizando…
+                      </span>
+                    ) : (
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                          employee.activo
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        {employee.activo ? "Activo" : "Inactivo"}
+                      </span>
+                    )}
                   </td>
 
                   <td className="px-5 py-3 text-right">

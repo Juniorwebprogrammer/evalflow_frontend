@@ -1,36 +1,24 @@
 import { redirect } from "next/navigation";
-import { readSession } from "@/features/auth/infrastructure/session-cookies";
-import { useCases } from "@/core/di/container";
-import { AppShell } from "@/shared/components/app-shell";
+import { getCurrentProfile } from "@/app/dashboard/current-profile";
 import { canAccessScreen } from "@/shared/lib/roles";
 import { MyClarificationsView } from "@/features/clarifications/presentation/components/my-clarifications-view";
 
 export default async function SolicitudesInformacionPage() {
-  const session = await readSession();
-  if (!session) redirect("/login");
-
-  let profile;
-  try {
-    profile = await useCases.getMyProfile.execute(session.jwt);
-  } catch {
-    redirect("/login");
-  }
+  const profile = await getCurrentProfile();
 
   if (!canAccessScreen(profile.rol, "/dashboard/solicitudes-informacion")) redirect("/dashboard");
 
   return (
-    <AppShell initialProfile={profile}>
-      <div className="mx-auto max-w-5xl px-8 py-7">
-        <header>
-          <h1 className="text-2xl font-bold text-slate-900">Solicitudes de información</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            RRHH te pide que expliques algunas respuestas de tus evaluaciones
-          </p>
-        </header>
-        <div className="mt-6">
-          <MyClarificationsView />
-        </div>
+    <div className="mx-auto max-w-5xl px-8 py-7">
+      <header>
+        <h1 className="text-2xl font-bold text-slate-900">Solicitudes de información</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          RRHH te pide que expliques algunas respuestas de tus evaluaciones
+        </p>
+      </header>
+      <div className="mt-6">
+        <MyClarificationsView />
       </div>
-    </AppShell>
+    </div>
   );
 }
