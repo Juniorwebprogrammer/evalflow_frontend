@@ -61,11 +61,7 @@ export function LoginView({ companyName }: { companyName: string | null }) {
       <BrandPanel companyName={company?.nombre} logoUrl={companyInfo?.logoUrl} />
 
       <div className="flex items-center justify-center bg-slate-50 px-6 py-12">
-        <LoginForm
-          company={company}
-          resolving={resolving}
-          onRequestOnboarding={() => setShowOnboarding(true)}
-        />
+        <LoginForm company={company} resolving={resolving} />
       </div>
 
       {showOnboarding && <OnboardingPanel />}

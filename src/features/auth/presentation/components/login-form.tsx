@@ -22,16 +22,13 @@ import { MailIcon, LockIcon } from "@/shared/ui/icons";
 export function LoginForm({
   company,
   resolving,
-  onRequestOnboarding,
 }: {
   company: Company | null;
   resolving: boolean;
-  onRequestOnboarding: () => void;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [awaitingVerification, setAwaitingVerification] = useState(false);
@@ -132,16 +129,7 @@ export function LoginForm({
           required
         />
 
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 text-sm text-slate-600">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 accent-[var(--brand)]"
-            />
-            Recordarme
-          </label>
+        <div className="flex justify-end">
           <button
             type="button"
             onClick={() => setShowForgotPassword(true)}
@@ -157,17 +145,6 @@ export function LoginForm({
 
         {notice && <Notice tone="warning">{notice}</Notice>}
       </form>
-
-      <div className="mt-8 border-t border-slate-200 pt-6 text-center text-sm text-slate-500">
-        ¿Sin cuenta?{" "}
-        <button
-          type="button"
-          onClick={onRequestOnboarding}
-          className="font-semibold text-[var(--brand)] hover:underline"
-        >
-          Solicitar demo gratuita
-        </button>
-      </div>
     </div>
   );
 }
