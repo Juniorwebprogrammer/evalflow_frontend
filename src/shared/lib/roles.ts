@@ -19,12 +19,14 @@ export function isOwnerRole(role: string | null | undefined): boolean {
 
 /**
  * Screens every authenticated user can open (Employee, Superior, …):
- * dashboard, their own evaluations, the report downloads and their profile.
+ * dashboard, their own evaluations, the information requests RRHH sends
+ * them, the report downloads and their profile.
  * Owner/Rrhh can open every dashboard screen. Nested routes inherit the
  * access of their base path (`/dashboard/mis-evaluaciones/42`).
  */
 const EMPLOYEE_SCREENS = [
   "/dashboard/mis-evaluaciones",
+  "/dashboard/solicitudes-informacion",
   "/dashboard/resultados-evaluacion",
   "/dashboard/perfil",
 ];
