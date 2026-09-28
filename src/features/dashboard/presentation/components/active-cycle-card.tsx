@@ -4,9 +4,14 @@ import Link from "next/link";
 import { BarsIcon, EyeIcon } from "@/shared/ui/icons";
 import { useDashboardStats } from "@/features/dashboard/presentation/hooks/use-dashboard-stats";
 import { formatDate } from "@/shared/lib/format-date";
+import { useMyFeatures } from "@/features/auth/presentation/hooks/use-my-features";
+import { isPrivilegedRole } from "@/shared/lib/roles";
 
 export function ActiveCycleCard() {
   const { data: stats, isLoading } = useDashboardStats();
+  const { data: myFeatures } = useMyFeatures();
+  // Cycle screens are Owner/Rrhh-only — employees don't get links to them.
+  const canManage = isPrivilegedRole(myFeatures?.role);
 
   if (isLoading) {
     return <div className="h-64 animate-pulse rounded-2xl bg-slate-100 lg:col-span-2" />;
@@ -21,12 +26,14 @@ export function ActiveCycleCard() {
         <p className="text-sm text-slate-500">
           Crea o activa un ciclo de evaluación para ver su progreso aquí.
         </p>
-        <Link
-          href="/dashboard/ciclos-evaluacion"
-          className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)]"
-        >
-          Ver ciclos de evaluación
-        </Link>
+        {canManage && (
+          <Link
+            href="/dashboard/ciclos-evaluacion"
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)]"
+          >
+            Ver ciclos de evaluación
+          </Link>
+        )}
       </section>
     );
   }
@@ -71,22 +78,24 @@ export function ActiveCycleCard() {
         <Metric value={String(cycle.pendingCount)} label="Pendientes" />
       </div>
 
-      <div className="mt-6 flex gap-3">
-        <Link
-          href={`/dashboard/ciclos-evaluacion/${cycle.id}/comparacion`}
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)]"
-        >
-          <BarsIcon style={{ width: 16, height: 16 }} />
-          Ver resultados
-        </Link>
-        <Link
-          href={`/dashboard/ciclos-evaluacion/${cycle.id}`}
-          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-        >
-          <EyeIcon style={{ width: 16, height: 16 }} />
-          Gestionar ciclo
-        </Link>
-      </div>
+      {canManage && (
+        <div className="mt-6 flex gap-3">
+          <Link
+            href={`/dashboard/ciclos-evaluacion/${cycle.id}/comparacion`}
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)]"
+          >
+            <BarsIcon style={{ width: 16, height: 16 }} />
+            Ver resultados
+          </Link>
+          <Link
+            href={`/dashboard/ciclos-evaluacion/${cycle.id}`}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            <EyeIcon style={{ width: 16, height: 16 }} />
+            Gestionar ciclo
+          </Link>
+        </div>
+      )}
     </section>
   );
 }

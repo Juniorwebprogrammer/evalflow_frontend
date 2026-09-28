@@ -6,6 +6,7 @@ import { useProfile } from "@/features/profile/presentation/hooks/use-profile";
 import { ProfileHeader } from "@/features/profile/presentation/components/profile-header";
 import {
   ProfileNav,
+  canOpenProfileTab,
   type ProfileTab,
 } from "@/features/profile/presentation/components/profile-nav";
 import { ActivityCard } from "@/features/profile/presentation/components/activity-card";
@@ -25,7 +26,7 @@ export function ProfileView({ initialProfile }: { initialProfile: Profile }) {
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
         <div className="space-y-4">
-          <ProfileNav active={tab} onChange={setTab} />
+          <ProfileNav rol={profile.rol} active={tab} onChange={setTab} />
           <ActivityCard />
         </div>
 
@@ -33,7 +34,7 @@ export function ProfileView({ initialProfile }: { initialProfile: Profile }) {
           {tab === "personal" && <PersonalDataPanel profile={profile} />}
           {tab === "security" && <SecurityPanel profile={profile} />}
           {tab === "role" && <RolePanel rol={profile.rol} />}
-          {tab === "organization" && (
+          {tab === "organization" && canOpenProfileTab(profile.rol, tab) && (
             <OrganizationPanel
               identificationId={profile.identificationId}
               rol={profile.rol}

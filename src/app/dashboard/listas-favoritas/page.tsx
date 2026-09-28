@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { readSession } from "@/features/auth/infrastructure/session-cookies";
 import { useCases } from "@/core/di/container";
 import { AppShell } from "@/shared/components/app-shell";
+import { canAccessScreen } from "@/shared/lib/roles";
 import { FavoriteListsGrid } from "@/features/favorite-lists/presentation/components/favorite-lists-grid";
 
 export default async function ListasFavoritasPage() {
@@ -15,6 +16,8 @@ export default async function ListasFavoritasPage() {
     // Token invalid/expired or backend unreachable → back to login.
     redirect("/login");
   }
+
+  if (!canAccessScreen(profile.rol, "/dashboard/listas-favoritas")) redirect("/dashboard");
 
   return (
     <AppShell initialProfile={profile}>

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { readSession } from "@/features/auth/infrastructure/session-cookies";
 import { useCases } from "@/core/di/container";
 import { AppShell } from "@/shared/components/app-shell";
+import { canAccessScreen } from "@/shared/lib/roles";
 import { CycleComparisonsView } from "@/features/evaluation-comparisons/presentation/components/cycle-comparisons-view";
 
 export default async function CicloEvaluacionComparacionPage({
@@ -16,6 +17,8 @@ export default async function CicloEvaluacionComparacionPage({
   } catch {
     redirect("/login");
   }
+
+  if (!canAccessScreen(profile.rol, "/dashboard/ciclos-evaluacion")) redirect("/dashboard");
 
   const { id } = await params;
 

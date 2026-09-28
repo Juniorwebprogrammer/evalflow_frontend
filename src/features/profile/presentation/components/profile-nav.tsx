@@ -2,6 +2,7 @@
 
 import type { ComponentType, SVGProps } from "react";
 import { UserIcon, LockIcon, KeyIcon, BuildingIcon, CrownIcon } from "@/shared/ui/icons";
+import { isOwnerRole } from "@/shared/lib/roles";
 
 export type ProfileTab = "personal" | "security" | "role" | "organization";
 
@@ -17,16 +18,24 @@ const TABS: Array<{
   { id: "organization", label: "Organización", icon: BuildingIcon, ownerOnly: true },
 ];
 
+/** Tabs `rol` may open — the "Organización" (company control) tab is Owner-only. */
+export function canOpenProfileTab(rol: string, tab: ProfileTab): boolean {
+  const ownerOnly = TABS.find(({ id }) => id === tab)?.ownerOnly;
+  return !ownerOnly || isOwnerRole(rol);
+}
+
 export function ProfileNav({
+  rol,
   active,
   onChange,
 }: {
+  rol: string;
   active: ProfileTab;
   onChange: (tab: ProfileTab) => void;
 }) {
   return (
     <nav className="space-y-1 rounded-2xl border border-slate-100 bg-white p-2 shadow-sm">
-      {TABS.map(({ id, label, icon: Icon, ownerOnly }) => {
+      {TABS.filter(({ id }) => canOpenProfileTab(rol, id)).map(({ id, label, icon: Icon, ownerOnly }) => {
         const isActive = active === id;
         return (
           <button

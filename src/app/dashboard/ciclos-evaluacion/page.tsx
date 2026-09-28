@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { readSession } from "@/features/auth/infrastructure/session-cookies";
 import { useCases } from "@/core/di/container";
 import { AppShell } from "@/shared/components/app-shell";
+import { canAccessScreen } from "@/shared/lib/roles";
 import { EvaluationCyclesList } from "@/features/evaluation-cycles/presentation/components/evaluation-cycles-list";
 
 export default async function CiclosEvaluacionPage() {
@@ -15,6 +16,8 @@ export default async function CiclosEvaluacionPage() {
     // Token invalid/expired or backend unreachable → back to login.
     redirect("/login");
   }
+
+  if (!canAccessScreen(profile.rol, "/dashboard/ciclos-evaluacion")) redirect("/dashboard");
 
   return (
     <AppShell initialProfile={profile}>

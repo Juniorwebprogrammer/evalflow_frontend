@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { readSession } from "@/features/auth/infrastructure/session-cookies";
 import { useCases } from "@/core/di/container";
 import { AppShell } from "@/shared/components/app-shell";
+import { canAccessScreen } from "@/shared/lib/roles";
 import { MyClarificationsView } from "@/features/clarifications/presentation/components/my-clarifications-view";
 
 export default async function SolicitudesInformacionPage() {
@@ -14,6 +15,8 @@ export default async function SolicitudesInformacionPage() {
   } catch {
     redirect("/login");
   }
+
+  if (!canAccessScreen(profile.rol, "/dashboard/solicitudes-informacion")) redirect("/dashboard");
 
   return (
     <AppShell initialProfile={profile}>

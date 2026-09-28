@@ -26,6 +26,7 @@ import {
   setSidebarCollapsed,
   subscribeSidebarCollapsed,
 } from "@/shared/lib/sidebar-preference";
+import { canAccessScreen } from "@/shared/lib/roles";
 
 const NAV = [
   { icon: GridIcon, label: "Dashboard", href: "/dashboard" },
@@ -36,7 +37,7 @@ const NAV = [
   { icon: BarsIcon, label: "Mis evaluaciones", href: "/dashboard/mis-evaluaciones" },
   { icon: MailIcon, label: "Solicitudes de información", href: "/dashboard/solicitudes-informacion" },
   { icon: TrendUpIcon, label: "Resultados de evaluación", href: "/dashboard/resultados-evaluacion" },
-  { icon: SettingsIcon, label: "Configuración" },
+  { icon: SettingsIcon, label: "Configuración", href: "/dashboard/perfil" },
 ];
 
 export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
@@ -57,6 +58,7 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
 
   const userName = `${profile.nombre} ${profile.apellidos}`.trim() || "Usuario";
   const initials = toInitials(profile.nombre, profile.apellidos);
+  const nav = NAV.filter(({ href }) => canAccessScreen(profile.rol, href));
 
   return (
     <aside
@@ -90,8 +92,8 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {NAV.map(({ icon: Icon, label, href }) => {
-          const active = href ? pathname === href : false;
+        {nav.map(({ icon: Icon, label, href }) => {
+          const active = pathname === href;
           const className = `flex w-full items-center rounded-lg text-sm font-medium transition ${
             collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"
           } ${
@@ -99,20 +101,11 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
               ? "bg-[var(--brand)] text-white shadow-sm"
               : "text-slate-300 hover:bg-white/5"
           }`;
-          const content = (
-            <>
+          return (
+            <Link key={label} href={href} title={label} className={className}>
               <Icon className="h-4.5 w-4.5 shrink-0" style={{ width: 18, height: 18 }} />
               {!collapsed && label}
-            </>
-          );
-          return href ? (
-            <Link key={label} href={href} title={label} className={className}>
-              {content}
             </Link>
-          ) : (
-            <button key={label} title={label} className={className}>
-              {content}
-            </button>
           );
         })}
       </nav>
