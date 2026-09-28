@@ -112,7 +112,7 @@ export function OnboardingPanel() {
       {/* Non-dismissable backdrop — no click-to-close. */}
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
 
-      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className="relative z-10 max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl">
         {(step === "account" || step === "company") && (
           <div className="flex items-center gap-2 border-b border-slate-100 px-6 py-4">
             <StepDot active label="1. Cuenta" done={step === "company"} />
@@ -121,7 +121,7 @@ export function OnboardingPanel() {
           </div>
         )}
 
-        <div className="p-7">
+        <div className="p-5 sm:p-7">
           {step === "welcome" && (
             <WelcomeStep
               onStart={() => goTo("account")}

@@ -198,7 +198,7 @@ export function QuestionsManager({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-base font-bold text-slate-900">Preguntas</h2>
         {canManage && (
           <Button type="button" onClick={() => setAction({ type: "create" })}>

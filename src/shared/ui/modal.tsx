@@ -41,7 +41,7 @@ export function Modal({
       />
 
       <div
-        className={`relative z-10 w-full ${SIZE_CLASS[size]} max-h-[85vh] overflow-y-auto rounded-2xl bg-white p-7 shadow-2xl`}
+        className={`relative z-10 w-full ${SIZE_CLASS[size]} max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:max-h-[85vh] sm:p-7`}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">

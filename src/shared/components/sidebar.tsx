@@ -1,69 +1,36 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
-import Link, { useLinkStatus } from "next/link";
+import { useSyncExternalStore } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Profile } from "@/features/profile/domain/profile";
-import { useProfile } from "@/features/profile/presentation/hooks/use-profile";
-import { initials as toInitials } from "@/features/team/presentation/lib/format";
 import { Logo } from "@/shared/ui/logo";
 import { Spinner } from "@/shared/ui/spinner";
-import {
-  GridIcon,
-  ClipboardIcon,
-  UsersIcon,
-  BarsIcon,
-  SettingsIcon,
-  DocIcon,
-  StarIcon,
-  LogoutIcon,
-  ChevronLeftIcon,
-  MailIcon,
-  TrendUpIcon,
-} from "@/shared/ui/icons";
-import { logout } from "@/app/dashboard/actions";
+import { LogoutIcon, ChevronLeftIcon } from "@/shared/ui/icons";
+import { NavPendingIndicator, useShellNav } from "@/shared/components/nav";
 import {
   isSidebarCollapsed,
   setSidebarCollapsed,
   subscribeSidebarCollapsed,
 } from "@/shared/lib/sidebar-preference";
-import { canAccessScreen } from "@/shared/lib/roles";
 
-const NAV = [
-  { icon: GridIcon, label: "Dashboard", href: "/dashboard" },
-  { icon: DocIcon, label: "Plantillas", href: "/dashboard/plantillas" },
-  { icon: ClipboardIcon, label: "Ciclos de evaluación", href: "/dashboard/ciclos-evaluacion" },
-  { icon: StarIcon, label: "Listas favoritas", href: "/dashboard/listas-favoritas" },
-  { icon: UsersIcon, label: "Empleados", href: "/dashboard/usuarios" },
-  { icon: BarsIcon, label: "Mis evaluaciones", href: "/dashboard/mis-evaluaciones" },
-  { icon: MailIcon, label: "Solicitudes de información", href: "/dashboard/solicitudes-informacion" },
-  { icon: TrendUpIcon, label: "Resultados de evaluación", href: "/dashboard/resultados-evaluacion" },
-  { icon: SettingsIcon, label: "Configuración", href: "/dashboard/perfil" },
-];
-
+/** Desktop (lg+) side navigation. Hidden on smaller screens — see `MobileNav`. */
 export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
   const pathname = usePathname();
-  const [signingOut, setSigningOut] = useState(false);
   const collapsed = useSyncExternalStore(
     subscribeSidebarCollapsed,
     isSidebarCollapsed,
     () => false,
   );
-  // Shares the `["profile"]` query cache with the Perfil page — editing your
-  // name there updates this instantly, everywhere the shell is mounted.
-  const { data: profile } = useProfile(initialProfile);
+  const { userName, initials, nav, signingOut, signOut } = useShellNav(initialProfile);
 
   function toggleCollapsed() {
     setSidebarCollapsed(!collapsed);
   }
 
-  const userName = `${profile.nombre} ${profile.apellidos}`.trim() || "Usuario";
-  const initials = toInitials(profile.nombre, profile.apellidos);
-  const nav = NAV.filter(({ href }) => canAccessScreen(profile.rol, href));
-
   return (
     <aside
-      className={`relative flex shrink-0 flex-col text-slate-300 transition-[width] duration-200 ${
+      className={`sticky top-0 hidden h-screen shrink-0 flex-col text-slate-300 lg:flex transition-[width] duration-200 ${
         collapsed ? "w-[76px]" : "w-64"
       }`}
       style={{
@@ -92,7 +59,7 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
         )}
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {nav.map(({ icon: Icon, label, href }) => {
           const active = pathname === href;
           const className = `flex w-full items-center rounded-lg text-sm font-medium transition ${
@@ -142,10 +109,7 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
         <button
           title="Cerrar sesión"
           disabled={signingOut}
-          onClick={() => {
-            setSigningOut(true);
-            logout(profile.nombreEmpresa);
-          }}
+          onClick={signOut}
           className="text-slate-400 transition hover:text-white disabled:opacity-50"
         >
           {signingOut ? (
@@ -156,19 +120,5 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
         </button>
       </div>
     </aside>
-  );
-}
-
-/**
- * Spinner shown on the clicked nav link until the navigation commits.
- * Always rendered (opacity toggled) so it never shifts the label.
- */
-function NavPendingIndicator() {
-  const { pending } = useLinkStatus();
-  return (
-    <Spinner
-      aria-hidden={!pending}
-      className={`h-3.5 w-3.5 transition-opacity ${pending ? "opacity-100" : "opacity-0"}`}
-    />
   );
 }

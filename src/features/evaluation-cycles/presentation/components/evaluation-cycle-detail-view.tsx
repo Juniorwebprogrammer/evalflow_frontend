@@ -104,7 +104,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
         Volver a ciclos de evaluación
       </Link>
 
-      <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)]/10 text-[var(--brand)]">
@@ -234,7 +234,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
 
       {canManage && isCompleted && <CycleResultsSection cycleId={cycleId} />}
 
-      <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
         <h2 className="text-sm font-bold text-slate-900">
           Plantillas del ciclo ({cycleTemplates.length})
         </h2>
@@ -297,7 +297,7 @@ function CycleProgressSection({ cycleId, enabled }: { cycleId: number; enabled: 
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
 
   return (
-    <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
       <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
         <UsersIcon className="h-4 w-4 text-slate-400" />
         Usuarios asignados {submissions ? `(${submissions.length})` : ""}

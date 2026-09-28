@@ -75,7 +75,7 @@ export function InviteEmployeeForm() {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
       <h2 className="text-lg font-bold text-slate-900">Invitar empleado</h2>
       <p className="mt-0.5 text-sm text-slate-500">
         Enviaremos una invitación por correo para que complete su registro.

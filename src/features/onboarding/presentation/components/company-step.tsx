@@ -44,7 +44,7 @@ export function CompanyStep({
         required
       />
 
-      <div className="mt-3 grid grid-cols-2 gap-3">
+      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field
           label="CIF / NIF"
           icon={<DocIcon className="h-4 w-4" />}

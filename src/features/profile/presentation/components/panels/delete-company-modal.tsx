@@ -57,7 +57,7 @@ export function DeleteCompanyModal({ onClose }: { onClose: () => void }) {
 
       <form
         onSubmit={confirm}
-        className="relative z-10 w-full max-w-md rounded-2xl bg-white p-7 shadow-2xl"
+        className="relative z-10 max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-7"
       >
         <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
           <ShieldIcon className="h-6 w-6" />

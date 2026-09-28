@@ -9,7 +9,7 @@ export function DangerZone() {
   const [confirming, setConfirming] = useState(false);
 
   return (
-    <div className="rounded-2xl border border-red-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-red-200 bg-white p-4 shadow-sm sm:p-6">
       <h3 className="text-base font-bold text-red-600">Zona de peligro</h3>
       <p className="mt-0.5 text-sm text-slate-500">
         Eliminar la empresa borra permanentemente la organización y todos sus

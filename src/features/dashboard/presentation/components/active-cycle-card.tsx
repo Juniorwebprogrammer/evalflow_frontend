@@ -44,7 +44,7 @@ export function ActiveCycleCard() {
       : 0;
 
   return (
-    <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm lg:col-span-2">
+    <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6 lg:col-span-2">
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-lg font-bold text-slate-900">{cycle.nombre}</h2>

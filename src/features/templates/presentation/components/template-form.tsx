@@ -146,7 +146,7 @@ export function TemplateForm({
         onChange={(e) => update({ descripcion: e.target.value })}
         placeholder="Evaluación semestral de objetivos y competencias"
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field
           label="Fecha de inicio"
           type="date"

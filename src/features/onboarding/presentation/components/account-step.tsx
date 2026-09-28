@@ -24,7 +24,7 @@ export function AccountStep({
         Empecemos con tus datos personales.
       </p>
 
-      <div className="mt-5 grid grid-cols-2 gap-3">
+      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field
           label="Nombre"
           icon={<UserIcon className="h-4 w-4" />}

@@ -11,7 +11,7 @@ export function RolePanel({ rol }: { rol: string }) {
   const hasError = isError || (!isLoading && features.length === 0);
 
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
       <div className="flex items-start gap-4">
         <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
           <CrownIcon className="h-6 w-6" />

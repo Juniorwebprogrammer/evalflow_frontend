@@ -107,7 +107,7 @@ export function OrgChart() {
         )}
       </Notice>
 
-      <div className="overflow-auto rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="overflow-auto rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
         <div
           className="relative"
           style={{ width, height, minWidth: "100%" }}

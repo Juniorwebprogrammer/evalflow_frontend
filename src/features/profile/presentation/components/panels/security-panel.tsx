@@ -85,7 +85,7 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
     <div className="space-y-6">
       <form
         onSubmit={handleSubmit}
-        className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"
+        className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6"
       >
         <h2 className="text-lg font-bold text-slate-900">Cambiar contraseña</h2>
         <p className="mt-0.5 text-sm text-slate-500">
@@ -142,7 +142,7 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
         </div>
       </form>
 
-      <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex items-center justify-between">
           <div className="pr-6">
             <h3 className="text-base font-bold text-slate-900">

@@ -29,7 +29,7 @@ export function MyClarificationsView() {
 
   return (
     <div className="space-y-5">
-      <div className="flex gap-2 border-b border-slate-100">
+      <div className="flex gap-2 overflow-x-auto border-b border-slate-100">
         {(
           [
             { key: "pending", label: "Pendientes", count: pending.length },

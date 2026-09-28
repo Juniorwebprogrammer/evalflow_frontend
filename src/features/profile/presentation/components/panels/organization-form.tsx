@@ -110,7 +110,7 @@ export function OrganizationForm({
   return (
     <form
       onSubmit={handleSave}
-      className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"
+      className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6"
     >
       <h2 className="text-lg font-bold text-slate-900">
         Información de la empresa

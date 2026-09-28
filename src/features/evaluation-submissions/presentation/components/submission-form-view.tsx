@@ -24,7 +24,7 @@ const CONFETTI = [0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => ({
 /** Celebratory success state shown right after a submission is saved (not on a later revisit — see the `done` vs `isCompleted` branches below). */
 function SubmissionSuccessView() {
   return (
-    <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-slate-100 bg-white px-8 py-20 text-center shadow-sm">
+    <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-slate-100 bg-white px-6 py-14 text-center shadow-sm sm:px-8 sm:py-20">
       <div className="success-badge relative flex h-24 w-24 items-center justify-center rounded-full bg-emerald-50">
         {CONFETTI.map((c) => (
           <span
@@ -175,7 +175,7 @@ export function SubmissionFormView({ submissionId }: { submissionId: number }) {
         Volver a mis evaluaciones
       </Link>
 
-      <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex items-start gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)]/10 text-[var(--brand)]">
             <DocIcon className="h-5 w-5" />

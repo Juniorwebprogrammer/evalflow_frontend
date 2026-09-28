@@ -110,7 +110,7 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
         Volver a departamentos
       </Link>
 
-      <section className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex items-start gap-3">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--brand)]/10 text-[var(--brand)]">
             <BuildingIcon className="h-5 w-5" />
@@ -128,7 +128,7 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
       </section>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-base font-bold text-slate-900">
             Empleados ({detail.usuarios.length})
           </h2>

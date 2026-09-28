@@ -157,7 +157,7 @@ export function EvaluationCycleForm({
         onChange={(e) => update({ descripcion: e.target.value })}
         placeholder="Ciclo semestral de evaluación de desempeño"
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field
           label="Fecha de inicio"
           type="date"
