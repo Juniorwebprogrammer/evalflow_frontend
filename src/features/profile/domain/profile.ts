@@ -19,6 +19,8 @@ export interface Profile {
   cif: string;
   /** Whether 2FA login is enabled (backend `TwoFactorAuthentication`). */
   twoFactorEnabled: boolean;
+  /** When the profile picture last changed (ISO), or null without one. Also its cache-buster. */
+  avatarUpdatedAt: string | null;
 }
 
 /** Fields the backend `Profile/update` endpoint accepts. */

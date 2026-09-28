@@ -8,6 +8,7 @@ import { Logo } from "@/shared/ui/logo";
 import { Spinner } from "@/shared/ui/spinner";
 import { LogoutIcon, MenuIcon, XIcon } from "@/shared/ui/icons";
 import { NavPendingIndicator, useShellNav } from "@/shared/components/nav";
+import { UserAvatar } from "@/features/profile/presentation/components/user-avatar";
 
 /**
  * Mobile/tablet (< lg) navigation: a sticky top bar with the logo and a menu
@@ -21,7 +22,7 @@ export function MobileNav({ initialProfile }: { initialProfile: Profile }) {
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === pathname;
   const close = () => setOpenOn(null);
-  const { userName, initials, nav, signingOut, signOut } = useShellNav(initialProfile);
+  const { userName, initials, avatarVersion, nav, signingOut, signOut } = useShellNav(initialProfile);
 
   useEffect(() => {
     if (!open) return;
@@ -97,12 +98,7 @@ export function MobileNav({ initialProfile }: { initialProfile: Profile }) {
                 onClick={() => pathname === "/dashboard/perfil" && close()}
                 className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 transition hover:bg-white/5"
               >
-                <span
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                  style={{ background: "var(--brand)" }}
-                >
-                  {initials}
-                </span>
+                <UserAvatar version={avatarVersion} initials={initials} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-white">{userName}</p>
                   <p className="truncate text-xs text-slate-400">Ver perfil</p>

@@ -1,12 +1,12 @@
 import type { Profile } from "@/features/profile/domain/profile";
 import {
-  CameraIcon,
   CrownIcon,
   MailIcon,
   BuildingIcon,
   CheckCircleIcon,
 } from "@/shared/ui/icons";
 import { EXAMPLE_PROFILE } from "@/features/profile/presentation/data/example";
+import { AvatarEditor } from "@/features/profile/presentation/components/avatar-editor";
 
 function initials(nombre: string, apellidos: string) {
   return `${nombre.charAt(0)}${apellidos.charAt(0)}`.toUpperCase() || "U";
@@ -38,18 +38,10 @@ export function ProfileHeader({ profile }: { profile: Profile }) {
     >
       <div className="relative z-10 flex items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col items-start gap-4 sm:flex-row sm:gap-5">
-          <div className="relative">
-            <span className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 text-2xl font-bold">
-              {initials(profile.nombre, profile.apellidos)}
-            </span>
-            <button
-              type="button"
-              title="Cambiar foto"
-              className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--brand)] text-white shadow"
-            >
-              <CameraIcon style={{ width: 14, height: 14 }} />
-            </button>
-          </div>
+          <AvatarEditor
+            version={profile.avatarUpdatedAt}
+            initials={initials(profile.nombre, profile.apellidos)}
+          />
 
           <div className="min-w-0 pt-1">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">

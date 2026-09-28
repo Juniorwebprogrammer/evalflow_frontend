@@ -6,6 +6,8 @@ import {
   fetchProfile,
   updateProfile,
   changePassword,
+  uploadAvatar,
+  deleteAvatar,
 } from "@/features/profile/presentation/api/profile-client";
 
 export const PROFILE_QUERY_KEY = ["profile"] as const;
@@ -81,4 +83,33 @@ export function useMyRole() {
     queryFn: fetchProfile,
   });
   return { role: data?.rol ?? "", isLoading };
+}
+
+/**
+ * Uploads / removes the profile picture and writes the new `avatarUpdatedAt`
+ * straight into the `["profile"]` cache, so every avatar (sidebar, top bar,
+ * profile banner) switches to the new image at once.
+ */
+export function useAvatarMutations() {
+  const queryClient = useQueryClient();
+
+  function setAvatarVersion(avatarUpdatedAt: string | null) {
+    queryClient.setQueryData<Profile>(PROFILE_QUERY_KEY, (previous) =>
+      previous ? { ...previous, avatarUpdatedAt } : previous,
+    );
+  }
+
+  const upload = useMutation({
+    mutationFn: (file: File) => uploadAvatar(file),
+    // Fall back to "now" if the backend didn't echo a timestamp — it only
+    // has to change for the image URL to refresh.
+    onSuccess: (avatarUpdatedAt) => setAvatarVersion(avatarUpdatedAt ?? new Date().toISOString()),
+  });
+
+  const remove = useMutation({
+    mutationFn: deleteAvatar,
+    onSuccess: () => setAvatarVersion(null),
+  });
+
+  return { upload, remove };
 }

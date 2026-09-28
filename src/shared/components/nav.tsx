@@ -49,6 +49,7 @@ export function useShellNav(initialProfile: Profile) {
   return {
     userName: `${profile.nombre} ${profile.apellidos}`.trim() || "Usuario",
     initials: toInitials(profile.nombre, profile.apellidos),
+    avatarVersion: profile.avatarUpdatedAt,
     nav: NAV.filter(({ href }) => canAccessScreen(profile.rol, href)),
     signingOut,
     signOut,

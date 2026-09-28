@@ -1,3 +1,4 @@
+import type { BackendFile } from "@/core/http/backend-client";
 import type {
   Profile,
   UpdateProfileInput,
@@ -15,4 +16,10 @@ export interface ProfileRepository {
     input: ChangePasswordInput,
     accessToken: string,
   ): Promise<void>;
+  /** Replaces the caller's profile picture (base64 image); returns its new timestamp. */
+  uploadAvatar(data: string, accessToken: string): Promise<string | null>;
+  /** Removes the caller's profile picture (no-op when there is none). */
+  deleteAvatar(accessToken: string): Promise<void>;
+  /** Downloads the caller's profile picture. Throws `NotFoundError` without one. */
+  getAvatar(accessToken: string): Promise<BackendFile>;
 }

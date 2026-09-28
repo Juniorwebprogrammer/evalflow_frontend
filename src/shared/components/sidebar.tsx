@@ -8,6 +8,7 @@ import { Logo } from "@/shared/ui/logo";
 import { Spinner } from "@/shared/ui/spinner";
 import { LogoutIcon, ChevronLeftIcon } from "@/shared/ui/icons";
 import { NavPendingIndicator, useShellNav } from "@/shared/components/nav";
+import { UserAvatar } from "@/features/profile/presentation/components/user-avatar";
 import {
   isSidebarCollapsed,
   setSidebarCollapsed,
@@ -22,7 +23,7 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
     isSidebarCollapsed,
     () => false,
   );
-  const { userName, initials, nav, signingOut, signOut } = useShellNav(initialProfile);
+  const { userName, initials, avatarVersion, nav, signingOut, signOut } = useShellNav(initialProfile);
 
   function toggleCollapsed() {
     setSidebarCollapsed(!collapsed);
@@ -91,12 +92,7 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
             collapsed ? "" : "flex-1"
           }`}
         >
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-            style={{ background: "var(--brand)" }}
-          >
-            {initials}
-          </span>
+          <UserAvatar version={avatarVersion} initials={initials} />
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-white">

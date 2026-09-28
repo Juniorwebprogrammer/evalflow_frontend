@@ -5,7 +5,7 @@ import type {
   ChangePasswordInput,
 } from "@/features/profile/domain/profile";
 import type { ProfileRepository } from "@/features/profile/domain/profile-repository";
-import { BackendClient } from "@/core/http/backend-client";
+import { BackendClient, type BackendFile } from "@/core/http/backend-client";
 import { UpstreamError } from "@/core/errors/errors";
 
 /** Raw backend GetProfileInformationDTO (PascalCase, tolerant to variations). */
@@ -34,6 +34,8 @@ interface ProfileDto {
   cif?: string;
   TwoFactorAuthentication?: boolean;
   twoFactorAuthentication?: boolean;
+  AvatarUpdatedAt?: string | null;
+  avatarUpdatedAt?: string | null;
 }
 
 export class HttpProfileRepository implements ProfileRepository {
@@ -66,6 +68,7 @@ export class HttpProfileRepository implements ProfileRepository {
       twoFactorEnabled: Boolean(
         dto.TwoFactorAuthentication ?? dto.twoFactorAuthentication ?? false,
       ),
+      avatarUpdatedAt: dto.AvatarUpdatedAt ?? dto.avatarUpdatedAt ?? null,
     };
   }
 
@@ -95,5 +98,21 @@ export class HttpProfileRepository implements ProfileRepository {
         NewPassword: input.NewPassword,
       },
     });
+  }
+
+  async uploadAvatar(data: string, accessToken: string): Promise<string | null> {
+    const dto = await this.client.request<{ AvatarUpdatedAt?: string; avatarUpdatedAt?: string }>(
+      "/Profile/avatar",
+      { method: "PUT", accessToken, body: { Data: data } },
+    );
+    return dto?.AvatarUpdatedAt ?? dto?.avatarUpdatedAt ?? null;
+  }
+
+  async deleteAvatar(accessToken: string): Promise<void> {
+    await this.client.request<unknown>("/Profile/avatar", { method: "DELETE", accessToken });
+  }
+
+  getAvatar(accessToken: string): Promise<BackendFile> {
+    return this.client.requestFile("/Profile/avatar", { accessToken });
   }
 }

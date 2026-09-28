@@ -422,3 +422,12 @@ export function ChevronRightIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function UploadIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 16V4M7 9l5-5 5 5" />
+      <path d="M4 19h16" />
+    </svg>
+  );
+}

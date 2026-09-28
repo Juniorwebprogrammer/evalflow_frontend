@@ -41,6 +41,7 @@ import { GetEmployees } from "@/features/team/application/get-employees";
 import { GetMyProfile } from "@/features/profile/application/get-my-profile";
 import { UpdateProfile } from "@/features/profile/application/update-profile";
 import { ChangePassword } from "@/features/profile/application/change-password";
+import { UploadAvatar, DeleteAvatar, GetAvatar } from "@/features/profile/application/profile-avatar";
 import { Toggle2FA } from "@/features/settings/application/toggle-2fa";
 import { CreateDepartment } from "@/features/departments/application/create-department";
 import { GetDepartment } from "@/features/departments/application/get-department";
@@ -139,6 +140,9 @@ export const useCases = {
   getMyProfile: new GetMyProfile(profileRepository),
   updateProfile: new UpdateProfile(profileRepository),
   changePassword: new ChangePassword(profileRepository),
+  uploadAvatar: new UploadAvatar(profileRepository),
+  deleteAvatar: new DeleteAvatar(profileRepository),
+  getAvatar: new GetAvatar(profileRepository),
   toggle2FA: new Toggle2FA(settingsRepository),
   createDepartment: new CreateDepartment(departmentRepository),
   getDepartment: new GetDepartment(departmentRepository),
