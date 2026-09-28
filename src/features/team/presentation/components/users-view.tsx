@@ -13,6 +13,7 @@ import { JobPositionsTable } from "@/features/job-positions/presentation/compone
 import { JobPositionFormModal } from "@/features/job-positions/presentation/components/job-position-form-modal";
 import { useJobPositions } from "@/features/job-positions/presentation/hooks/use-job-positions";
 import { Button } from "@/shared/ui/button";
+import { PlanLimitNotice, usePlanLimit } from "@/features/plans/presentation/components/plan-limit";
 import {
   UsersIcon,
   BuildingIcon,
@@ -40,6 +41,7 @@ function isTabKey(value: string | null): value is TabKey {
 
 /** Users screen: employee directory, department cards, and the invite flow. */
 export function UsersView() {
+  const departmentLimit = usePlanLimit("departments");
   const searchParams = useSearchParams();
   // Lets links like "Volver a departamentos" (from the department detail
   // page) land back on the right tab, e.g. /dashboard/usuarios?tab=departamentos.
@@ -69,7 +71,12 @@ export function UsersView() {
         </div>
 
         {tab === "departamentos" && (
-          <Button type="button" onClick={() => setShowCreateDepartment(true)}>
+          <Button
+            type="button"
+            disabled={departmentLimit.atLimit}
+            title={departmentLimit.message ?? undefined}
+            onClick={() => setShowCreateDepartment(true)}
+          >
             <PlusIcon className="h-4 w-4" />
             Nuevo departamento
           </Button>
@@ -128,7 +135,8 @@ export function UsersView() {
       )}
 
       {tab === "departamentos" && (
-        <div className="mt-6">
+        <div className="mt-6 space-y-4">
+          <PlanLimitNotice resource="departments" />
           <DepartmentsGrid />
         </div>
       )}
@@ -140,7 +148,8 @@ export function UsersView() {
       )}
 
       {tab === "invitar" && (
-        <div className="mt-6">
+        <div className="mt-6 space-y-4">
+          <PlanLimitNotice resource="employees" />
           <InviteEmployeeForm />
         </div>
       )}

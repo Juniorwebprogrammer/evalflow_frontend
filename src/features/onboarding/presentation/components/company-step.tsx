@@ -5,12 +5,24 @@ import { Notice } from "@/shared/ui/notice";
 import { BuildingIcon, DocIcon, MapPinIcon } from "@/shared/ui/icons";
 import type { CompanyData } from "@/features/onboarding/presentation/components/types";
 import { SECTORS } from "@/shared/data/sectors";
+import type { Plan } from "@/features/plans/domain/plan";
+import { usePlans } from "@/features/plans/presentation/hooks/use-plans";
 
-const PLANS = [
-  { id: 1, name: "Starter", detail: "Hasta 25 empleados" },
-  { id: 2, name: "Growth", detail: "Hasta 100 empleados" },
-  { id: 3, name: "Enterprise", detail: "Empleados ilimitados" },
+/** Shown while `/api/plans` loads, or if it fails. */
+const FALLBACK_PLANS = [
+  { id: 1, name: "Starter", detail: "Hasta 25 empleados", ai: false },
+  { id: 2, name: "Growth", detail: "Hasta 100 empleados", ai: true },
+  { id: 3, name: "Enterprise", detail: "Empleados ilimitados", ai: true },
 ];
+
+function toCard(plan: Plan) {
+  return {
+    id: plan.id,
+    name: plan.nombre,
+    detail: plan.maxEmployees === null ? "Empleados ilimitados" : `Hasta ${plan.maxEmployees} empleados`,
+    ai: plan.hasAiFeatures,
+  };
+}
 
 export function CompanyStep({
   value,
@@ -27,6 +39,8 @@ export function CompanyStep({
   error: string | null;
   submitting: boolean;
 }) {
+  const { data: loadedPlans } = usePlans();
+  const plans = loadedPlans && loadedPlans.length > 0 ? loadedPlans.map(toCard) : FALLBACK_PLANS;
   return (
     <form onSubmit={onSubmit}>
       <h2 className="text-xl font-bold text-slate-900">Tu empresa</h2>
@@ -94,7 +108,7 @@ export function CompanyStep({
           Plan
         </label>
         <div className="grid grid-cols-3 gap-2">
-          {PLANS.map((plan) => {
+          {plans.map((plan) => {
             const selected = value.PlanId === plan.id;
             return (
               <button
@@ -113,6 +127,11 @@ export function CompanyStep({
                 <span className="mt-0.5 block text-xs text-slate-500">
                   {plan.detail}
                 </span>
+                {plan.ai && (
+                  <span className="mt-1 block text-[11px] font-semibold text-[var(--brand)]">
+                    Incluye IA
+                  </span>
+                )}
               </button>
             );
           })}

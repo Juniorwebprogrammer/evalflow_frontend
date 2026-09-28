@@ -4,6 +4,7 @@ import { Notice } from "@/shared/ui/notice";
 import { useCompany } from "@/features/company/presentation/hooks/use-company";
 import { OrganizationForm } from "@/features/profile/presentation/components/panels/organization-form";
 import { DangerZone } from "@/features/profile/presentation/components/panels/danger-zone";
+import { PlanUsagePanel } from "@/features/plans/presentation/components/plan-usage-panel";
 
 /** Roles allowed to edit the organization (mirrors the backend policy). */
 const EDIT_ROLES = ["owner", "rrhh", "administrator"];
@@ -57,6 +58,8 @@ export function OrganizationPanel({
           canEdit={canEdit}
         />
       )}
+
+      <PlanUsagePanel />
 
       {canDelete && <DangerZone />}
     </div>

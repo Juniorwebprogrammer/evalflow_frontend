@@ -22,6 +22,7 @@ import { ApiError } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { isPrivilegedRole } from "@/shared/lib/roles";
+import { PlanLimitNotice, usePlanLimit } from "@/features/plans/presentation/components/plan-limit";
 
 type Action =
   | { type: "create" }
@@ -38,6 +39,7 @@ export function TemplatesTable() {
   const { data: templates, isLoading, error } = useTemplates();
   const { role } = useMyRole();
   const canManage = isPrivilegedRole(role);
+  const templateLimit = usePlanLimit("customTemplates");
 
   const [search, setSearch] = useState("");
   const [openMenuFor, setOpenMenuFor] = useState<number | null>(null);
@@ -79,12 +81,19 @@ export function TemplatesTable() {
           />
         </div>
         {canManage && (
-          <Button type="button" onClick={() => setAction({ type: "create" })}>
+          <Button
+            type="button"
+            disabled={templateLimit.atLimit}
+            title={templateLimit.message ?? undefined}
+            onClick={() => setAction({ type: "create" })}
+          >
             <PlusIcon className="h-4 w-4" />
             Nueva plantilla
           </Button>
         )}
       </div>
+
+      {canManage && <PlanLimitNotice resource="customTemplates" />}
 
       {(!templates || templates.length === 0) && (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">

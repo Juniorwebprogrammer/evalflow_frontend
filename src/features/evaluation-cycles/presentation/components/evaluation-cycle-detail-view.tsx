@@ -42,6 +42,7 @@ import {
 } from "@/shared/ui/icons";
 import { ApiError } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
+import { usePlanLimit } from "@/features/plans/presentation/components/plan-limit";
 
 type ModalAction = "edit" | "delete" | "manage-templates" | "complete" | null;
 
@@ -64,6 +65,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
   const { generate, isGenerating, error: generateError, message } =
     useGenerateSubmissions(cycleId);
   const { toggle: toggleActive, isToggling, error: toggleError } = useToggleCycleActive();
+  const activeCycleLimit = usePlanLimit("activeCycles");
   const [modalAction, setModalAction] = useState<ModalAction>(null);
 
   const cycle = cycles?.find((c) => c.id === cycleId);
@@ -159,6 +161,8 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
                 type="button"
                 variant="outline"
                 loading={isToggling}
+                disabled={!cycle.activo && activeCycleLimit.atLimit}
+                title={!cycle.activo ? (activeCycleLimit.message ?? undefined) : undefined}
                 onClick={() => toggleActive(cycle)}
               >
                 <PowerIcon className="h-4 w-4" />
@@ -222,6 +226,11 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
         {toggleError && (
           <Notice tone="error" className="mt-5">
             {toggleError}
+          </Notice>
+        )}
+        {canManage && !isCompleted && !cycle.activo && activeCycleLimit.message && (
+          <Notice tone="warning" className="mt-5">
+            {activeCycleLimit.message}
           </Notice>
         )}
         {isCompleted && (

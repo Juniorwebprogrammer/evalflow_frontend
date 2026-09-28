@@ -24,6 +24,7 @@ import { ApiError } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { isPrivilegedRole } from "@/shared/lib/roles";
+import { PlanLimitNotice } from "@/features/plans/presentation/components/plan-limit";
 
 /**
  * Evaluation cycle directory (backend `GET /evaluation-cycles`) — a stack of
@@ -82,6 +83,9 @@ export function EvaluationCyclesList() {
           </Button>
         )}
       </div>
+
+      {/* Informative only: cycles starting in another year still fit. */}
+      {canManage && <PlanLimitNotice resource="cyclesThisYear" />}
 
       {(!cycles || cycles.length === 0) && (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">

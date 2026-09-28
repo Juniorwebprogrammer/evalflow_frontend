@@ -5,6 +5,8 @@ import { HttpOnboardingRepository } from "@/features/onboarding/infrastructure/h
 import { HttpAuthRepository } from "@/features/auth/infrastructure/http-auth-repository";
 import { HttpTeamRepository } from "@/features/team/infrastructure/http-team-repository";
 import { HttpProfileRepository } from "@/features/profile/infrastructure/http-profile-repository";
+import { HttpPlanRepository } from "@/features/plans/infrastructure/http-plan-repository";
+import { GetPlans, GetCompanyPlan } from "@/features/plans/application/get-plans";
 import { HttpSettingsRepository } from "@/features/settings/infrastructure/http-settings-repository";
 import { HttpDepartmentRepository } from "@/features/departments/infrastructure/http-department-repository";
 import { HttpJobPositionRepository } from "@/features/job-positions/infrastructure/http-job-position-repository";
@@ -100,6 +102,7 @@ const onboardingRepository = new HttpOnboardingRepository(backendClient);
 const authRepository = new HttpAuthRepository(backendClient);
 const teamRepository = new HttpTeamRepository(backendClient);
 const profileRepository = new HttpProfileRepository(backendClient);
+const planRepository = new HttpPlanRepository(backendClient);
 const settingsRepository = new HttpSettingsRepository(backendClient);
 const departmentRepository = new HttpDepartmentRepository(backendClient);
 const jobPositionRepository = new HttpJobPositionRepository(backendClient);
@@ -143,6 +146,8 @@ export const useCases = {
   uploadAvatar: new UploadAvatar(profileRepository),
   deleteAvatar: new DeleteAvatar(profileRepository),
   getAvatar: new GetAvatar(profileRepository),
+  getPlans: new GetPlans(planRepository),
+  getCompanyPlan: new GetCompanyPlan(planRepository),
   toggle2FA: new Toggle2FA(settingsRepository),
   createDepartment: new CreateDepartment(departmentRepository),
   getDepartment: new GetDepartment(departmentRepository),

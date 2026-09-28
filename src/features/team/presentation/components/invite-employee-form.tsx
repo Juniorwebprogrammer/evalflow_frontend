@@ -11,6 +11,7 @@ import { inviteEmployee } from "@/features/team/presentation/api/team-client";
 import { ApiError } from "@/shared/lib/api-error";
 import { InviteSuccessNotice } from "@/features/team/presentation/components/invite-success-notice";
 import { EMPLOYEES_QUERY_KEY } from "@/features/team/presentation/hooks/use-employees";
+import { usePlanLimit } from "@/features/plans/presentation/components/plan-limit";
 
 /**
  * Roles are hardcoded for now — the backend does not expose a roles endpoint
@@ -43,6 +44,7 @@ interface Notified {
 }
 
 export function InviteEmployeeForm() {
+  const employeeLimit = usePlanLimit("employees");
   const queryClient = useQueryClient();
   const [form, setForm] = useState<FormState>(EMPTY);
   const [submitting, setSubmitting] = useState(false);
@@ -126,7 +128,7 @@ export function InviteEmployeeForm() {
 
         {error && <Notice tone="error">{error}</Notice>}
 
-        <Button type="submit" loading={submitting}>
+        <Button type="submit" loading={submitting} disabled={employeeLimit.atLimit}>
           Enviar invitación
           <ArrowRightIcon className="h-4 w-4" />
         </Button>
