@@ -9,13 +9,13 @@ import { CLARIFICATION_RESPONSE_MAX_LENGTH } from "@/features/clarifications/dom
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
 import { AlertTriangleIcon, CheckCircleIcon, ClipboardIcon, MailIcon } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 
 type Tab = "pending" | "answered";
 
 /**
- * "Solicitudes de información" — requests from RRHH asking the caller to
+ * "Information requests" — requests from HR asking the caller to
  * explain an evaluation they gave (as evaluator) or received (as evaluated).
  * Each one can be answered once, right here.
  */
@@ -32,8 +32,8 @@ export function MyClarificationsView() {
       <div className="flex gap-2 overflow-x-auto border-b border-slate-100">
         {(
           [
-            { key: "pending", label: "Pendientes", count: pending.length },
-            { key: "answered", label: "Respondidas", count: answered.length },
+            { key: "pending", label: "Pending", count: pending.length },
+            { key: "answered", label: "Answered", count: answered.length },
           ] as const
         ).map(({ key, label, count }) => (
           <button
@@ -52,11 +52,11 @@ export function MyClarificationsView() {
         ))}
       </div>
 
-      {isLoading && <p className="text-sm text-slate-500">Cargando solicitudes…</p>}
+      {isLoading && <p className="text-sm text-slate-500">Loading requests…</p>}
 
       {error && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          {error instanceof ApiError ? error.message : "No se pudieron cargar las solicitudes."}
+          {errorMessage(error, "We couldn't load your information requests.")}
         </Notice>
       )}
 
@@ -65,8 +65,8 @@ export function MyClarificationsView() {
           <ClipboardIcon className="h-5 w-5 shrink-0 text-slate-400" />
           <span>
             {tab === "pending"
-              ? "No tienes solicitudes de información pendientes."
-              : "Todavía no has respondido ninguna solicitud."}
+              ? "You have no pending information requests."
+              : "You haven't answered any requests yet."}
           </span>
         </div>
       )}
@@ -97,8 +97,8 @@ function ClarificationCard({ clarification }: { clarification: MyClarificationRe
             <p className="text-sm text-slate-500">
               {clarification.cycleName} ·{" "}
               {isEvaluated
-                ? "Sobre tu autoevaluación"
-                : `Sobre tu evaluación de ${clarification.evaluatedUserName}`}
+                ? "About your self-assessment"
+                : `About your evaluation of ${clarification.evaluatedUserName}`}
             </p>
           </div>
         </div>
@@ -108,12 +108,12 @@ function ClarificationCard({ clarification }: { clarification: MyClarificationRe
       </div>
 
       <div className="mt-4 rounded-lg bg-slate-50 px-3.5 py-3 text-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Pregunta</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Question</p>
         <p className="mt-0.5 font-medium text-slate-700">
-          {clarification.questionText ?? "La evaluación completa"}
+          {clarification.questionText ?? "The entire evaluation"}
         </p>
         <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Mensaje de RRHH
+          Message from HR
         </p>
         <p className="mt-0.5 whitespace-pre-line text-slate-700">{clarification.mensaje}</p>
       </div>
@@ -122,7 +122,7 @@ function ClarificationCard({ clarification }: { clarification: MyClarificationRe
         <div className="mt-4 text-sm">
           <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
             <CheckCircleIcon className="h-3.5 w-3.5" />
-            Respondiste el {formatDate(clarification.myRespondedAt)}
+            You answered on {formatDate(clarification.myRespondedAt)}
           </p>
           <p className="mt-1 whitespace-pre-line text-slate-700">{clarification.myResponse ?? "—"}</p>
         </div>
@@ -151,7 +151,7 @@ function ResponseForm({ clarificationId }: { clarificationId: number }) {
     <form onSubmit={handleSubmit} className="mt-4 space-y-3">
       <div>
         <label htmlFor={textareaId} className="mb-1.5 block text-sm font-medium text-slate-700">
-          Tu explicación
+          Your explanation
         </label>
         <textarea
           id={textareaId}
@@ -159,13 +159,13 @@ function ResponseForm({ clarificationId }: { clarificationId: number }) {
           onChange={(e) => setRespuesta(e.target.value)}
           rows={4}
           maxLength={CLARIFICATION_RESPONSE_MAX_LENGTH}
-          placeholder="Explica en qué te basaste para responder lo que respondiste."
+          placeholder="Explain what you based your answers on."
           className={TEXTAREA_CLASS}
           disabled={isSaving}
           required
         />
         <div className="mt-1 flex justify-between text-xs text-slate-400">
-          <span>Solo podrás enviarla una vez. Solo RRHH podrá leerla.</span>
+          <span>You can only send this once. Only HR will be able to read it.</span>
           <span>
             {respuesta.length}/{CLARIFICATION_RESPONSE_MAX_LENGTH}
           </span>
@@ -180,7 +180,7 @@ function ResponseForm({ clarificationId }: { clarificationId: number }) {
 
       <div className="flex justify-end">
         <Button type="submit" loading={isSaving} disabled={!respuesta.trim()}>
-          Enviar respuesta
+          Send response
         </Button>
       </div>
     </form>

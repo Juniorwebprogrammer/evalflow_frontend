@@ -12,7 +12,7 @@ export class GetCompanyByName {
   async execute(name: string): Promise<Company | null> {
     const trimmed = name?.trim();
     if (!trimmed) {
-      throw new DomainError("El nombre de la empresa es obligatorio", 400);
+      throw new DomainError("Company name is required", 400);
     }
     return this.companies.getByName(trimmed);
   }

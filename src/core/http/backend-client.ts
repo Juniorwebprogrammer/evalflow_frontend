@@ -45,7 +45,7 @@ export class BackendClient {
         cache: "no-store",
       });
     } catch {
-      throw new UpstreamError("No se pudo contactar con el servidor de EvalFlow");
+      throw new UpstreamError("Could not reach the EvalFlow server.");
     }
 
     if (response.status === 404) {
@@ -83,7 +83,7 @@ export class BackendClient {
     try {
       response = await fetch(url, { method: "GET", headers, cache: "no-store" });
     } catch {
-      throw new UpstreamError("No se pudo contactar con el servidor de EvalFlow");
+      throw new UpstreamError("Could not reach the EvalFlow server.");
     }
 
     if (response.status === 404) {
@@ -103,7 +103,7 @@ export class BackendClient {
   private async safeErrorMessage(response: Response): Promise<string> {
     try {
       const text = await response.text();
-      if (!text) return `Error ${response.status} del servidor`;
+      if (!text) return `Server error ${response.status}`;
       try {
         const parsed = JSON.parse(text);
         return (
@@ -117,7 +117,7 @@ export class BackendClient {
         return text;
       }
     } catch {
-      return `Error ${response.status} del servidor`;
+      return `Server error ${response.status}`;
     }
   }
 }

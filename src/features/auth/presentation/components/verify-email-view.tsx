@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { verifyEmail } from "@/features/auth/presentation/api/auth-client";
 import { fetchCompanyByIdentificationId } from "@/features/company/presentation/api/company-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { Button } from "@/shared/ui/button";
 import { BrandPanel } from "@/features/auth/presentation/components/brand-panel";
 import { CheckCircleIcon, AlertTriangleIcon } from "@/shared/ui/icons";
@@ -25,7 +25,7 @@ export function VerifyEmailView({ token }: { token: string | null }) {
   });
 
   // The verify-email response only carries the company's identificationId —
-  // resolve it to a name so "Ir a iniciar sesión" can open the branded
+  // resolve it to a name so "Go to sign in" can open the branded
   // `/login/{empresa}` directly instead of the generic `/login`.
   const tenantId = data?.tenantId ?? null;
   const { data: company } = useQuery({
@@ -35,13 +35,20 @@ export function VerifyEmailView({ token }: { token: string | null }) {
     retry: false,
   });
 
-  const errorMessage = !token
-    ? "El enlace de verificación no es válido. Revisa el correo e inténtalo de nuevo."
-    : error instanceof ApiError
-      ? error.message
-      : error
-        ? "No se pudo verificar el correo. Inténtalo de nuevo."
-        : null;
+  const failure = !token
+    ? "This verification link isn't valid. Check the email and try again."
+    : error
+      ? errorMessage(error, "We couldn't verify your email.", {
+          byDetail: [
+            ["caducado", "This verification link has expired. Sign in to request a new one."],
+            ["inválido", "This verification link isn't valid. Check the email and try again."],
+          ],
+        })
+      : null;
+
+  // The backend answers 200 for both a fresh verification and an
+  // already-verified account; only its (Spanish) text tells them apart.
+  const alreadyVerified = data?.message.toLowerCase().includes("anteriormente");
 
   function goToLogin() {
     router.push(company?.nombre ? `/login/${encodeURIComponent(company.nombre)}` : "/login");
@@ -54,16 +61,16 @@ export function VerifyEmailView({ token }: { token: string | null }) {
       <div className="flex items-center justify-center bg-slate-50 px-6 py-12">
         <div className="w-full max-w-sm text-center">
           {isLoading ? (
-            <p className="text-sm text-slate-500">Verificando tu correo…</p>
-          ) : errorMessage ? (
+            <p className="text-sm text-slate-500">Verifying your email…</p>
+          ) : failure ? (
             <>
               <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500">
                 <AlertTriangleIcon className="h-6 w-6" />
               </span>
               <h1 className="mt-4 text-xl font-bold text-slate-900">
-                No se pudo verificar tu correo
+                We couldn&apos;t verify your email
               </h1>
-              <p className="mt-2 text-sm text-slate-500">{errorMessage}</p>
+              <p className="mt-2 text-sm text-slate-500">{failure}</p>
             </>
           ) : (
             <>
@@ -71,14 +78,17 @@ export function VerifyEmailView({ token }: { token: string | null }) {
                 <CheckCircleIcon className="h-6 w-6" />
               </span>
               <h1 className="mt-4 text-xl font-bold text-slate-900">
-                ¡Correo verificado!
+                Email verified
               </h1>
-              <p className="mt-2 text-sm text-slate-500">{data?.message}</p>
+              <p className="mt-2 text-sm text-slate-500">{alreadyVerified
+                  ? "Your email was already verified. You can sign in now."
+                  : "Your email has been verified. You can sign in now."}
+              </p>
             </>
           )}
 
           <Button type="button" className="mt-6 w-full" onClick={goToLogin}>
-            Ir a iniciar sesión
+            Go to sign in
           </Button>
         </div>
       </div>

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     const token = String(body?.token ?? "").trim();
     if (!token) {
-      throw new DomainError("El enlace de verificación no es válido.", 400);
+      throw new DomainError("The verification link is not valid.", 400);
     }
 
     const result = await useCases.verifyEmail.execute(token);

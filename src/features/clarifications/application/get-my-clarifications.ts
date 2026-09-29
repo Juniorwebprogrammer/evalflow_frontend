@@ -8,7 +8,7 @@ export class GetMyClarifications {
 
   async execute(accessToken: string): Promise<MyClarification[]> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is no longer valid. Please sign in again.", 401);
     }
 
     return this.clarifications.getMine(accessToken);

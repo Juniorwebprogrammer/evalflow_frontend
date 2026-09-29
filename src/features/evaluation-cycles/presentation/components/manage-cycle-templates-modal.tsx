@@ -15,11 +15,11 @@ import {
   type EvaluationCycleResponse,
 } from "@/features/evaluation-cycles/presentation/api/evaluation-cycle-client";
 import { useTemplates } from "@/features/templates/presentation/hooks/use-templates";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { toggleId } from "@/shared/lib/query-cache";
 
 /**
- * Lets an Owner/Rrhh caller toggle which templates belong to an evaluation
+ * Lets an Owner/HR caller toggle which templates belong to an evaluation
  * cycle (backend
  * `PUT /evaluation-cycles/{cycleId}/templates/{templateId}/toggle`). Reads
  * the cycle's own `templateIds` from the evaluation-cycles query cache, so
@@ -55,9 +55,18 @@ export function ManageCycleTemplatesModal({
       );
     } catch (err) {
       setToggleError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo actualizar el ciclo. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't update the cycle's templates.", {
+          byDetail: [
+            [
+              "ya se ha completado",
+              "This cycle has already been completed and can no longer be changed.",
+            ],
+            [
+              "plantilla no existe",
+              "This template no longer exists. Refresh the page and try again.",
+            ],
+          ],
+        }),
       );
     } finally {
       setPendingId(null);
@@ -67,23 +76,21 @@ export function ManageCycleTemplatesModal({
   return (
     <Modal
       onClose={onClose}
-      title="Gestionar plantillas"
-      description={cycle ? `Plantillas incluidas en "${cycle.nombre}".` : undefined}
+      title="Manage templates"
+      description={cycle ? `Templates included in "${cycle.nombre}".` : undefined}
       icon={<ClipboardIcon className="h-5 w-5" />}
       size="lg"
     >
-      {isLoading && <p className="text-sm text-slate-500">Cargando plantillas…</p>}
+      {isLoading && <p className="text-sm text-slate-500">Loading templates…</p>}
 
       {error && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          {error instanceof ApiError
-            ? error.message
-            : "No se pudo cargar el listado de plantillas."}
+          {errorMessage(error, "We couldn't load the templates.")}
         </Notice>
       )}
 
       {templates && templates.length === 0 && (
-        <p className="text-sm text-slate-500">Todavía no hay ninguna plantilla creada.</p>
+        <p className="text-sm text-slate-500">No templates have been created yet.</p>
       )}
 
       {templates && templates.length > 0 && (

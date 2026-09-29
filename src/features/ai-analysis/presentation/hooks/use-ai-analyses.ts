@@ -11,7 +11,7 @@ import {
   type RequestAiAnalysisInput,
 } from "@/features/ai-analysis/domain/ai-analysis";
 import { useCompanyPlan } from "@/features/plans/presentation/hooks/use-plans";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 /** Polling fallback while an analysis runs, in case the realtime event is missed. */
 const IN_PROGRESS_POLL_MS = 10_000;
@@ -53,7 +53,30 @@ export function useRequestAiAnalysis(cycleId: number) {
       return result;
     } catch (err) {
       setError(
-        err instanceof ApiError ? err.message : "No se pudo solicitar el análisis con IA. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't request the AI analysis.", {
+          byDetail: [
+            [
+              "planes growth",
+              "AI analysis is available on the Growth and Enterprise plans. Upgrade your plan to use it.",
+            ],
+            [
+              "al mes",
+              "You've reached your plan's monthly limit of AI analyses. Upgrade your plan or try again next month.",
+            ],
+            [
+              "en este momento",
+              "AI analysis isn't available right now. Please try again later.",
+            ],
+            [
+              "no hay evaluaciones completadas",
+              "There are no completed evaluations to analyze yet.",
+            ],
+          ],
+          byStatus: {
+            429: "You've requested too many analyses in a short time. Please wait a moment and try again.",
+            503: "AI analysis isn't available right now. Please try again later.",
+          },
+        }),
       );
       throw err;
     } finally {

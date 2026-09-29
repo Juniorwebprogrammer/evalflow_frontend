@@ -1,9 +1,9 @@
 import type { ClarificationStatus } from "@/features/clarifications/presentation/api/clarification-client";
 
 const STATUS_LABEL: Record<ClarificationStatus, string> = {
-  Pendiente: "Sin respuestas",
-  Parcial: "Respondida parcialmente",
-  Respondida: "Respondida",
+  Pendiente: "No responses",
+  Parcial: "Partially answered",
+  Respondida: "Answered",
 };
 
 const STATUS_BADGE_CLASS: Record<ClarificationStatus, string> = {

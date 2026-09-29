@@ -15,20 +15,20 @@ export class UpdateEvaluationCycle {
     accessToken: string,
   ): Promise<EvaluationCycleActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!Number.isInteger(id) || id <= 0) {
-      throw new DomainError("El identificador del ciclo no es válido", 400);
+      throw new DomainError("The cycle ID is not valid", 400);
     }
     if (!input.Nombre.trim()) {
-      throw new DomainError("El nombre del ciclo es obligatorio", 400);
+      throw new DomainError("The cycle name is required", 400);
     }
     if (!input.FechaInicio || !input.FechaFin) {
-      throw new DomainError("Las fechas de inicio y fin son obligatorias", 400);
+      throw new DomainError("Start and end dates are required", 400);
     }
     if (new Date(input.FechaFin) < new Date(input.FechaInicio)) {
       throw new DomainError(
-        "La fecha de fin no puede ser anterior a la fecha de inicio",
+        "The end date can't be before the start date",
         400,
       );
     }

@@ -18,10 +18,10 @@ export class ToggleUserStatus {
     accessToken: string,
   ): Promise<ToggleUserStatusResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!Number.isInteger(input.UserId) || input.UserId <= 0) {
-      throw new DomainError("El identificador del empleado no es válido", 400);
+      throw new DomainError("Invalid employee ID.", 400);
     }
 
     return this.team.toggleUserStatus(input, accessToken);

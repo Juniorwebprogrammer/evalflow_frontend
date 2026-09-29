@@ -12,7 +12,7 @@ import {
 } from "@/features/templates/presentation/api/template-client";
 import { TEMPLATES_QUERY_KEY } from "@/features/templates/presentation/hooks/use-templates";
 import { templateQueryKey } from "@/features/templates/presentation/hooks/use-template";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { removeById } from "@/shared/lib/query-cache";
 
 /** Confirms deleting a template. */
@@ -39,9 +39,14 @@ export function DeleteTemplateModal({
       onClose();
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo eliminar la plantilla. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't delete the template.", {
+          byDetail: [
+            [
+              "con resultados",
+              "You can't delete this template because it has saved evaluation results.",
+            ],
+          ],
+        }),
       );
     } finally {
       setSubmitting(false);
@@ -51,13 +56,13 @@ export function DeleteTemplateModal({
   return (
     <Modal
       onClose={onClose}
-      title="Eliminar plantilla"
+      title="Delete template"
       icon={<TrashIcon className="h-5 w-5" />}
       disableClose={submitting}
     >
       <p className="text-sm text-slate-600">
-        ¿Seguro que quieres eliminar <strong>{template.titulo}</strong>? Esta
-        acción no se puede deshacer.
+        Are you sure you want to delete <strong>{template.titulo}</strong>? This
+        can&apos;t be undone.
       </p>
 
       {error && (
@@ -68,10 +73,10 @@ export function DeleteTemplateModal({
 
       <div className="mt-5 flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="button" variant="danger" loading={submitting} onClick={handleConfirm}>
-          Eliminar
+          Delete
         </Button>
       </div>
     </Modal>

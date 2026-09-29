@@ -5,10 +5,10 @@ import { DownloadReportLink } from "@/features/evaluation-results/presentation/c
 import { formatScore } from "@/features/evaluation-comparisons/presentation/components/alignment-level";
 import { Notice } from "@/shared/ui/notice";
 import { AlertTriangleIcon, TrendUpIcon } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 
-/** Owner/RRHH list of every employee result of a completed cycle, with their PDF reports. */
+/** Owner/HR list of every employee result of a completed cycle, with their PDF reports. */
 export function CycleResultsSection({ cycleId }: { cycleId: number }) {
   const { data, isLoading, error } = useCycleEvaluationResults(cycleId);
 
@@ -16,14 +16,14 @@ export function CycleResultsSection({ cycleId }: { cycleId: number }) {
     <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
       <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
         <TrendUpIcon className="h-4 w-4 text-slate-400" />
-        Resultados de evaluación {data ? `(${data.length})` : ""}
+        Evaluation results {data ? `(${data.length})` : ""}
       </h2>
 
-      {isLoading && <p className="mt-3 text-sm text-slate-500">Cargando resultados…</p>}
+      {isLoading && <p className="mt-3 text-sm text-slate-500">Loading results…</p>}
 
       {error && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />} className="mt-3">
-          {error instanceof ApiError ? error.message : "No se pudieron cargar los resultados."}
+          {errorMessage(error, "We couldn't load the results.")}
         </Notice>
       )}
 
@@ -39,7 +39,7 @@ export function CycleResultsSection({ cycleId }: { cycleId: number }) {
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-slate-500">
-                  Puntuación <strong className="text-slate-800">{formatScore(result.averageFinal)}</strong>
+                  Score <strong className="text-slate-800">{formatScore(result.averageFinal)}</strong>
                 </span>
                 <DownloadReportLink resultId={result.id} />
               </div>

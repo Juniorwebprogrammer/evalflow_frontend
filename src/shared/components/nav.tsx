@@ -22,19 +22,19 @@ import { canAccessScreen } from "@/shared/lib/roles";
 
 const NAV = [
   { icon: GridIcon, label: "Dashboard", href: "/dashboard" },
-  { icon: DocIcon, label: "Plantillas", href: "/dashboard/plantillas" },
-  { icon: ClipboardIcon, label: "Ciclos de evaluación", href: "/dashboard/ciclos-evaluacion" },
-  { icon: StarIcon, label: "Listas favoritas", href: "/dashboard/listas-favoritas" },
-  { icon: UsersIcon, label: "Empleados", href: "/dashboard/usuarios" },
-  { icon: BarsIcon, label: "Mis evaluaciones", href: "/dashboard/mis-evaluaciones" },
-  { icon: MailIcon, label: "Solicitudes de información", href: "/dashboard/solicitudes-informacion" },
-  { icon: TrendUpIcon, label: "Resultados de evaluación", href: "/dashboard/resultados-evaluacion" },
-  { icon: SettingsIcon, label: "Configuración", href: "/dashboard/perfil" },
+  { icon: DocIcon, label: "Templates", href: "/dashboard/plantillas" },
+  { icon: ClipboardIcon, label: "Evaluation cycles", href: "/dashboard/ciclos-evaluacion" },
+  { icon: StarIcon, label: "Favorite lists", href: "/dashboard/listas-favoritas" },
+  { icon: UsersIcon, label: "Employees", href: "/dashboard/usuarios" },
+  { icon: BarsIcon, label: "My evaluations", href: "/dashboard/mis-evaluaciones" },
+  { icon: MailIcon, label: "Information requests", href: "/dashboard/solicitudes-informacion" },
+  { icon: TrendUpIcon, label: "Evaluation results", href: "/dashboard/resultados-evaluacion" },
+  { icon: SettingsIcon, label: "Settings", href: "/dashboard/perfil" },
 ];
 
 /**
  * Everything the desktop sidebar and the mobile top bar share: the signed-in
- * user (from the `["profile"]` query cache, so edits on the Perfil page show
+ * user (from the `["profile"]` query cache, so edits on the profile page show
  * up instantly), the nav entries their role may open, and sign-out.
  */
 export function useShellNav(initialProfile: Profile) {
@@ -47,7 +47,7 @@ export function useShellNav(initialProfile: Profile) {
   }
 
   return {
-    userName: `${profile.nombre} ${profile.apellidos}`.trim() || "Usuario",
+    userName: `${profile.nombre} ${profile.apellidos}`.trim() || "User",
     initials: toInitials(profile.nombre, profile.apellidos),
     avatarVersion: profile.avatarUpdatedAt,
     nav: NAV.filter(({ href }) => canAccessScreen(profile.rol, href)),

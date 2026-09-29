@@ -12,7 +12,7 @@ import {
   type FavoriteListResponse,
 } from "@/features/favorite-lists/presentation/api/favorite-list-client";
 import { FAVORITE_LISTS_QUERY_KEY } from "@/features/favorite-lists/presentation/hooks/use-favorite-lists";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { upsertById } from "@/shared/lib/query-cache";
 
 interface FormState {
@@ -85,9 +85,10 @@ export function FavoriteListForm({
       );
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : `No se pudo ${isEditing ? "actualizar" : "crear"} la lista. Inténtalo de nuevo.`,
+        errorMessage(
+          err,
+          isEditing ? "We couldn't update the list." : "We couldn't create the list.",
+        ),
       );
     } finally {
       setSubmitting(false);
@@ -101,10 +102,10 @@ export function FavoriteListForm({
           tone="success"
           icon={<CheckCircleIcon className="h-5 w-5 text-emerald-600" />}
         >
-          Lista <strong>{form.nombre}</strong> {isEditing ? "actualizada" : "creada"} con éxito.
+          List <strong>{form.nombre}</strong> {isEditing ? "updated" : "created"} successfully.
         </Notice>
         <Button type="button" className="mt-5 w-full" onClick={onSaved}>
-          Aceptar
+          OK
         </Button>
       </>
     );
@@ -113,29 +114,29 @@ export function FavoriteListForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field
-        label="Nombre"
+        label="Name"
         icon={<StarIcon className="h-4 w-4" />}
         value={form.nombre}
         onChange={(e) => update({ nombre: e.target.value })}
-        placeholder="Plantillas para el equipo de ventas"
+        placeholder="Templates for the sales team"
         required
         autoFocus
       />
       <Field
-        label="Descripción"
+        label="Description"
         value={form.descripcion}
         onChange={(e) => update({ descripcion: e.target.value })}
-        placeholder="Plantillas que uso habitualmente"
+        placeholder="Templates I use often"
       />
 
       {error && <Notice tone="error">{error}</Notice>}
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="submit" loading={submitting}>
-          {isEditing ? "Guardar cambios" : "Crear lista"}
+          {isEditing ? "Save changes" : "Create list"}
         </Button>
       </div>
     </form>

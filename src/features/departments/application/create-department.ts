@@ -18,11 +18,11 @@ export class CreateDepartment {
     accessToken: string,
   ): Promise<CreateDepartmentResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
 
     if (!input.Nombre.trim()) {
-      throw new DomainError("El nombre del departamento es obligatorio", 400);
+      throw new DomainError("Department name is required.", 400);
     }
 
     return this.departments.create(

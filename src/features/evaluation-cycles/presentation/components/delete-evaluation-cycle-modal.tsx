@@ -11,7 +11,7 @@ import {
   type EvaluationCycleResponse,
 } from "@/features/evaluation-cycles/presentation/api/evaluation-cycle-client";
 import { EVALUATION_CYCLES_QUERY_KEY } from "@/features/evaluation-cycles/presentation/hooks/use-evaluation-cycles";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { removeById } from "@/shared/lib/query-cache";
 
 /** Confirms deleting an evaluation cycle. */
@@ -41,9 +41,15 @@ export function DeleteEvaluationCycleModal({
       onDeleted?.();
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo eliminar el ciclo. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't delete the cycle.", {
+          byDetail: [
+            [
+              "ciclo completado",
+              "A completed cycle can't be deleted because it holds the evaluation results.",
+            ],
+            ["ciclo activo", "An active cycle can't be deleted. Deactivate it first."],
+          ],
+        }),
       );
     } finally {
       setSubmitting(false);
@@ -53,13 +59,13 @@ export function DeleteEvaluationCycleModal({
   return (
     <Modal
       onClose={onClose}
-      title="Eliminar ciclo de evaluación"
+      title="Delete evaluation cycle"
       icon={<TrashIcon className="h-5 w-5" />}
       disableClose={submitting}
     >
       <p className="text-sm text-slate-600">
-        ¿Seguro que quieres eliminar <strong>{cycle.nombre}</strong>? Esta acción no
-        se puede deshacer.
+        Are you sure you want to delete <strong>{cycle.nombre}</strong>? This can&apos;t
+        be undone.
       </p>
 
       {error && (
@@ -70,10 +76,10 @@ export function DeleteEvaluationCycleModal({
 
       <div className="mt-5 flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="button" variant="danger" loading={submitting} onClick={handleConfirm}>
-          Eliminar
+          Delete
         </Button>
       </div>
     </Modal>

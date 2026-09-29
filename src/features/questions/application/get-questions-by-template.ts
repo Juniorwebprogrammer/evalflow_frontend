@@ -8,10 +8,10 @@ export class GetQuestionsByTemplate {
 
   async execute(templateId: number, accessToken: string): Promise<Question[]> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is invalid. Please sign in again.", 401);
     }
     if (!Number.isInteger(templateId) || templateId <= 0) {
-      throw new DomainError("El identificador de la plantilla no es válido", 400);
+      throw new DomainError("The template ID is invalid", 400);
     }
 
     return this.questions.listByTemplate(templateId, accessToken);

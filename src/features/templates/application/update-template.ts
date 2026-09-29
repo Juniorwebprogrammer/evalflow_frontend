@@ -15,20 +15,20 @@ export class UpdateTemplate {
     accessToken: string,
   ): Promise<TemplateActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is invalid. Please sign in again.", 401);
     }
     if (!Number.isInteger(id) || id <= 0) {
-      throw new DomainError("El identificador de la plantilla no es válido", 400);
+      throw new DomainError("The template ID is invalid", 400);
     }
     if (!input.Titulo.trim()) {
-      throw new DomainError("El título de la plantilla es obligatorio", 400);
+      throw new DomainError("The template title is required", 400);
     }
     if (!input.FechaInicio || !input.FechaFin) {
-      throw new DomainError("Las fechas de inicio y fin son obligatorias", 400);
+      throw new DomainError("The start and end dates are required", 400);
     }
     if (new Date(input.FechaFin) < new Date(input.FechaInicio)) {
       throw new DomainError(
-        "La fecha de fin no puede ser anterior a la fecha de inicio",
+        "The end date can't be earlier than the start date",
         400,
       );
     }

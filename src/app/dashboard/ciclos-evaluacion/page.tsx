@@ -11,9 +11,9 @@ export default async function CiclosEvaluacionPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Ciclos de evaluación</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Evaluation cycles</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Periodos de evaluación de tu empresa y sus plantillas asociadas
+          Your company&apos;s evaluation periods and their templates
         </p>
       </header>
       <div className="mt-6">

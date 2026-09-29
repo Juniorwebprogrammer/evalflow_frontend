@@ -35,7 +35,7 @@ export async function PUT(request: NextRequest) {
     const session = await requireSession();
     const body = (await request.json().catch(() => null)) as { data?: unknown } | null;
     if (!body || typeof body.data !== "string") {
-      throw new DomainError("El cuerpo de la petición no es válido", 400);
+      throw new DomainError("The request is not valid.", 400);
     }
 
     const avatarUpdatedAt = await useCases.uploadAvatar.execute(body.data, session.jwt);
@@ -49,7 +49,7 @@ export async function DELETE() {
   try {
     const session = await requireSession();
     await useCases.deleteAvatar.execute(session.jwt);
-    return Response.json({ message: "Foto de perfil eliminada" });
+    return Response.json({ message: "Profile photo removed." });
   } catch (error) {
     return handleError(error);
   }
@@ -58,7 +58,7 @@ export async function DELETE() {
 async function requireSession() {
   const session = await readSession();
   if (!session) {
-    throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+    throw new DomainError("Your session has expired. Please sign in again.", 401);
   }
   return session;
 }

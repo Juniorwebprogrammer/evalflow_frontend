@@ -5,6 +5,8 @@ import { UserAvatar } from "@/features/profile/presentation/components/user-avat
 import { useAvatarMutations } from "@/features/profile/presentation/hooks/use-profile";
 import { CameraIcon, TrashIcon, UploadIcon } from "@/shared/ui/icons";
 import { Spinner } from "@/shared/ui/spinner";
+import { AvatarFileError } from "@/features/profile/presentation/api/profile-client";
+import { errorMessage } from "@/shared/lib/api-error";
 
 /**
  * Profile-banner avatar with a camera button: pick a new picture (resized in
@@ -77,7 +79,8 @@ export function AvatarEditor({
 
         <button
           type="button"
-          title="Cambiar foto de perfil"
+          title="Change profile photo"
+          aria-label="Change profile photo"
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           disabled={busy}
@@ -100,7 +103,7 @@ export function AvatarEditor({
               className="flex w-full items-center gap-2.5 px-3 py-2 text-left hover:bg-slate-50"
             >
               <UploadIcon className="h-4 w-4 text-slate-400" />
-              Subir nueva foto
+              Upload new photo
             </button>
             <button
               type="button"
@@ -109,7 +112,7 @@ export function AvatarEditor({
               className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-red-600 hover:bg-red-50"
             >
               <TrashIcon className="h-4 w-4" />
-              Eliminar foto
+              Remove photo
             </button>
           </div>
         )}
@@ -125,7 +128,18 @@ export function AvatarEditor({
 
       {error && (
         <p role="alert" className="max-w-[220px] text-xs text-red-300">
-          {error instanceof Error ? error.message : "No se pudo actualizar la foto."}
+          {error instanceof AvatarFileError
+            ? error.message
+            : upload.error
+              ? errorMessage(error, "We couldn't update your photo.", {
+                  byDetail: [
+                    [
+                      "imagen no es válida",
+                      "The image isn't valid. Use a JPG, PNG or WebP file.",
+                    ],
+                  ],
+                })
+              : errorMessage(error, "We couldn't remove your photo.")}
         </p>
       )}
     </div>

@@ -20,7 +20,7 @@ import {
   PlusIcon,
   SearchIcon,
 } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { isPrivilegedRole } from "@/shared/lib/roles";
@@ -31,7 +31,7 @@ import { PlanLimitNotice } from "@/features/plans/presentation/components/plan-l
  * cards (name, status badge, date range, template count), each linking to
  * its detail page. Editing, deleting, managing templates and the list of
  * assigned users all live there now, not on this list — search box and a
- * "Nuevo ciclo" button are all that stays here.
+ * "New cycle" button are all that stays here.
  */
 export function EvaluationCyclesList() {
   const { data: cycles, isLoading, error } = useEvaluationCycles();
@@ -51,15 +51,13 @@ export function EvaluationCyclesList() {
   }, [cycles, search]);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando ciclos de evaluación…</p>;
+    return <p className="text-sm text-slate-500">Loading evaluation cycles…</p>;
   }
 
   if (error) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el listado de ciclos de evaluación."}
+        {errorMessage(error, "We couldn't load the evaluation cycles.")}
       </Notice>
     );
   }
@@ -72,14 +70,14 @@ export function EvaluationCyclesList() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar ciclo…"
+            placeholder="Search cycles…"
             className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
           />
         </div>
         {canManage && (
           <Button type="button" onClick={() => setCreating(true)}>
             <PlusIcon className="h-4 w-4" />
-            Nuevo ciclo
+            New cycle
           </Button>
         )}
       </div>
@@ -90,13 +88,13 @@ export function EvaluationCyclesList() {
       {(!cycles || cycles.length === 0) && (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
           <ClipboardIcon className="h-5 w-5 shrink-0 text-slate-400" />
-          <span>Todavía no hay ningún ciclo de evaluación creado.</span>
+          <span>No evaluation cycles have been created yet.</span>
         </div>
       )}
 
       {filtered.length === 0 && cycles && cycles.length > 0 && (
         <p className="rounded-2xl border border-slate-100 bg-white px-5 py-6 text-center text-sm text-slate-500 shadow-sm">
-          Ningún ciclo coincide con la búsqueda.
+          No cycles match your search.
         </p>
       )}
 
@@ -129,7 +127,7 @@ export function EvaluationCyclesList() {
                   <span className="inline-flex items-center gap-1.5">
                     <DocIcon className="h-4 w-4 text-slate-400" />
                     {cycle.templateIds.length}{" "}
-                    {cycle.templateIds.length === 1 ? "plantilla" : "plantillas"}
+                    {cycle.templateIds.length === 1 ? "template" : "templates"}
                   </span>
                 </div>
               </div>

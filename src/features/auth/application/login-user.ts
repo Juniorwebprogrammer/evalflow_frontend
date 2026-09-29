@@ -11,13 +11,13 @@ export class LoginUser {
 
   async execute(input: LoginInput): Promise<LoginResult> {
     if (!input.Email.trim()) {
-      throw new DomainError("El correo electrónico es obligatorio", 400);
+      throw new DomainError("Email is required", 400);
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.Email)) {
-      throw new DomainError("El correo electrónico no es válido", 400);
+      throw new DomainError("Email is not valid", 400);
     }
     if (!input.Password) {
-      throw new DomainError("La contraseña es obligatoria", 400);
+      throw new DomainError("Password is required", 400);
     }
     return this.auth.login(input);
   }

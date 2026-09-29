@@ -12,7 +12,7 @@ import {
   type QuestionResponse,
 } from "@/features/questions/presentation/api/question-client";
 import { questionsQueryKey } from "@/features/questions/presentation/hooks/use-questions";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { removeById } from "@/shared/lib/query-cache";
 
 /** Confirms deleting a question. */
@@ -69,11 +69,7 @@ export function DeleteQuestionModal({
 
       onClose();
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo eliminar la pregunta. Inténtalo de nuevo.",
-      );
+      setError(errorMessage(err, "We couldn't delete the question."));
     } finally {
       setSubmitting(false);
     }
@@ -82,12 +78,12 @@ export function DeleteQuestionModal({
   return (
     <Modal
       onClose={onClose}
-      title="Eliminar pregunta"
+      title="Delete question"
       icon={<TrashIcon className="h-5 w-5" />}
       disableClose={submitting}
     >
       <p className="text-sm text-slate-600">
-        ¿Seguro que quieres eliminar <strong>&ldquo;{question.texto}&rdquo;</strong>?
+        Are you sure you want to delete <strong>&ldquo;{question.texto}&rdquo;</strong>?
       </p>
 
       {error && (
@@ -98,10 +94,10 @@ export function DeleteQuestionModal({
 
       <div className="mt-5 flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="button" variant="danger" loading={submitting} onClick={handleConfirm}>
-          Eliminar
+          Delete
         </Button>
       </div>
     </Modal>

@@ -91,13 +91,13 @@ export class HttpAuthRepository implements AuthRepository {
     });
 
     if (!dto) {
-      throw new UpstreamError("El servidor no devolvió una respuesta de acceso");
+      throw new UpstreamError("The server did not return a sign-in response");
     }
 
     if (dto.Requires2FA ?? dto.requires2FA ?? false) {
       return {
         requires2FA: true,
-        message: dto.Message ?? dto.message ?? "Código 2FA enviado al correo.",
+        message: dto.Message ?? dto.message ?? "2FA code sent by email.",
         email: dto.Email ?? dto.email ?? input.Email,
       };
     }
@@ -105,12 +105,12 @@ export class HttpAuthRepository implements AuthRepository {
     const jwt = dto.Jwt ?? dto.jwt;
     const refreshToken = dto.RefreshToken ?? dto.refreshToken;
     if (!jwt || !refreshToken) {
-      throw new UpstreamError("La respuesta de acceso es incompleta");
+      throw new UpstreamError("The sign-in response is incomplete");
     }
 
     return {
       requires2FA: false,
-      message: dto.Message ?? dto.message ?? "Acceso correcto",
+      message: dto.Message ?? dto.message ?? "Signed in successfully",
       username: dto.Username ?? dto.username ?? "",
       jwt,
       refreshToken,
@@ -145,13 +145,13 @@ export class HttpAuthRepository implements AuthRepository {
     });
 
     if (!dto) {
-      throw new UpstreamError("El servidor no devolvió una respuesta de verificación");
+      throw new UpstreamError("The server did not return a verification response");
     }
 
     const tenantId = dto.TenantId ?? dto.tenantId ?? null;
 
     return {
-      message: dto.Message ?? dto.message ?? "Correo electrónico verificado",
+      message: dto.Message ?? dto.message ?? "Email verified",
       tenantId: tenantId == null ? null : String(tenantId),
     };
   }
@@ -165,17 +165,17 @@ export class HttpAuthRepository implements AuthRepository {
     });
 
     if (!dto) {
-      throw new UpstreamError("El servidor no devolvió una respuesta de verificación");
+      throw new UpstreamError("The server did not return a verification response");
     }
 
     const jwt = dto.Jwt ?? dto.jwt;
     const refreshToken = dto.RefreshToken ?? dto.refreshToken;
     if (!jwt || !refreshToken) {
-      throw new UpstreamError("La respuesta de verificación es incompleta");
+      throw new UpstreamError("The verification response is incomplete");
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Autenticación completada",
+      message: dto.Message ?? dto.message ?? "Authentication completed",
       username: dto.Username ?? dto.username ?? "",
       jwt,
       refreshToken,
@@ -194,7 +194,7 @@ export class HttpAuthRepository implements AuthRepository {
       message:
         dto?.Message ??
         dto?.message ??
-        "Si el correo está registrado y el 2FA activado, se ha enviado un nuevo código.",
+        "If the email is registered and 2FA is enabled, a new code has been sent.",
     };
   }
 
@@ -212,7 +212,7 @@ export class HttpAuthRepository implements AuthRepository {
       message:
         dto?.Message ??
         dto?.message ??
-        "Si el correo está registrado y pendiente de verificación, se ha enviado un nuevo enlace.",
+        "If the email is registered and pending verification, a new link has been sent.",
     };
   }
 
@@ -228,7 +228,7 @@ export class HttpAuthRepository implements AuthRepository {
       message:
         dto?.Message ??
         dto?.message ??
-        "Si el correo electrónico existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña.",
+        "If the email exists in our system, you will receive a link to reset your password.",
     };
   }
 
@@ -244,7 +244,7 @@ export class HttpAuthRepository implements AuthRepository {
       message:
         dto?.Message ??
         dto?.message ??
-        "Tu contraseña ha sido actualizada correctamente. Ya puedes iniciar sesión.",
+        "Your password has been updated. You can now sign in.",
     };
   }
 }

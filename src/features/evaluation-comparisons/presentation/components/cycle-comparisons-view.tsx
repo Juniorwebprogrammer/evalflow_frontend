@@ -37,12 +37,14 @@ import {
 } from "@/features/ai-analysis/presentation/hooks/use-ai-analyses";
 import type { AiAnalysis } from "@/features/ai-analysis/domain/ai-analysis";
 import { AiAnalysisPanel } from "@/features/ai-analysis/presentation/components/ai-analysis-panel";
+import { aiRiskLabel } from "@/features/ai-analysis/presentation/components/ai-analysis-labels";
 import { QuestionType } from "@/features/questions/domain/question";
 import { EvaluationType } from "@/features/evaluation-cycles/domain/evaluation-cycle";
 import { Button } from "@/shared/ui/button";
 import { formatDate } from "@/shared/lib/format-date";
 import { isPrivilegedRole } from "@/shared/lib/roles";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
+import { roleLabel } from "@/features/team/presentation/lib/format";
 import { Notice } from "@/shared/ui/notice";
 import {
   AlertTriangleIcon,
@@ -90,8 +92,8 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
       if (key === "cycle") {
         setAiQueuedMessage(
           result.created === 0
-            ? "Los análisis ya están al día: ninguna evaluación ha cambiado desde el último análisis."
-            : `Se ${result.created === 1 ? "ha" : "han"} puesto en cola ${result.created} análisis. Aparecerán en cada empleado en cuanto estén listos.`,
+            ? "The analyses are already up to date: no evaluation has changed since the last analysis."
+            : `${result.created} ${result.created === 1 ? "analysis has" : "analyses have"} been queued. ${result.created === 1 ? "It" : "They"}'ll appear on each employee as soon as ${result.created === 1 ? "it's" : "they're"} ready.`,
         );
       }
     } catch {
@@ -137,7 +139,7 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
         className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
       >
         <ArrowRightIcon className="h-3.5 w-3.5 rotate-180" />
-        Volver al ciclo
+        Back to cycle
       </Link>
 
       <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
@@ -148,13 +150,13 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
             </span>
             <div>
               <h1 className="text-xl font-bold text-slate-900">
-                {isReview ? "Revisión de resultados" : "Comparación de evaluaciones"}
+                {isReview ? "Results review" : "Evaluation comparison"}
               </h1>
               <p className="mt-1 text-sm text-slate-500">
                 {data?.cycleName ? `${data.cycleName} · ` : ""}
                 {isReview
-                  ? `Respuestas de la ${source === "self" ? "autoevaluación" : "evaluación del superior"} de cada empleado. Revísalas y completa la evaluación para generar los informes.`
-                  : "Autoevaluación frente a la evaluación del superior, pregunta a pregunta."}
+                  ? `Each employee's ${source === "self" ? "self-assessment" : "manager evaluation"} answers. Review them and complete the evaluation to generate the reports.`
+                  : "Self-assessment versus the manager's evaluation, question by question."}
               </p>
             </div>
           </div>
@@ -170,12 +172,12 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                     disabled={hasAiFeatures !== true || aiRequest.pendingKey !== null}
                     title={
                       hasAiFeatures === false
-                        ? "El análisis con IA está disponible en los planes Growth y Enterprise"
-                        : "Analiza con IA las evaluaciones completadas de todos los empleados"
+                        ? "AI analysis is available on the Growth and Enterprise plans"
+                        : "Analyze every employee's completed evaluations with AI"
                     }
                   >
                     <SparkleIcon className="h-4 w-4" />
-                    {aiRequest.pendingKey === "cycle" ? "Solicitando…" : "Analizar con IA"}
+                    {aiRequest.pendingKey === "cycle" ? "Requesting…" : "Analyze with AI"}
                   </Button>
                 )}
                 {!isCompleted && (
@@ -185,18 +187,18 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                     disabled={pendingImbalances > 0}
                     title={
                       pendingImbalances > 0
-                        ? "Acepta todos los desequilibrios para poder completar la evaluación"
+                        ? "Accept every imbalance before completing the evaluation"
                         : undefined
                     }
                   >
                     <CheckCircleIcon className="h-4 w-4" />
-                    Completar evaluación
+                    Complete evaluation
                   </Button>
                 )}
               </div>
               {!isCompleted && pendingImbalances > 0 && (
                 <p className="text-xs text-red-600">
-                  {pendingImbalances} desequilibrio{pendingImbalances === 1 ? "" : "s"} sin aceptar
+                  {pendingImbalances} unaccepted {pendingImbalances === 1 ? "imbalance" : "imbalances"}
                 </p>
               )}
             </div>
@@ -217,28 +219,28 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
 
         {isCompleted && (
           <Notice tone="success" icon={<CheckCircleIcon className="h-5 w-5" />} className="mt-5">
-            Evaluación completada
-            {data?.completedAt ? ` el ${formatDate(data.completedAt)}` : ""}. Los resultados ya están
-            guardados y cada empleado puede descargar su informe.
+            Evaluation completed
+            {data?.completedAt ? ` on ${formatDate(data.completedAt)}` : ""}. The results have been
+            saved and each employee can download their report.
           </Notice>
         )}
 
         {data && isReview && (
           <div className="mt-5 grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-4">
-            <Stat label="Evaluaciones" value={String(comparisons.length)} />
-            <Stat label="Completadas" value={String(comparable.length)} tone="success" />
-            <Stat label="Pendientes" value={String(comparisons.length - comparable.length)} tone="danger" />
-            <Stat label="Puntuación media" value={formatScore(averageScore)} />
+            <Stat label="Evaluations" value={String(comparisons.length)} />
+            <Stat label="Completed" value={String(comparable.length)} tone="success" />
+            <Stat label="Pending" value={String(comparisons.length - comparable.length)} tone="danger" />
+            <Stat label="Average score" value={formatScore(averageScore)} />
           </div>
         )}
 
         {data && !isReview && (
           <div className="mt-5 grid grid-cols-2 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-4">
-            <Stat label="Evaluaciones" value={String(comparisons.length)} />
-            <Stat label="Comparables" value={String(comparable.length)} />
-            <Stat label="Con desequilibrios" value={String(withImbalances.length)} tone="danger" />
+            <Stat label="Evaluations" value={String(comparisons.length)} />
+            <Stat label="Comparable" value={String(comparable.length)} />
+            <Stat label="With imbalances" value={String(withImbalances.length)} tone="danger" />
             <Stat
-              label="Equilibrio medio"
+              label="Average alignment"
               value={averageAlignment === null ? "—" : `${formatScore(averageAlignment)}%`}
               tone="success"
             />
@@ -248,15 +250,15 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
 
       {!isLoadingRole && !canManage && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          Solo Owner y RRHH pueden ver los resultados de las evaluaciones.
+          Only the Owner and HR can view evaluation results.
         </Notice>
       )}
 
-      {isLoading && <p className="text-sm text-slate-500">Cargando resultados…</p>}
+      {isLoading && <p className="text-sm text-slate-500">Loading results…</p>}
 
       {error && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          {error instanceof ApiError ? error.message : "No se pudieron cargar los resultados."}
+          {errorMessage(error, "We couldn't load the results.")}
         </Notice>
       )}
 
@@ -265,7 +267,7 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
               <UsersIcon className="h-4 w-4 text-slate-400" />
-              Empleados ({visible.length})
+              Employees ({visible.length})
             </h2>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -277,7 +279,7 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                     onChange={(e) => setOnlyImbalances(e.target.checked)}
                     className="h-4 w-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[var(--brand)]/30"
                   />
-                  Solo con desequilibrios
+                  Only with imbalances
                 </label>
               )}
               <div className="relative">
@@ -286,7 +288,7 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                   type="search"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar empleado…"
+                  placeholder="Search employees…"
                   className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm text-slate-700 outline-none transition focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20 sm:w-56"
                 />
               </div>
@@ -295,12 +297,12 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
 
           {comparisons.length === 0 && (
             <p className="mt-3 text-sm text-slate-500">
-              Todavía no hay formularios generados en este ciclo.
+              No forms have been generated in this cycle yet.
             </p>
           )}
 
           {comparisons.length > 0 && visible.length === 0 && (
-            <p className="mt-3 text-sm text-slate-500">Ningún empleado coincide con los filtros.</p>
+            <p className="mt-3 text-sm text-slate-500">No employees match the filters.</p>
           )}
 
           <div className="mt-4 space-y-3">
@@ -439,10 +441,10 @@ function EmployeeComparisonCard({
     <div className="rounded-xl border border-slate-100">
       <div className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="font-medium text-slate-800">{comparison.evaluatedUserName} - {comparison.evaluatedRol}</p>
+          <p className="font-medium text-slate-800">{comparison.evaluatedUserName} - {roleLabel(comparison.evaluatedRol)}</p>
           <p className="text-xs text-slate-400">
             {comparison.templateTitle}
-            {comparison.managerName ? ` · Superior: ${comparison.managerName}` : ""}
+            {comparison.managerName ? ` · Manager: ${comparison.managerName}` : ""}
           </p>
         </div>
 
@@ -452,7 +454,7 @@ function EmployeeComparisonCard({
               {isReview ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
                   <CheckCircleIcon className="h-3.5 w-3.5" />
-                  {isCompleted ? "Informe generado" : "Lista para informe"}
+                  {isCompleted ? "Report generated" : "Ready for report"}
                 </span>
               ) : (
               <span
@@ -466,19 +468,19 @@ function EmployeeComparisonCard({
                   <CheckCircleIcon className="h-3.5 w-3.5" />
                 )}
                 {pendingImbalances.length > 0
-                  ? `${pendingImbalances.length} desequilibrio${pendingImbalances.length === 1 ? "" : "s"}`
+                  ? `${pendingImbalances.length} ${pendingImbalances.length === 1 ? "imbalance" : "imbalances"}`
                   : imbalancesAccepted
-                    ? "Desequilibrios aceptados"
-                    : "Equilibrado"}
+                    ? "Imbalances accepted"
+                    : "Balanced"}
               </span>
               )}
               {clarifications.length > 0 && (
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-600"
-                  title={`${pendingClarifications} pendiente${pendingClarifications === 1 ? "" : "s"} de respuesta`}
+                  title={`${pendingClarifications} awaiting a response`}
                 >
                   <MailIcon className="h-3.5 w-3.5" />
-                  {clarifications.length} solicitud{clarifications.length === 1 ? "" : "es"}
+                  {clarifications.length} {clarifications.length === 1 ? "request" : "requests"}
                 </span>
               )}
               {!isCompleted && !isReview && (
@@ -488,7 +490,7 @@ function EmployeeComparisonCard({
                     onClick={() => onRequestClarification(null)}
                     className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
                   >
-                    Solicitar información
+                    Request information
                   </button>
                   {pendingImbalances.length > 0 && (
                     <button
@@ -496,7 +498,7 @@ function EmployeeComparisonCard({
                       onClick={() => onAcceptDiscrepancies(pendingImbalances)}
                       className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
                     >
-                      Aceptar desequilibrio{pendingImbalances.length === 1 ? "" : "s"}
+                      {pendingImbalances.length === 1 ? "Accept imbalance" : "Accept imbalances"}
                     </button>
                   )}
                 </>
@@ -504,10 +506,10 @@ function EmployeeComparisonCard({
               {aiRisk && (
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700"
-                  title="Análisis con IA disponible en el detalle"
+                  title="AI analysis available in the details"
                 >
                   <SparkleIcon className="h-3.5 w-3.5" />
-                  IA · riesgo {aiRisk.toLowerCase()}
+                  AI · {aiRiskLabel(aiRisk).toLowerCase()} risk
                 </span>
               )}
               {resultId !== null && <DownloadReportLink resultId={resultId} />}
@@ -516,7 +518,7 @@ function EmployeeComparisonCard({
                 onClick={onToggle}
                 className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[var(--brand)] transition hover:bg-[var(--brand)]/10"
               >
-                {expanded ? "Ocultar detalle" : "Ver detalle"}
+                {expanded ? "Hide details" : "View details"}
               </button>
             </>
           ) : (
@@ -531,10 +533,11 @@ function EmployeeComparisonCard({
       {isReview && isReady(comparison, source) && summary && (
         <div className="flex flex-wrap gap-x-5 gap-y-1 border-t border-slate-100 px-4 py-3 text-xs text-slate-500">
           <span>
-            <strong className="text-slate-700">{summary.totalQuestions}</strong> preguntas
+            <strong className="text-slate-700">{summary.totalQuestions}</strong>{" "}
+            {summary.totalQuestions === 1 ? "question" : "questions"}
           </span>
           <span>
-            Media {sourceLabel(source).toLowerCase()}{" "}
+            {sourceLabel(source)} average{" "}
             <strong className="text-slate-700">{formatScore(sourceAverage(summary, source))}</strong>
           </span>
         </div>
@@ -552,28 +555,29 @@ function EmployeeComparisonCard({
             <span className="w-24 text-right text-xs font-semibold text-slate-600">
               {summary.alignmentPercentage === null
                 ? "—"
-                : `${formatScore(summary.alignmentPercentage)}% equilibrio`}
+                : `${formatScore(summary.alignmentPercentage)}% aligned`}
             </span>
           </div>
 
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500">
             <span>
-              <strong className="text-emerald-600">{summary.alineadas}</strong> alineadas
+              <strong className="text-emerald-600">{summary.alineadas}</strong> aligned
             </span>
             <span>
-              <strong className="text-amber-600">{summary.leves}</strong> leves
+              <strong className="text-amber-600">{summary.leves}</strong> slight
             </span>
             <span>
-              <strong className="text-red-600">{summary.desequilibrios}</strong> desequilibrios
+              <strong className="text-red-600">{summary.desequilibrios}</strong>{" "}
+              {summary.desequilibrios === 1 ? "imbalance" : "imbalances"}
             </span>
             {summary.noComparables > 0 && (
               <span>
-                <strong className="text-slate-600">{summary.noComparables}</strong> sin comparar
+                <strong className="text-slate-600">{summary.noComparables}</strong> not compared
               </span>
             )}
             <span>
-              Media: autoevaluación <strong className="text-slate-700">{formatScore(summary.averageSelf)}</strong>{" "}
-              · superior <strong className="text-slate-700">{formatScore(summary.averageManager)}</strong>
+              Average: self-assessment <strong className="text-slate-700">{formatScore(summary.averageSelf)}</strong>{" "}
+              · manager <strong className="text-slate-700">{formatScore(summary.averageManager)}</strong>
             </span>
           </div>
         </div>
@@ -616,13 +620,13 @@ function TopicsTable({ topics, source }: { topics: TopicComparisonResponse[]; so
   if (source !== null) {
     return (
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Por tema</h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">By topic</h3>
         <div className="mt-2 overflow-x-auto rounded-lg border border-slate-100 bg-white">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 text-left text-xs text-slate-400">
-                <th className="px-3 py-2 font-medium">Tema</th>
-                <th className="px-3 py-2 font-medium">Preguntas</th>
+                <th className="px-3 py-2 font-medium">Topic</th>
+                <th className="px-3 py-2 font-medium">Questions</th>
                 <th className="px-3 py-2 font-medium">{sourceLabel(source)}</th>
               </tr>
             </thead>
@@ -645,16 +649,16 @@ function TopicsTable({ topics, source }: { topics: TopicComparisonResponse[]; so
 
   return (
     <div>
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Por tema</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">By topic</h3>
       <div className="mt-2 overflow-x-auto rounded-lg border border-slate-100 bg-white">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs text-slate-400">
-              <th className="px-3 py-2 font-medium">Tema</th>
-              <th className="px-3 py-2 font-medium">Autoevaluación</th>
-              <th className="px-3 py-2 font-medium">Superior</th>
-              <th className="px-3 py-2 font-medium">Diferencia</th>
-              <th className="px-3 py-2 font-medium">Nivel</th>
+              <th className="px-3 py-2 font-medium">Topic</th>
+              <th className="px-3 py-2 font-medium">Self-assessment</th>
+              <th className="px-3 py-2 font-medium">Manager</th>
+              <th className="px-3 py-2 font-medium">Difference</th>
+              <th className="px-3 py-2 font-medium">Level</th>
             </tr>
           </thead>
           <tbody>
@@ -693,7 +697,7 @@ function QuestionsList({
 }) {
   return (
     <div>
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Por pregunta</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">By question</h3>
       <div className="mt-2 space-y-2">
         {questions.map((question) => (
           <div
@@ -716,7 +720,7 @@ function QuestionsList({
                       className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[var(--brand)] transition hover:bg-[var(--brand)]/10"
                     >
                       <MailIcon className="h-3.5 w-3.5" />
-                      Pedir explicación
+                      Ask for an explanation
                     </button>
                     <button
                       type="button"
@@ -724,13 +728,13 @@ function QuestionsList({
                       className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
                     >
                       <CheckCircleIcon className="h-3.5 w-3.5" />
-                      {question.acceptedSource ? "Cambiar" : "Aceptar"}
+                      {question.acceptedSource ? "Change" : "Accept"}
                     </button>
                   </>
                 )}
                 {question.acceptedSource && (
                   <span className="inline-flex shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                    Aceptada: {question.acceptedSource === "Superior" ? "superior" : "autoevaluación"}
+                    Accepted: {question.acceptedSource === "Superior" ? "manager" : "self-assessment"}
                   </span>
                 )}
                 {source === null && <LevelBadge level={question.level} />}
@@ -755,19 +759,19 @@ function QuestionsList({
               )
             ) : question.tipo === QuestionType.Seleccion ? (
               <div className="mt-2 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
-                <AnswerOptions label="Autoevaluación" options={question.selfOptions} />
-                <AnswerOptions label="Superior" options={question.managerOptions} />
+                <AnswerOptions label="Self-assessment" options={question.selfOptions} />
+                <AnswerOptions label="Manager" options={question.managerOptions} />
               </div>
             ) : (
               <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500">
                 <span>
-                  Autoevaluación <strong className="text-slate-700">{formatScore(question.selfValue)}</strong>
+                  Self-assessment <strong className="text-slate-700">{formatScore(question.selfValue)}</strong>
                 </span>
                 <span>
-                  Superior <strong className="text-slate-700">{formatScore(question.managerValue)}</strong>
+                  Manager <strong className="text-slate-700">{formatScore(question.managerValue)}</strong>
                 </span>
                 <span>
-                  Diferencia <strong className="text-slate-700">{formatGap(question.gap)}</strong>
+                  Difference <strong className="text-slate-700">{formatGap(question.gap)}</strong>
                 </span>
                 {gapDirectionLabel(question.direction) && (
                   <span className="text-slate-400">{gapDirectionLabel(question.direction)}</span>
@@ -829,7 +833,7 @@ function reviewSource(tipo: EvaluationType | undefined): ReviewSource {
 }
 
 function sourceLabel(source: ReviewSource): string {
-  return source === "self" ? "Autoevaluación" : "Superior";
+  return source === "self" ? "Self-assessment" : "Manager";
 }
 
 function sourceAverage(
@@ -847,12 +851,12 @@ function isReady(comparison: EmployeeComparisonResponse, source: ReviewSource): 
 }
 
 function pendingLabel(comparison: EmployeeComparisonResponse, source: ReviewSource): string {
-  if (source === "self") return "Falta la autoevaluación";
-  if (comparison.managerUserId === null) return "Sin evaluación del superior";
-  if (source === "manager") return "Falta la evaluación del superior";
-  if (!comparison.selfCompleted && !comparison.managerCompleted) return "Faltan ambas evaluaciones";
-  if (!comparison.selfCompleted) return "Falta la autoevaluación";
-  return "Falta la evaluación del superior";
+  if (source === "self") return "Self-assessment missing";
+  if (comparison.managerUserId === null) return "No manager evaluation";
+  if (source === "manager") return "Manager evaluation missing";
+  if (!comparison.selfCompleted && !comparison.managerCompleted) return "Both evaluations missing";
+  if (!comparison.selfCompleted) return "Self-assessment missing";
+  return "Manager evaluation missing";
 }
 
 function comparisonKey(evaluatedUserId: number, templateId: number): string {

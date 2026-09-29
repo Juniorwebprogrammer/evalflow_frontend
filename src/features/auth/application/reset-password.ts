@@ -15,11 +15,11 @@ export class ResetPassword {
 
   async execute(token: string, newPassword: string): Promise<ResetPasswordResult> {
     if (!token.trim()) {
-      throw new DomainError("El enlace de recuperación no es válido.", 400);
+      throw new DomainError("The password reset link is not valid.", 400);
     }
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
       throw new DomainError(
-        `La nueva contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`,
+        `The new password must be at least ${MIN_PASSWORD_LENGTH} characters long`,
         400,
       );
     }

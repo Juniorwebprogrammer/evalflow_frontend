@@ -4,22 +4,20 @@ import { useDepartments } from "@/features/departments/presentation/hooks/use-de
 import { DepartmentCard } from "@/features/departments/presentation/components/department-card";
 import { Notice } from "@/shared/ui/notice";
 import { AlertTriangleIcon, BuildingIcon } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 /** Department grid (backend `GET /departments`) — tap a card to see its roster. */
 export function DepartmentsGrid() {
   const { data: departments, isLoading, error } = useDepartments();
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando departamentos…</p>;
+    return <p className="text-sm text-slate-500">Loading departments…</p>;
   }
 
   if (error) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el listado de departamentos."}
+        {errorMessage(error, "We couldn't load the departments.")}
       </Notice>
     );
   }
@@ -28,7 +26,7 @@ export function DepartmentsGrid() {
     return (
       <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
         <BuildingIcon className="h-5 w-5 shrink-0 text-slate-400" />
-        <span>Todavía no has creado ningún departamento.</span>
+        <span>You haven&apos;t created any departments yet.</span>
       </div>
     );
   }

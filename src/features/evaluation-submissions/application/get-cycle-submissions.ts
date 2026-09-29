@@ -12,10 +12,10 @@ export class GetCycleSubmissions {
 
   async execute(cycleId: number, accessToken: string): Promise<CycleSubmission[]> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is no longer valid. Please sign in again.", 401);
     }
     if (!Number.isInteger(cycleId) || cycleId <= 0) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is not valid.", 400);
     }
 
     return this.submissions.getByCycle(cycleId, accessToken);

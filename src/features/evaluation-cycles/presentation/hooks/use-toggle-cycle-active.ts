@@ -7,14 +7,15 @@ import {
   type EvaluationCycleResponse,
 } from "@/features/evaluation-cycles/presentation/api/evaluation-cycle-client";
 import { EVALUATION_CYCLES_QUERY_KEY } from "@/features/evaluation-cycles/presentation/hooks/use-evaluation-cycles";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { upsertById } from "@/shared/lib/query-cache";
+import { CYCLE_SAVE_ERRORS } from "@/features/evaluation-cycles/presentation/components/cycle-errors";
 
 /**
  * Flips a cycle's `activo` flag on its own, via the same
  * `PUT /evaluation-cycles/{id}` the edit form uses — but sending only that
  * one field changed, so it works as its own dedicated action instead of
- * being buried inside "Editar".
+ * being buried inside "Edit".
  */
 export function useToggleCycleActive() {
   const queryClient = useQueryClient();
@@ -41,9 +42,11 @@ export function useToggleCycleActive() {
       return updated;
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo actualizar el estado del ciclo. Inténtalo de nuevo.",
+        errorMessage(
+          err,
+          cycle.activo ? "We couldn't deactivate the cycle." : "We couldn't activate the cycle.",
+          { byDetail: CYCLE_SAVE_ERRORS },
+        ),
       );
       throw err;
     } finally {

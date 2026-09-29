@@ -8,7 +8,7 @@ import { Notice } from "@/shared/ui/notice";
 import { BuildingIcon, CheckCircleIcon } from "@/shared/ui/icons";
 import { createDepartment } from "@/features/departments/presentation/api/department-client";
 import { DEPARTMENTS_QUERY_KEY } from "@/features/departments/presentation/hooks/use-departments";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 interface FormState {
   nombre: string;
@@ -48,9 +48,14 @@ export function CreateDepartmentForm({
       queryClient.invalidateQueries({ queryKey: DEPARTMENTS_QUERY_KEY });
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo crear el departamento. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't create the department.", {
+          byDetail: [
+            [
+              "tu plan",
+              "You've reached your plan's department limit. Upgrade your plan to add more.",
+            ],
+          ],
+        }),
       );
     } finally {
       setSubmitting(false);
@@ -64,10 +69,10 @@ export function CreateDepartmentForm({
           tone="success"
           icon={<CheckCircleIcon className="h-5 w-5 text-emerald-600" />}
         >
-          Departamento <strong>{form.nombre}</strong> creado con éxito.
+          Department <strong>{form.nombre}</strong> created.
         </Notice>
         <Button type="button" className="mt-5 w-full" onClick={onCreated}>
-          Aceptar
+          Done
         </Button>
       </>
     );
@@ -76,29 +81,29 @@ export function CreateDepartmentForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field
-        label="Nombre"
+        label="Name"
         icon={<BuildingIcon className="h-4 w-4" />}
         value={form.nombre}
         onChange={(e) => update({ nombre: e.target.value })}
-        placeholder="Medicina Interna"
+        placeholder="Customer Success"
         required
         autoFocus
       />
       <Field
-        label="Descripción"
+        label="Description"
         value={form.descripcion}
         onChange={(e) => update({ descripcion: e.target.value })}
-        placeholder="Diagnóstico y tratamiento de enfermedades sistémicas"
+        placeholder="Onboarding, support and retention of our customers"
       />
 
       {error && <Notice tone="error">{error}</Notice>}
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="submit" loading={submitting}>
-          Crear departamento
+          Create department
         </Button>
       </div>
     </form>

@@ -14,10 +14,10 @@ export class CreateFavoriteList {
     accessToken: string,
   ): Promise<CreateFavoriteListResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is invalid. Please sign in again.", 401);
     }
     if (!input.Nombre.trim()) {
-      throw new DomainError("El nombre de la lista es obligatorio", 400);
+      throw new DomainError("The list name is required", 400);
     }
 
     return this.favoriteLists.create(

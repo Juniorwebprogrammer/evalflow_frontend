@@ -8,10 +8,10 @@ export class DownloadEvaluationResultPdf {
 
   async execute(resultId: number, accessToken: string): Promise<EvaluationResultFile> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is no longer valid. Please sign in again.", 401);
     }
     if (!Number.isInteger(resultId) || resultId <= 0) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is not valid.", 400);
     }
 
     return this.results.downloadPdf(resultId, accessToken);

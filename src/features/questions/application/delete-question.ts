@@ -12,7 +12,7 @@ export class DeleteQuestion {
     accessToken: string,
   ): Promise<QuestionActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is invalid. Please sign in again.", 401);
     }
     if (
       !Number.isInteger(templateId) ||
@@ -20,7 +20,7 @@ export class DeleteQuestion {
       !Number.isInteger(questionId) ||
       questionId <= 0
     ) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is invalid", 400);
     }
 
     return this.questions.remove(templateId, questionId, accessToken);

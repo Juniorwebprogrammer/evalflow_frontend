@@ -7,7 +7,7 @@ export function handleError(error: unknown): Response {
   }
   console.error("[api] unexpected error:", error);
   return Response.json(
-    { message: "Se produjo un error inesperado" },
+    { message: "An unexpected error occurred." },
     { status: 500 },
   );
 }

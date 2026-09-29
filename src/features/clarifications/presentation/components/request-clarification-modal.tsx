@@ -21,9 +21,9 @@ export interface ClarificationTarget {
 }
 
 /**
- * Lets Owner/RRHH ask the evaluated employee and their evaluator why they
+ * Lets Owner/HR ask the evaluated employee and their evaluator why they
  * answered what they answered. The backend emails both and the request shows
- * up in their "Solicitudes de información" page.
+ * up in their "Information requests" page.
  */
 export function RequestClarificationModal({
   cycleId,
@@ -55,7 +55,7 @@ export function RequestClarificationModal({
   return (
     <Modal
       onClose={onClose}
-      title="Solicitar más información"
+      title="Request more information"
       description={`${target.evaluatedUserName} · ${target.templateTitle}`}
       icon={<MailIcon className="h-5 w-5" />}
       size="lg"
@@ -63,16 +63,16 @@ export function RequestClarificationModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="rounded-lg bg-slate-50 px-3.5 py-3 text-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Sobre</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">About</p>
           <p className="mt-0.5 font-medium text-slate-700">
-            {target.question ? target.question.texto : "La evaluación completa"}
+            {target.question ? target.question.texto : "The entire evaluation"}
           </p>
           <p className="mt-2 text-xs text-slate-500">
-            Se enviará un email y una solicitud dentro de la app a{" "}
-            <strong className="text-slate-700">{target.evaluatedUserName}</strong> (evaluado)
+            An email and an in-app request will be sent to{" "}
+            <strong className="text-slate-700">{target.evaluatedUserName}</strong> (employee)
             {target.managerName && (
               <>
-                {" "}y a <strong className="text-slate-700">{target.managerName}</strong> (evaluador)
+                {" "}and <strong className="text-slate-700">{target.managerName}</strong> (manager)
               </>
             )}
             .
@@ -81,7 +81,7 @@ export function RequestClarificationModal({
 
         <div>
           <label htmlFor="clarification-message" className="mb-1.5 block text-sm font-medium text-slate-700">
-            ¿Qué necesitas saber?
+            What do you need to know?
           </label>
           <textarea
             id="clarification-message"
@@ -89,7 +89,7 @@ export function RequestClarificationModal({
             onChange={(e) => setMensaje(e.target.value)}
             rows={5}
             maxLength={CLARIFICATION_MESSAGE_MAX_LENGTH}
-            placeholder="Ej.: Hay una diferencia de 3 puntos en esta pregunta. ¿Podéis explicar en qué os basasteis para vuestra valoración?"
+            placeholder="E.g. There is a 3-point difference on this question. Could you explain what you based your ratings on?"
             className={TEXTAREA_CLASS}
             disabled={isSaving}
             required
@@ -107,10 +107,10 @@ export function RequestClarificationModal({
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
-            Cancelar
+            Cancel
           </Button>
           <Button type="submit" loading={isSaving} disabled={!mensaje.trim()}>
-            Enviar solicitud
+            Send request
           </Button>
         </div>
       </form>

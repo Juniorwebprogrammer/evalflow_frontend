@@ -20,7 +20,7 @@ export async function GET(
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const { submissionId } = await ctx.params;
@@ -31,7 +31,7 @@ export async function GET(
 
     if (!submission) {
       return Response.json(
-        { message: "Formulario no encontrado." },
+        { message: "Form not found." },
         { status: 404 },
       );
     }
@@ -55,7 +55,7 @@ export async function DELETE(
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const { submissionId } = await ctx.params;

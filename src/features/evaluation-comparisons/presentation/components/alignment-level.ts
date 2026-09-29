@@ -4,10 +4,10 @@ import type {
 } from "@/features/evaluation-comparisons/presentation/api/evaluation-comparison-client";
 
 const LEVEL_LABEL: Record<AlignmentLevel, string> = {
-  Alineado: "Alineado",
-  Leve: "Diferencia leve",
-  Desequilibrio: "Desequilibrio",
-  NoComparable: "Sin comparar",
+  Alineado: "Aligned",
+  Leve: "Slight difference",
+  Desequilibrio: "Imbalance",
+  NoComparable: "Not compared",
 };
 
 const LEVEL_BADGE_CLASS: Record<AlignmentLevel, string> = {
@@ -19,8 +19,8 @@ const LEVEL_BADGE_CLASS: Record<AlignmentLevel, string> = {
 
 const DIRECTION_LABEL: Record<GapDirection, string> = {
   Ninguna: "",
-  Sobrevaloracion: "Se valora por encima de su superior",
-  Infravaloracion: "Se valora por debajo de su superior",
+  Sobrevaloracion: "Rates themselves higher than their manager does",
+  Infravaloracion: "Rates themselves lower than their manager does",
 };
 
 export function alignmentLevelLabel(level: AlignmentLevel): string {
@@ -36,7 +36,7 @@ export function gapDirectionLabel(direction: GapDirection): string {
 }
 
 export function formatScore(value: number | null): string {
-  return value === null ? "—" : value.toLocaleString("es-ES", { maximumFractionDigits: 2 });
+  return value === null ? "—" : value.toLocaleString("en-US", { maximumFractionDigits: 2 });
 }
 
 export function formatGap(value: number | null): string {

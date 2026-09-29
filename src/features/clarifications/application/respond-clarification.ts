@@ -15,19 +15,19 @@ export class RespondClarification {
     accessToken: string,
   ): Promise<MyClarification> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is no longer valid. Please sign in again.", 401);
     }
     if (!Number.isInteger(clarificationId) || clarificationId <= 0) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is not valid.", 400);
     }
 
     const trimmed = respuesta.trim();
     if (!trimmed) {
-      throw new DomainError("La respuesta no puede estar vacía.", 400);
+      throw new DomainError("The response cannot be empty.", 400);
     }
     if (trimmed.length > CLARIFICATION_RESPONSE_MAX_LENGTH) {
       throw new DomainError(
-        `La respuesta no puede superar los ${CLARIFICATION_RESPONSE_MAX_LENGTH} caracteres.`,
+        `The response cannot exceed ${CLARIFICATION_RESPONSE_MAX_LENGTH} characters.`,
         400,
       );
     }

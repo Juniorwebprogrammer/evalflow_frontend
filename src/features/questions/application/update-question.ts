@@ -17,7 +17,7 @@ export class UpdateQuestion {
     accessToken: string,
   ): Promise<QuestionActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is invalid. Please sign in again.", 401);
     }
     if (
       !Number.isInteger(templateId) ||
@@ -25,20 +25,20 @@ export class UpdateQuestion {
       !Number.isInteger(questionId) ||
       questionId <= 0
     ) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is invalid", 400);
     }
     if (!input.Texto.trim()) {
-      throw new DomainError("El texto de la pregunta es obligatorio", 400);
+      throw new DomainError("The question text is required", 400);
     }
     if (!Object.values(QuestionType).includes(input.Tipo)) {
-      throw new DomainError("El tipo de pregunta no es válido", 400);
+      throw new DomainError("The question type is invalid", 400);
     }
     if (
       input.Tipo === QuestionType.Seleccion &&
       (!input.Opciones || input.Opciones.filter((o) => o.trim()).length < 2)
     ) {
       throw new DomainError(
-        "Las preguntas de selección requieren al menos 2 opciones",
+        "Choice questions need at least 2 options",
         400,
       );
     }

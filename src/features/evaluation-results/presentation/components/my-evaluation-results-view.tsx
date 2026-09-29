@@ -5,27 +5,27 @@ import { DownloadReportLink } from "@/features/evaluation-results/presentation/c
 import { formatScore } from "@/features/evaluation-comparisons/presentation/components/alignment-level";
 import { Notice } from "@/shared/ui/notice";
 import { AlertTriangleIcon, BarsIcon, CalendarIcon, TrendUpIcon } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 
-/** "Resultados de evaluación" — the caller's completed evaluations, each with its PDF report. */
+/** "Evaluation results" — the caller's completed evaluations, each with its PDF report. */
 export function MyEvaluationResultsView() {
   const { data, isLoading, error } = useMyEvaluationResults();
 
   return (
     <div className="space-y-4">
-      {isLoading && <p className="text-sm text-slate-500">Cargando resultados…</p>}
+      {isLoading && <p className="text-sm text-slate-500">Loading results…</p>}
 
       {error && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          {error instanceof ApiError ? error.message : "No se pudieron cargar tus resultados."}
+          {errorMessage(error, "We couldn't load your results.")}
         </Notice>
       )}
 
       {data && data.length === 0 && (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
           <BarsIcon className="h-5 w-5 shrink-0 text-slate-400" />
-          <span>Todavía no tienes resultados. Aparecerán aquí cuando RRHH complete un ciclo de evaluación.</span>
+          <span>You don&apos;t have any results yet. They&apos;ll appear here once HR completes an evaluation cycle.</span>
         </div>
       )}
 
@@ -45,13 +45,13 @@ export function MyEvaluationResultsView() {
                   <p className="text-sm text-slate-500">{result.cycleName}</p>
                   <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-slate-400">
                     <CalendarIcon className="h-3.5 w-3.5" />
-                    Completada el {formatDate(result.completedAt)}
+                    Completed on {formatDate(result.completedAt)}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Puntuación</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Score</p>
                   <p className="text-lg font-bold text-slate-800">{formatScore(result.averageFinal)}</p>
                 </div>
                 <DownloadReportLink resultId={result.id} />

@@ -11,11 +11,11 @@
  * user assigned to the cycle's templates.
  */
 export enum EvaluationType {
-  /** Solo autoevaluación. */
+  /** Self-assessment only. */
   Auto = 0,
-  /** Solo el evaluador (superior) evalúa al subordinado. */
+  /** Only the evaluator (manager) assesses the direct report. */
   Evaluacion180 = 1,
-  /** Autoevaluación + el evaluador evalúa al subordinado. */
+  /** Self-assessment + the evaluator assesses the direct report. */
   Evaluacion360 = 2,
 }
 

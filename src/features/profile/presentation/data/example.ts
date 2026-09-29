@@ -5,18 +5,16 @@
  */
 
 export const EXAMPLE_PROFILE = {
-  lastAccess: "hoy 09:14",
-  department: "Recursos Humanos",
-  language: "Español",
+  lastAccess: "today 09:14",
+  department: "Human Resources",
+  language: "English",
 };
 
 export const DEPARTMENTS = [
-  "Recursos Humanos",
-  "Dirección",
-  "Operaciones",
-  "Finanzas",
-  "Enfermería",
-  "Administración",
+  "Human Resources",
+  "Management",
+  "Operations",
+  "Finance",
+  "Nursing",
+  "Administration",
 ];
-
-export const LANGUAGES = ["Español", "English", "Català", "Français"];

@@ -8,7 +8,7 @@ export class GetAllEvaluationCycles {
 
   async execute(accessToken: string): Promise<EvaluationCycle[]> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
 
     return this.cycles.listAll(accessToken);

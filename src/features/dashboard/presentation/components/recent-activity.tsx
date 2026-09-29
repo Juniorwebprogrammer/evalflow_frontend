@@ -15,11 +15,11 @@ export function RecentActivity() {
 
   return (
     <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
-      <h2 className="text-base font-bold text-slate-900">Actividad reciente</h2>
+      <h2 className="text-base font-bold text-slate-900">Recent activity</h2>
 
       {activity.length === 0 ? (
         <p className="mt-4 text-sm text-slate-500">
-          Sin actividad reciente todavía. Aparecerá aquí en cuanto alguien complete una evaluación.
+          No recent activity yet. It will appear here as soon as someone completes an evaluation.
         </p>
       ) : (
         <ul className="mt-4 space-y-4">
@@ -38,8 +38,8 @@ export function RecentActivity() {
                 </p>
                 <p className="truncate text-xs text-slate-500">
                   {a.isSelfEvaluation
-                    ? "completó autoevaluación"
-                    : `completó evaluación de ${a.evaluatedUserName}`}
+                    ? "completed their self-assessment"
+                    : `completed an evaluation of ${a.evaluatedUserName}`}
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1">

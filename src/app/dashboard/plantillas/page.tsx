@@ -11,9 +11,9 @@ export default async function PlantillasPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">Plantillas</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Templates</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Plantillas de evaluación de tu empresa
+          Your company&apos;s evaluation templates
         </p>
       </header>
       <div className="mt-6">

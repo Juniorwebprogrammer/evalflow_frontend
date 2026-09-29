@@ -22,7 +22,7 @@ export function usePlans() {
 }
 
 /**
- * The caller's company plan and usage (Owner/Rrhh only — disabled for other
+ * The caller's company plan and usage (Owner/HR only — disabled for other
  * roles). Refreshes itself whenever the employees, departments, templates or
  * cycles lists change in the cache, so "at limit" states follow every
  * create / delete / (de)activation without each form having to remember.

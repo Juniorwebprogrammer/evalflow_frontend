@@ -5,11 +5,11 @@
  * /templates/{templateId}/questions[/{questionId}]`).
  */
 export enum QuestionType {
-  /** Puntuación de 1 a 5 estrellas. */
+  /** 1-to-5 star rating. */
   Estrellas = 2,
-  /** Opciones múltiples (radio buttons o checkboxes). */
+  /** Multiple choice (radio buttons or checkboxes). */
   Seleccion = 3,
-  /** Valores numéricos del 1 al 5. */
+  /** Numeric values from 1 to 5. */
   Escala1a5 = 4,
 }
 

@@ -4,10 +4,10 @@ import { isPast } from "@/shared/lib/date";
 export type EvaluationCycleStatus = "activo" | "proximo" | "completado" | "inactivo";
 
 const LABEL: Record<EvaluationCycleStatus, string> = {
-  activo: "Activo",
-  proximo: "Próximo",
-  completado: "Completado",
-  inactivo: "Inactivo",
+  activo: "Active",
+  proximo: "Upcoming",
+  completado: "Completed",
+  inactivo: "Inactive",
 };
 
 const BADGE_CLASS: Record<EvaluationCycleStatus, string> = {
@@ -19,7 +19,7 @@ const BADGE_CLASS: Record<EvaluationCycleStatus, string> = {
 
 /**
  * Derives a display status from the two real signals the backend gives us
- * (`activo` + the date range) — the mockup's Activo/Completado/Borrador
+ * (`activo` + the date range) — the mockup's Active/Completed/Draft
  * badges, without fabricating data (progress %, participant counts) the
  * backend doesn't provide.
  */

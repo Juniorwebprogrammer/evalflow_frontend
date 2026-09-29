@@ -9,7 +9,7 @@ export class GetCompanyByIdentificationId {
   async execute(identificationId: string): Promise<CompanyInfo | null> {
     const trimmed = identificationId?.trim();
     if (!trimmed) {
-      throw new DomainError("El identificador de empresa es obligatorio", 400);
+      throw new DomainError("Company identifier is required", 400);
     }
     return this.companies.getByIdentificationId(trimmed);
   }

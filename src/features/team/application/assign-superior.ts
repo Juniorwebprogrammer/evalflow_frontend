@@ -19,19 +19,19 @@ export class AssignSuperior {
     accessToken: string,
   ): Promise<AssignSuperiorResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!Number.isInteger(input.UserId) || input.UserId <= 0) {
-      throw new DomainError("El identificador del empleado no es válido", 400);
+      throw new DomainError("Invalid employee ID.", 400);
     }
     if (
       input.SuperiorId !== null &&
       (!Number.isInteger(input.SuperiorId) || input.SuperiorId <= 0)
     ) {
-      throw new DomainError("El identificador del superior no es válido", 400);
+      throw new DomainError("Invalid manager ID.", 400);
     }
     if (input.UserId === input.SuperiorId) {
-      throw new DomainError("Un empleado no puede ser su propio superior.", 400);
+      throw new DomainError("An employee can't be their own manager.", 400);
     }
 
     return this.team.assignSuperior(input, accessToken);

@@ -19,7 +19,7 @@ export async function PUT(
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const { submissionId } = await ctx.params;
@@ -28,7 +28,7 @@ export async function PUT(
     } | null;
 
     if (!body || !Array.isArray(body.answers)) {
-      throw new DomainError("El cuerpo de la petición no es válido", 400);
+      throw new DomainError("The request is not valid.", 400);
     }
 
     const answers: AnswerInput[] = body.answers.map((a) => ({

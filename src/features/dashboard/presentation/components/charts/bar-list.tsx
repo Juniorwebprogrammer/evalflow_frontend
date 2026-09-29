@@ -7,7 +7,7 @@ export interface BarListItem {
   key: string;
   label: string;
   value: number;
-  /** Optional right-hand detail, e.g. "3 de 8". Defaults to the value. */
+  /** Optional right-hand detail, e.g. "3 of 8". Defaults to the value. */
   detail?: string;
 }
 

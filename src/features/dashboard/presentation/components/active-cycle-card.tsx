@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BarsIcon, EyeIcon } from "@/shared/ui/icons";
 import { useDashboardStats } from "@/features/dashboard/presentation/hooks/use-dashboard-stats";
 import { formatDate } from "@/shared/lib/format-date";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { ChartCard } from "@/features/dashboard/presentation/components/chart-card";
 import { ProgressRing } from "@/features/dashboard/presentation/components/charts/progress-ring";
 import { SEQUENTIAL, NEUTRAL } from "@/features/dashboard/presentation/components/charts/chart-palette";
@@ -33,30 +33,26 @@ export function ActiveCycleCard({ canManage, className = "" }: { canManage: bool
 
   return (
     <ChartCard
-      title={cycle ? cycle.nombre : "Ciclo activo"}
+      title={cycle ? cycle.nombre : "Active cycle"}
       subtitle={
         cycle ? `${formatDate(cycle.fechaInicio)} – ${formatDate(cycle.fechaFin)}` : undefined
       }
       action={
         cycle && (
           <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600">
-            Activo
+            Active
           </span>
         )
       }
       loading={isLoading}
       error={
-        error
-          ? error instanceof ApiError
-            ? error.message
-            : "No se pudieron cargar las estadísticas."
-          : null
+        error ? errorMessage(error, "We couldn't load the statistics.") : null
       }
       empty={
         !cycle
           ? canManage
-            ? "No hay un ciclo activo. Crea o activa uno para ver su progreso aquí."
-            : "No hay un ciclo de evaluación activo ahora mismo."
+            ? "There is no active cycle. Create or activate one to see its progress here."
+            : "There is no active evaluation cycle right now."
           : null
       }
       className={className}
@@ -67,22 +63,22 @@ export function ActiveCycleCard({ canManage, className = "" }: { canManage: bool
             <ProgressRing
               value={cycle.completedCount}
               total={cycle.totalSubmissions}
-              caption="completado"
+              caption="completed"
             />
 
             <div className="w-full min-w-0 flex-1 space-y-4">
               <dl className="grid grid-cols-3 gap-3 text-center sm:text-left">
-                <Figure swatch={SEQUENTIAL.base} label="Completados" value={cycle.completedCount} />
-                <Figure swatch={SEQUENTIAL.track} label="Pendientes" value={cycle.pendingCount} />
-                <Figure label="Formularios" value={cycle.totalSubmissions} />
+                <Figure swatch={SEQUENTIAL.base} label="Completed" value={cycle.completedCount} />
+                <Figure swatch={SEQUENTIAL.track} label="Pending" value={cycle.pendingCount} />
+                <Figure label="Forms" value={cycle.totalSubmissions} />
               </dl>
 
               {timeline && (
                 <div>
                   <div className="flex items-baseline justify-between text-sm">
-                    <span className="text-slate-500">Tiempo transcurrido</span>
+                    <span className="text-slate-500">Time elapsed</span>
                     <span className="font-semibold tabular-nums text-slate-900">
-                      {timeline.elapsed} de {timeline.totalDays} días
+                      {timeline.elapsed} of {timeline.totalDays} {timeline.totalDays === 1 ? "day" : "days"}
                     </span>
                   </div>
                   <div
@@ -99,8 +95,8 @@ export function ActiveCycleCard({ canManage, className = "" }: { canManage: bool
                   </div>
                   <p className="mt-1.5 text-xs text-slate-400">
                     {timeline.remaining === 0
-                      ? "El plazo termina hoy"
-                      : `Quedan ${timeline.remaining} ${timeline.remaining === 1 ? "día" : "días"} para el cierre`}
+                      ? "The deadline is today"
+                      : `${timeline.remaining} ${timeline.remaining === 1 ? "day" : "days"} left until the deadline`}
                   </p>
                 </div>
               )}
@@ -114,14 +110,14 @@ export function ActiveCycleCard({ canManage, className = "" }: { canManage: bool
                 className="inline-flex items-center gap-2 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--brand-strong)]"
               >
                 <BarsIcon style={{ width: 16, height: 16 }} />
-                Ver resultados
+                View results
               </Link>
               <Link
                 href={`/dashboard/ciclos-evaluacion/${cycle.id}`}
                 className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
                 <EyeIcon style={{ width: 16, height: 16 }} />
-                Gestionar ciclo
+                Manage cycle
               </Link>
             </div>
           )}

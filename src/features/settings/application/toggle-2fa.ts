@@ -15,10 +15,10 @@ export class Toggle2FA {
     accessToken: string,
   ): Promise<Toggle2FAResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!userId) {
-      throw new DomainError("No se pudo identificar al usuario.", 401);
+      throw new DomainError("We could not identify the user.", 401);
     }
     return this.settings.toggle2FA({ UserId: userId, Enable: enable }, accessToken);
   }

@@ -10,17 +10,16 @@ import { ChartCard } from "@/features/dashboard/presentation/components/chart-ca
 import { DonutChart, type DonutSegment } from "@/features/dashboard/presentation/components/charts/donut-chart";
 import { BarList, type BarListItem } from "@/features/dashboard/presentation/components/charts/bar-list";
 import { CATEGORICAL, NEUTRAL } from "@/features/dashboard/presentation/components/charts/chart-palette";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
-/** Bars shown before the tail folds into "Otros". */
+/** Bars shown before the tail folds into "Other". */
 const MAX_BARS = 6;
 
-function errorMessage(error: unknown, fallback: string): string | null {
-  if (!error) return null;
-  return error instanceof ApiError ? error.message : fallback;
+function cardError(error: unknown, action: string): string | null {
+  return error ? errorMessage(error, action) : null;
 }
 
-/** Cycles split by derived status (activo / próximo / completado / inactivo). */
+/** Cycles split by derived status (active / upcoming / completed / inactive). */
 export function CycleStatusCard() {
   const { data: cycles, isLoading, error } = useEvaluationCycles();
 
@@ -28,31 +27,31 @@ export function CycleStatusCard() {
     const counts = { activo: 0, proximo: 0, completado: 0, inactivo: 0 };
     for (const cycle of cycles ?? []) counts[evaluationCycleStatus(cycle)]++;
     return [
-      { key: "activo", label: "Activos", value: counts.activo, color: CATEGORICAL[0] },
-      { key: "proximo", label: "Próximos", value: counts.proximo, color: CATEGORICAL[1] },
-      { key: "completado", label: "Completados", value: counts.completado, color: CATEGORICAL[2] },
-      { key: "inactivo", label: "Inactivos", value: counts.inactivo, color: CATEGORICAL[3] },
+      { key: "activo", label: "Active", value: counts.activo, color: CATEGORICAL[0] },
+      { key: "proximo", label: "Upcoming", value: counts.proximo, color: CATEGORICAL[1] },
+      { key: "completado", label: "Completed", value: counts.completado, color: CATEGORICAL[2] },
+      { key: "inactivo", label: "Inactive", value: counts.inactivo, color: CATEGORICAL[3] },
     ];
   }, [cycles]);
 
   return (
     <ChartCard
-      title="Ciclos de evaluación"
-      subtitle="Por estado"
+      title="Evaluation cycles"
+      subtitle="By status"
       loading={isLoading}
-      error={errorMessage(error, "No se pudieron cargar los ciclos.")}
-      empty={cycles?.length === 0 ? "Todavía no hay ciclos de evaluación." : null}
+      error={cardError(error, "We couldn't load the cycles.")}
+      empty={cycles?.length === 0 ? "There are no evaluation cycles yet." : null}
     >
-      <DonutChart segments={segments} totalLabel="ciclos" />
+      <DonutChart segments={segments} totalLabel="cycles" />
     </ChartCard>
   );
 }
 
 /** Role display order — each role keeps its slot (color follows the role). */
 const ROLES = [
-  { key: "employee", label: "Empleados" },
-  { key: "superior", label: "Superiores" },
-  { key: "rrhh", label: "RRHH" },
+  { key: "employee", label: "Employees" },
+  { key: "superior", label: "Managers" },
+  { key: "rrhh", label: "HR" },
   { key: "owner", label: "Owner" },
 ] as const;
 
@@ -76,29 +75,29 @@ export function TeamByRoleCard() {
       value: counts.get(role.key) ?? 0,
       color: CATEGORICAL[i],
     }));
-    if (other > 0) segments.push({ key: "other", label: "Otros", value: other, color: NEUTRAL });
+    if (other > 0) segments.push({ key: "other", label: "Other", value: other, color: NEUTRAL });
 
     return { segments, inactive: (employees?.length ?? 0) - active.length };
   }, [employees]);
 
   return (
     <ChartCard
-      title="Equipo por rol"
+      title="Team by role"
       subtitle={
         employees
-          ? `Cuentas activas${inactive > 0 ? ` · ${inactive} ${inactive === 1 ? "inactiva" : "inactivas"}` : ""}`
+          ? `Active accounts${inactive > 0 ? ` · ${inactive} inactive` : ""}`
           : undefined
       }
       loading={isLoading}
-      error={errorMessage(error, "No se pudo cargar el equipo.")}
-      empty={employees?.length === 0 ? "Todavía no hay empleados." : null}
+      error={cardError(error, "We couldn't load the team.")}
+      empty={employees?.length === 0 ? "There are no employees yet." : null}
     >
-      <DonutChart segments={segments} totalLabel="personas" />
+      <DonutChart segments={segments} totalLabel="people" />
     </ChartCard>
   );
 }
 
-/** Active employees per department, largest first; the tail folds into "Otros". */
+/** Active employees per department, largest first; the tail folds into "Other". */
 export function TeamByDepartmentCard({ className = "" }: { className?: string }) {
   const { data: employees, isLoading, error } = useEmployees();
 
@@ -119,18 +118,18 @@ export function TeamByDepartmentCard({ className = "" }: { className?: string })
     const tail = sorted.slice(MAX_BARS).reduce((s, [, n]) => s + n, 0);
 
     const list: BarListItem[] = head.map(([name, value]) => ({ key: name, label: name, value }));
-    if (tail > 0) list.push({ key: "__otros", label: "Otros departamentos", value: tail });
-    if (unassigned > 0) list.push({ key: "__none", label: "Sin departamento", value: unassigned });
+    if (tail > 0) list.push({ key: "__otros", label: "Other departments", value: tail });
+    if (unassigned > 0) list.push({ key: "__none", label: "No department", value: unassigned });
     return list;
   }, [employees]);
 
   return (
     <ChartCard
-      title="Empleados por departamento"
-      subtitle="Cuentas activas"
+      title="Employees by department"
+      subtitle="Active accounts"
       loading={isLoading}
-      error={errorMessage(error, "No se pudo cargar el equipo.")}
-      empty={items.length === 0 ? "Todavía no hay empleados activos." : null}
+      error={cardError(error, "We couldn't load the team.")}
+      empty={items.length === 0 ? "There are no active employees yet." : null}
       className={className}
     >
       <BarList items={items} />
@@ -160,21 +159,21 @@ export function TemplateProgressCard({ className = "" }: { className?: string })
         key: title,
         label: title,
         value: total > 0 ? Math.round((done / total) * 100) : 0,
-        detail: `${done} de ${total} · ${total > 0 ? Math.round((done / total) * 100) : 0}%`,
+        detail: `${done} of ${total} · ${total > 0 ? Math.round((done / total) * 100) : 0}%`,
       }));
   }, [submissions]);
 
   return (
     <ChartCard
-      title="Progreso por plantilla"
-      subtitle="Formularios completados en el ciclo activo"
+      title="Progress by template"
+      subtitle="Completed forms in the active cycle"
       loading={cycleId > 0 && isLoading}
-      error={errorMessage(error, "No se pudo cargar el progreso del ciclo.")}
+      error={cardError(error, "We couldn't load the cycle's progress.")}
       empty={
         cycleId === 0
-          ? "No hay un ciclo activo."
+          ? "There is no active cycle."
           : items.length === 0
-            ? "El ciclo activo todavía no tiene formularios generados."
+            ? "The active cycle has no forms yet."
             : null
       }
       className={className}

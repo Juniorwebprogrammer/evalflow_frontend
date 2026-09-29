@@ -8,7 +8,7 @@ import { isEmailNotVerifiedError } from "@/features/auth/presentation/lib/login-
 import { CheckEmailNotice } from "@/features/auth/presentation/components/check-email-notice";
 import { TwoFactorForm } from "@/features/auth/presentation/components/two-factor-form";
 import { ForgotPasswordForm } from "@/features/auth/presentation/components/forgot-password-form";
-import { ApiError } from "@/shared/lib/api-error";
+import { ApiError, errorMessage } from "@/shared/lib/api-error";
 import { Field } from "@/shared/ui/field";
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
@@ -58,9 +58,11 @@ export function LoginForm({
         return;
       }
       setNotice(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo iniciar sesión. Inténtalo de nuevo.",
+        errorMessage(err, "Sign-in failed.", {
+          byStatus: {
+            401: "Incorrect email or password. Please try again.",
+          },
+        }),
       );
       setSubmitting(false);
     }
@@ -78,10 +80,10 @@ export function LoginForm({
   if (awaitingVerification) {
     return (
       <CheckEmailNotice
-        title="Verifica tu correo para continuar"
-        message="Debes confirmar tu cuenta antes de iniciar sesión."
+        title="Verify your email to continue"
+        message="You need to confirm your account before signing in."
         email={email}
-        actionLabel="Volver a intentarlo"
+        actionLabel="Try again"
         onAction={() => setAwaitingVerification(false)}
       />
     );
@@ -98,29 +100,29 @@ export function LoginForm({
 
   return (
     <div className="w-full max-w-sm">
-      <h2 className="text-2xl font-bold text-slate-900">Bienvenido de nuevo</h2>
+      <h2 className="text-2xl font-bold text-slate-900">Welcome back</h2>
       <p className="mt-1 text-sm text-slate-500">
         {company
-          ? `Accede al panel de evaluaciones de ${company.nombre}`
-          : "Accede a tu panel de evaluaciones"}
+          ? `Sign in to the ${company.nombre} evaluation dashboard`
+          : "Sign in to your evaluation dashboard"}
       </p>
 
       {resolving && (
-        <p className="mt-4 text-xs text-slate-400">Cargando empresa…</p>
+        <p className="mt-4 text-xs text-slate-400">Loading company…</p>
       )}
 
       <form onSubmit={handleLogin} className="mt-6 space-y-4">
         <Field
-          label="Correo electrónico"
+          label="Email"
           type="email"
           icon={<MailIcon className="h-4 w-4" />}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="ana.garcia@clinica.es"
+          placeholder="jane.doe@clinic.com"
           required
         />
         <Field
-          label="Contraseña"
+          label="Password"
           type="password"
           icon={<LockIcon className="h-4 w-4" />}
           value={password}
@@ -135,12 +137,12 @@ export function LoginForm({
             onClick={() => setShowForgotPassword(true)}
             className="text-sm font-semibold text-[var(--brand)] hover:underline"
           >
-            ¿Olvidaste tu contraseña?
+            Forgot your password?
           </button>
         </div>
 
         <Button type="submit" className="w-full" loading={submitting}>
-          Iniciar sesión
+          Sign in
         </Button>
 
         {notice && <Notice tone="warning">{notice}</Notice>}

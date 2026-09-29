@@ -11,10 +11,10 @@ export class Verify2FA {
 
   async execute(email: string, code: string): Promise<AuthTokensResult> {
     if (!email.trim()) {
-      throw new DomainError("El correo electrónico es obligatorio", 400);
+      throw new DomainError("Email is required", 400);
     }
     if (!code.trim()) {
-      throw new DomainError("El código es obligatorio", 400);
+      throw new DomainError("Code is required", 400);
     }
     return this.auth.verify2FA({ Email: email, Code: code });
   }

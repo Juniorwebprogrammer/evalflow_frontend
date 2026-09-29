@@ -3,9 +3,14 @@
 import type {
   AiAnalysis,
   AiConfidence,
-  AiRecipient,
   AiRiskLevel,
 } from "@/features/ai-analysis/domain/ai-analysis";
+import {
+  aiCauseLabel,
+  aiConfidenceLabel,
+  aiRecipientLabel,
+  aiRiskLabel,
+} from "@/features/ai-analysis/presentation/components/ai-analysis-labels";
 import { isAiAnalysisInProgress } from "@/features/ai-analysis/domain/ai-analysis";
 import { formatDate } from "@/shared/lib/format-date";
 import { Spinner } from "@/shared/ui/spinner";
@@ -23,14 +28,8 @@ const CONFIDENCE_CLASS: Record<AiConfidence, string> = {
   Baja: "text-slate-400",
 };
 
-const RECIPIENT_LABEL: Record<AiRecipient, string> = {
-  RRHH: "RRHH",
-  Evaluado: "Evaluado",
-  Evaluador: "Evaluador",
-};
-
 /**
- * "Análisis con IA" block of an employee's comparison card: explains the
+ * "AI analysis" block of an employee's comparison card: explains the
  * imbalances (360) or strengths / areas to improve (Auto, 180) from the
  * answers and the information requests. Growth / Enterprise only.
  */
@@ -68,11 +67,11 @@ export function AiAnalysisPanel({
             <SparkleIcon className="h-4 w-4" />
           </span>
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Análisis con IA</h3>
+            <h3 className="text-sm font-bold text-slate-900">AI analysis</h3>
             <p className="text-xs text-slate-500">
               {result && analysis?.fechaCompletado
-                ? `Generado el ${formatDate(analysis.fechaCompletado)}`
-                : "Motivos de los desequilibrios, fortalezas y próximos pasos"}
+                ? `Generated on ${formatDate(analysis.fechaCompletado)}`
+                : "Reasons behind the imbalances, strengths and next steps"}
             </p>
           </div>
         </div>
@@ -85,7 +84,7 @@ export function AiAnalysisPanel({
             className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isRequesting ? <Spinner className="h-3.5 w-3.5" /> : <SparkleIcon className="h-3.5 w-3.5" />}
-            {result ? "Regenerar" : analysis?.estado === "Error" ? "Reintentar" : "Analizar con IA"}
+            {result ? "Regenerate" : analysis?.estado === "Error" ? "Try again" : "Analyze with AI"}
           </button>
         )}
       </div>
@@ -93,13 +92,13 @@ export function AiAnalysisPanel({
       {!hasAiFeatures && (
         <p className="mt-3 flex items-center gap-2 text-sm text-slate-500">
           <CrownIcon style={{ width: 14, height: 14 }} className="text-amber-500" />
-          Disponible en los planes Growth y Enterprise. Contacta con EvalFlow para mejorar tu plan.
+          Available on the Growth and Enterprise plans. Contact EvalFlow to upgrade your plan.
         </p>
       )}
 
       {hasAiFeatures && !canAnalyse && !analysis && (
         <p className="mt-3 text-sm text-slate-500">
-          Podrás analizarla con IA cuando las evaluaciones estén completadas.
+          You&apos;ll be able to analyze it with AI once the evaluations are completed.
         </p>
       )}
 
@@ -107,15 +106,15 @@ export function AiAnalysisPanel({
         <p className="mt-3 flex items-center gap-2 text-sm text-violet-700">
           <Spinner className="h-4 w-4" />
           {analysis?.estado === "Procesando"
-            ? "Analizando las respuestas…"
-            : "En cola. El análisis aparecerá aquí en cuanto esté listo."}
+            ? "Analyzing the answers…"
+            : "Queued. The analysis will appear here as soon as it's ready."}
         </p>
       )}
 
       {hasAiFeatures && analysis?.estado === "Error" && (
         <p className="mt-3 flex items-center gap-2 text-sm text-red-600">
           <AlertTriangleIcon className="h-4 w-4" />
-          {analysis.errorMensaje ?? "No se pudo generar el análisis."}
+          We couldn&apos;t generate the analysis. Please try again later.
         </p>
       )}
 
@@ -123,28 +122,28 @@ export function AiAnalysisPanel({
         <div className="mt-4 space-y-4 text-sm">
           <div className="flex flex-wrap items-start gap-2">
             <span className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${RISK_CLASS[result.nivelRiesgo]}`}>
-              Riesgo {result.nivelRiesgo.toLowerCase()}
+              {aiRiskLabel(result.nivelRiesgo)} risk
             </span>
             <p className="min-w-0 flex-1 text-slate-700">{result.resumen}</p>
           </div>
 
           {result.causasProbables.length > 0 && (
             <div>
-              <SectionTitle>Motivos probables</SectionTitle>
+              <SectionTitle>Likely reasons</SectionTitle>
               <ul className="mt-2 space-y-2">
                 {result.causasProbables.map((cause, i) => (
                   <li key={i} className="rounded-lg border border-slate-100 bg-white px-3.5 py-3">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className="font-semibold text-slate-800">{cause.causa}</span>
+                      <span className="font-semibold text-slate-800">{aiCauseLabel(cause.causa)}</span>
                       <span className="text-xs text-slate-400">· {cause.tema}</span>
                       <span className={`ml-auto text-xs font-medium ${CONFIDENCE_CLASS[cause.confianza]}`}>
-                        Confianza {cause.confianza.toLowerCase()}
+                        {aiConfidenceLabel(cause.confianza)} confidence
                       </span>
                     </div>
                     <p className="mt-1 text-slate-600">{cause.explicacion}</p>
                     {cause.preguntaIds.length > 0 && (
                       <p className="mt-1.5 text-xs text-slate-400">
-                        Preguntas:{" "}
+                        Questions:{" "}
                         {cause.preguntaIds
                           .map((id) => questionTexts.get(id))
                           .filter(Boolean)
@@ -166,23 +165,23 @@ export function AiAnalysisPanel({
 
           {(result.fortalezas.length > 0 || result.areasDeMejora.length > 0) && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <BulletList title="Fortalezas" items={result.fortalezas} dotClass="bg-emerald-500" />
-              <BulletList title="Áreas de mejora" items={result.areasDeMejora} dotClass="bg-amber-500" />
+              <BulletList title="Strengths" items={result.fortalezas} dotClass="bg-emerald-500" />
+              <BulletList title="Areas for improvement" items={result.areasDeMejora} dotClass="bg-amber-500" />
             </div>
           )}
 
           {result.patrones.length > 0 && (
-            <BulletList title="Patrones detectados" items={result.patrones} dotClass="bg-violet-500" />
+            <BulletList title="Patterns detected" items={result.patrones} dotClass="bg-violet-500" />
           )}
 
           {result.recomendaciones.length > 0 && (
             <div>
-              <SectionTitle>Recomendaciones</SectionTitle>
+              <SectionTitle>Recommendations</SectionTitle>
               <ul className="mt-2 space-y-1.5">
                 {result.recomendaciones.map((r, i) => (
                   <li key={i} className="flex items-start gap-2">
                     <span className="mt-0.5 inline-flex shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600">
-                      {RECIPIENT_LABEL[r.destinatario]}
+                      {aiRecipientLabel(r.destinatario)}
                     </span>
                     <span className="text-slate-700">{r.accion}</span>
                   </li>
@@ -193,7 +192,7 @@ export function AiAnalysisPanel({
 
           {result.solicitudesSugeridas.length > 0 && canRequestClarification && (
             <div>
-              <SectionTitle>Información que convendría pedir</SectionTitle>
+              <SectionTitle>Information worth requesting</SectionTitle>
               <ul className="mt-2 space-y-2">
                 {result.solicitudesSugeridas.map((s, i) => (
                   <li
@@ -212,7 +211,7 @@ export function AiAnalysisPanel({
                       className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[var(--brand)] transition hover:bg-[var(--brand)]/10"
                     >
                       <MailIcon className="h-3.5 w-3.5" />
-                      Solicitar
+                      Request
                     </button>
                   </li>
                 ))}
@@ -222,13 +221,13 @@ export function AiAnalysisPanel({
 
           {result.limitaciones.length > 0 && (
             <p className="text-xs text-slate-400">
-              <strong className="font-semibold">Limitaciones:</strong> {result.limitaciones.join(" · ")}
+              <strong className="font-semibold">Limitations:</strong> {result.limitaciones.join(" · ")}
             </p>
           )}
 
           <p className="border-t border-violet-100 pt-3 text-[11px] text-slate-400">
-            Generado por IA a partir de las respuestas y las solicitudes de información, sin nombres ni datos de
-            contacto. Puede contener errores: úsalo como apoyo, no como decisión final.
+            Generated by AI from the answers and information requests, without names or contact
+            details. It may contain mistakes: use it as support, not as a final decision.
           </p>
         </div>
       )}

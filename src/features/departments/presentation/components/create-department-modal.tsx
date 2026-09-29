@@ -9,8 +9,8 @@ export function CreateDepartmentModal({ onClose }: { onClose: () => void }) {
   return (
     <Modal
       onClose={onClose}
-      title="Nuevo departamento"
-      description="Crea un departamento para organizar tu empresa."
+      title="New department"
+      description="Create a department to organize your company."
       icon={<BuildingIcon className="h-5 w-5" />}
     >
       <CreateDepartmentForm onCreated={onClose} onCancel={onClose} />

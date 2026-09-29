@@ -12,7 +12,7 @@ import {
 import { Notice } from "@/shared/ui/notice";
 import { Button } from "@/shared/ui/button";
 import { AlertTriangleIcon, ArrowRightIcon, CheckCircleIcon, DocIcon } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { isPast } from "@/shared/lib/date";
 
 /** Angles (in degrees) + stagger delays for the small confetti burst behind the checkmark. */
@@ -58,15 +58,15 @@ function SubmissionSuccessView() {
       </div>
 
       <div className="success-text space-y-1.5">
-        <h2 className="text-xl font-bold text-slate-900">¡Formulario enviado!</h2>
-        <p className="text-sm text-slate-500">Gracias por completar tu evaluación.</p>
+        <h2 className="text-xl font-bold text-slate-900">Form submitted!</h2>
+        <p className="text-sm text-slate-500">Thanks for completing your evaluation.</p>
       </div>
 
       <Link
         href="/dashboard/mis-evaluaciones"
         className="success-text inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--brand-strong)]"
       >
-        Volver a mis evaluaciones
+        Back to my evaluations
       </Link>
     </div>
   );
@@ -94,15 +94,15 @@ export function SubmissionFormView({ submissionId }: { submissionId: number }) {
   }, [submission, answers]);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando formulario…</p>;
+    return <p className="text-sm text-slate-500">Loading form…</p>;
   }
 
   if (error || !submission) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el formulario."}
+        {error
+          ? errorMessage(error, "We couldn't load the form.")
+          : "We couldn't find this form. It may have been deleted, or it may not be assigned to you."}
       </Notice>
     );
   }
@@ -115,14 +115,14 @@ export function SubmissionFormView({ submissionId }: { submissionId: number }) {
     return (
       <div className="space-y-5">
         <Notice tone="success" icon={<CheckCircleIcon className="h-5 w-5" />}>
-          Este formulario ya fue enviado. ¡Gracias!
+          This form has already been submitted. Thank you!
         </Notice>
         <Link
           href="/dashboard/mis-evaluaciones"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
         >
           <ArrowRightIcon className="h-3.5 w-3.5 rotate-180" />
-          Volver a mis evaluaciones
+          Back to my evaluations
         </Link>
       </div>
     );
@@ -136,14 +136,14 @@ export function SubmissionFormView({ submissionId }: { submissionId: number }) {
     return (
       <div className="space-y-5">
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          El plazo para completar esta evaluación ha finalizado.
+          The deadline for completing this evaluation has passed.
         </Notice>
         <Link
           href="/dashboard/mis-evaluaciones"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
         >
           <ArrowRightIcon className="h-3.5 w-3.5 rotate-180" />
-          Volver a mis evaluaciones
+          Back to my evaluations
         </Link>
       </div>
     );
@@ -172,7 +172,7 @@ export function SubmissionFormView({ submissionId }: { submissionId: number }) {
         className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
       >
         <ArrowRightIcon className="h-3.5 w-3.5 rotate-180" />
-        Volver a mis evaluaciones
+        Back to my evaluations
       </Link>
 
       <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
@@ -186,9 +186,9 @@ export function SubmissionFormView({ submissionId }: { submissionId: number }) {
               <p className="mt-1 text-sm text-slate-500">{submission.templateDescription}</p>
             )}
             <p className="mt-2 text-sm text-slate-500">
-              Ciclo <span className="font-medium text-slate-700">{submission.cycleName}</span>
+              Cycle <span className="font-medium text-slate-700">{submission.cycleName}</span>
               {" · "}
-              Evaluado(a):{" "}
+              Evaluating:{" "}
               <span className="font-medium text-slate-700">{submission.evaluatedUserName}</span>
             </p>
           </div>
@@ -226,7 +226,7 @@ export function SubmissionFormView({ submissionId }: { submissionId: number }) {
           loading={isSaving}
           onClick={handleSubmit}
         >
-          Enviar respuestas
+          Submit answers
         </Button>
       </div>
     </div>

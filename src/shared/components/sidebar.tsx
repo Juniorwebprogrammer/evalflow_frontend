@@ -41,7 +41,7 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
     >
       <button
         type="button"
-        title={collapsed ? "Expandir menú" : "Contraer menú"}
+        title={collapsed ? "Expand menu" : "Collapse menu"}
         onClick={toggleCollapsed}
         className="absolute -right-3 top-6 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:text-slate-700"
       >
@@ -55,7 +55,7 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
         <Logo compact={collapsed} />
         {!collapsed && (
           <p className="mt-2 text-[11px] font-semibold tracking-widest text-slate-400">
-            PANEL RRHH
+            HR PANEL
           </p>
         )}
       </div>
@@ -87,7 +87,7 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
       >
         <Link
           href="/dashboard/perfil"
-          title="Ver perfil"
+          title="View profile"
           className={`flex min-w-0 items-center gap-3 rounded-lg p-1 transition hover:bg-white/5 ${
             collapsed ? "" : "flex-1"
           }`}
@@ -98,12 +98,13 @@ export function Sidebar({ initialProfile }: { initialProfile: Profile }) {
               <p className="truncate text-sm font-semibold text-white">
                 {userName}
               </p>
-              <p className="truncate text-xs text-slate-400">Ver perfil</p>
+              <p className="truncate text-xs text-slate-400">View profile</p>
             </div>
           )}
         </Link>
         <button
-          title="Cerrar sesión"
+          title="Sign out"
+          aria-label="Sign out"
           disabled={signingOut}
           onClick={signOut}
           className="text-slate-400 transition hover:text-white disabled:opacity-50"

@@ -184,7 +184,7 @@ export class HttpEvaluationSubmissionRepository implements EvaluationSubmissionR
       message:
         dto?.Message ??
         dto?.message ??
-        "Respuestas guardadas y formulario completado con éxito.",
+        "Answers saved and form completed.",
     };
   }
 
@@ -204,7 +204,7 @@ export class HttpEvaluationSubmissionRepository implements EvaluationSubmissionR
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Formulario eliminado correctamente.",
+      message: dto?.Message ?? dto?.message ?? "Form deleted.",
     };
   }
 }

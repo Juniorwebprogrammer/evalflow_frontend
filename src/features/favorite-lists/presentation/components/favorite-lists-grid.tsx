@@ -17,7 +17,7 @@ import {
   StarIcon,
   TrashIcon,
 } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 type Action = { type: "create" } | { type: "edit"; list: FavoriteListResponse } | { type: "delete"; list: FavoriteListResponse } | null;
 
@@ -31,15 +31,13 @@ export function FavoriteListsGrid() {
   const [action, setAction] = useState<Action>(null);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando listas…</p>;
+    return <p className="text-sm text-slate-500">Loading lists…</p>;
   }
 
   if (error) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el listado de listas favoritas."}
+        {errorMessage(error, "We couldn't load your favorite lists.")}
       </Notice>
     );
   }
@@ -49,14 +47,14 @@ export function FavoriteListsGrid() {
       <div className="flex justify-end">
         <Button type="button" onClick={() => setAction({ type: "create" })}>
           <PlusIcon className="h-4 w-4" />
-          Nueva lista
+          New list
         </Button>
       </div>
 
       {(!lists || lists.length === 0) && (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
           <StarIcon className="h-5 w-5 shrink-0 text-slate-400" />
-          <span>Todavía no has creado ninguna lista favorita.</span>
+          <span>You haven&apos;t created any favorite lists yet.</span>
         </div>
       )}
 
@@ -83,7 +81,7 @@ export function FavoriteListsGrid() {
                     className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                   >
                     <EditIcon className="h-4 w-4 text-slate-400" />
-                    Editar
+                    Edit
                   </button>
                   <button
                     type="button"
@@ -94,7 +92,7 @@ export function FavoriteListsGrid() {
                     className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                   >
                     <TrashIcon className="h-4 w-4" />
-                    Eliminar
+                    Delete
                   </button>
                 </DropdownMenu>
               </div>
@@ -117,7 +115,7 @@ export function FavoriteListsGrid() {
                 <p className="mt-auto flex items-center gap-1.5 text-sm text-slate-500">
                   <DocIcon className="h-4 w-4 text-slate-400" />
                   {list.templateIds.length}{" "}
-                  {list.templateIds.length === 1 ? "plantilla" : "plantillas"}
+                  {list.templateIds.length === 1 ? "template" : "templates"}
                 </p>
               </Link>
             </div>

@@ -1,9 +1,9 @@
-/** Formats an ISO date (or `yyyy-MM-dd`) as e.g. "12 feb 2026". Returns "—" if invalid. */
+/** Formats an ISO date (or `yyyy-MM-dd`) as e.g. "Feb 12, 2026". Returns "—" if invalid. */
 export function formatDate(iso: string): string {
   if (!iso) return "—";
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("es-ES", {
+  return new Intl.DateTimeFormat("en-US", {
     day: "2-digit",
     month: "short",
     year: "numeric",

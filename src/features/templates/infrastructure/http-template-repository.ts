@@ -77,12 +77,12 @@ export class HttpTemplateRepository implements TemplateRepository {
 
     if (!dto) {
       throw new UpstreamError(
-        "El servidor no devolvió una respuesta al crear la plantilla",
+        "The server returned no response when creating the template",
       );
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Plantilla creada con éxito.",
+      message: dto.Message ?? dto.message ?? "Template created.",
       templateId: dto.TemplateId ?? dto.templateId ?? dto.Id ?? dto.id ?? 0,
     };
   }
@@ -105,7 +105,7 @@ export class HttpTemplateRepository implements TemplateRepository {
     });
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Plantilla actualizada correctamente.",
+      message: dto?.Message ?? dto?.message ?? "Template updated.",
     };
   }
 
@@ -116,7 +116,7 @@ export class HttpTemplateRepository implements TemplateRepository {
     });
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Plantilla eliminada correctamente.",
+      message: dto?.Message ?? dto?.message ?? "Template deleted.",
     };
   }
 

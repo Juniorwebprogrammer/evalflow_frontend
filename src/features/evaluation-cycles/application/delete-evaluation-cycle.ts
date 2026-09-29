@@ -11,10 +11,10 @@ export class DeleteEvaluationCycle {
     accessToken: string,
   ): Promise<EvaluationCycleActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!Number.isInteger(id) || id <= 0) {
-      throw new DomainError("El identificador del ciclo no es válido", 400);
+      throw new DomainError("The cycle ID is not valid", 400);
     }
 
     return this.cycles.remove(id, accessToken);

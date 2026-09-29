@@ -33,7 +33,7 @@ export function QuestionAnswerField({
             <button
               key={n}
               type="button"
-              title={`${n} de 5`}
+              title={`${n} of 5`}
               onClick={() => onChange(String(n))}
               className="text-amber-400 transition hover:scale-110"
             >

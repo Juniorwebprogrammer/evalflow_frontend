@@ -5,6 +5,7 @@ import { useCompany } from "@/features/company/presentation/hooks/use-company";
 import { OrganizationForm } from "@/features/profile/presentation/components/panels/organization-form";
 import { DangerZone } from "@/features/profile/presentation/components/panels/danger-zone";
 import { PlanUsagePanel } from "@/features/plans/presentation/components/plan-usage-panel";
+import { errorMessage } from "@/shared/lib/api-error";
 
 /** Roles allowed to edit the organization (mirrors the backend policy). */
 const EDIT_ROLES = ["owner", "rrhh", "administrator"];
@@ -33,23 +34,21 @@ export function OrganizationPanel({
     <div className="space-y-4">
       {!canEdit && (
         <Notice tone="warning">
-          Esta sección está disponible solo para el Owner de la organización.
+          Only the organization&apos;s Owner can edit this section.
         </Notice>
       )}
 
       {!identificationId ? (
         <Notice tone="info">
-          No hay una empresa asociada a tu cuenta.
+          There&apos;s no company linked to your account.
         </Notice>
       ) : isLoading ? (
         <div className="rounded-2xl border border-slate-100 bg-white p-6 text-sm text-slate-500 shadow-sm">
-          Cargando información de la empresa…
+          Loading company information…
         </div>
       ) : isError || !company ? (
         <Notice tone="error">
-          {error instanceof Error
-            ? error.message
-            : "No se pudo cargar la información de la empresa."}
+          {errorMessage(error, "We couldn't load the company information.")}
         </Notice>
       ) : (
         <OrganizationForm

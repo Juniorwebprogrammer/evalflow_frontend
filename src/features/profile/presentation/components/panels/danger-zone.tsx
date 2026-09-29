@@ -10,10 +10,10 @@ export function DangerZone() {
 
   return (
     <div className="rounded-2xl border border-red-200 bg-white p-4 shadow-sm sm:p-6">
-      <h3 className="text-base font-bold text-red-600">Zona de peligro</h3>
+      <h3 className="text-base font-bold text-red-600">Danger zone</h3>
       <p className="mt-0.5 text-sm text-slate-500">
-        Eliminar la empresa borra permanentemente la organización y todos sus
-        usuarios. Esta acción no se puede deshacer.
+        Deleting the company permanently removes the organization and all of
+        its users. This can&apos;t be undone.
       </p>
       <div className="mt-4">
         <Button
@@ -21,7 +21,7 @@ export function DangerZone() {
           variant="danger"
           onClick={() => setConfirming(true)}
         >
-          Eliminar empresa
+          Delete company
         </Button>
       </div>
 

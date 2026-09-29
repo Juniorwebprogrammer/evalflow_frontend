@@ -19,46 +19,46 @@ export function AccountStep({
 }) {
   return (
     <form onSubmit={onSubmit}>
-      <h2 className="text-xl font-bold text-slate-900">Tu cuenta</h2>
+      <h2 className="text-xl font-bold text-slate-900">Your account</h2>
       <p className="mt-1 text-sm text-slate-500">
-        Empecemos con tus datos personales.
+        Let&apos;s start with your personal details.
       </p>
 
       <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field
-          label="Nombre"
+          label="First name"
           icon={<UserIcon className="h-4 w-4" />}
           value={value.UserNombre}
           onChange={(e) => onChange({ UserNombre: e.target.value })}
-          placeholder="Ana"
+          placeholder="Jane"
           required
         />
         <Field
-          label="Apellidos"
+          label="Last name"
           value={value.Apellidos}
           onChange={(e) => onChange({ Apellidos: e.target.value })}
-          placeholder="García"
+          placeholder="Doe"
           required
         />
       </div>
       <Field
         className="mt-3"
-        label="Correo electrónico"
+        label="Email"
         type="email"
         icon={<MailIcon className="h-4 w-4" />}
         value={value.Email}
         onChange={(e) => onChange({ Email: e.target.value })}
-        placeholder="ana.garcia@empresa.es"
+        placeholder="jane.doe@company.com"
         required
       />
       <Field
         className="mt-3"
-        label="Contraseña"
+        label="Password"
         type="password"
         icon={<LockIcon className="h-4 w-4" />}
         value={value.Password}
         onChange={(e) => onChange({ Password: e.target.value })}
-        placeholder="Mínimo 8 caracteres"
+        placeholder="At least 8 characters"
         minLength={8}
         required
       />
@@ -71,10 +71,10 @@ export function AccountStep({
 
       <div className="mt-6 flex items-center justify-between">
         <Button type="button" variant="ghost" onClick={onBack}>
-          Atrás
+          Back
         </Button>
         <Button type="submit">
-          Continuar
+          Continue
           <ArrowRightIcon className="h-4 w-4" />
         </Button>
       </div>

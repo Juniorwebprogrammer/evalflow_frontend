@@ -12,7 +12,7 @@ export class GetEmployees {
 
   async execute(accessToken: string): Promise<Employee[]> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
 
     return this.team.getEmployees(accessToken);

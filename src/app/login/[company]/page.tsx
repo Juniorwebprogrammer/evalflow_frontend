@@ -5,7 +5,7 @@ import { LoginView } from "@/features/auth/presentation/components/login-view";
  *   /login/Mi%20Empresa%20EvalFlow
  *
  * Next.js already URL-decodes dynamic route params, so `company` arrives as
- * a plain string ("Mi Empresa EvalFlow"). LoginView then resolves it through
+ * a plain string ("Acme Corp EvalFlow"). LoginView then resolves it through
  * our route handler and applies the brand colors; if it does not exist, it
  * falls back to onboarding.
  */

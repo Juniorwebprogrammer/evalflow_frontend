@@ -18,11 +18,11 @@ export class CreateJobPosition {
     accessToken: string,
   ): Promise<CreateJobPositionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
 
     if (!input.Nombre.trim()) {
-      throw new DomainError("El nombre del cargo es obligatorio", 400);
+      throw new DomainError("Job position name is required.", 400);
     }
 
     return this.jobPositions.create(

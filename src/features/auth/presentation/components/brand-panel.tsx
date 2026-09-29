@@ -6,9 +6,9 @@ import {
 } from "@/shared/ui/icons";
 
 const FEATURES = [
-  { icon: ShieldIcon, text: "Respuestas selladas hasta revisión de RRHH" },
-  { icon: ScaleIcon, text: "Pre-análisis automático de brechas y sesgos" },
-  { icon: CheckCircleIcon, text: "Cumplimiento regulatorio para entidades sanitarias" },
+  { icon: ShieldIcon, text: "Responses stay sealed until HR reviews them" },
+  { icon: ScaleIcon, text: "Automatic pre-analysis of gaps and bias" },
+  { icon: CheckCircleIcon, text: "Regulatory compliance for healthcare organizations" },
 ];
 
 /** The dark hero panel shown on the left of the auth screen. */
@@ -43,13 +43,13 @@ export function BrandPanel({
 
       <div className="relative z-10 max-w-md">
         <h1 className="text-4xl font-bold leading-tight text-white">
-          Evaluaciones sin sesgos.
+          Evaluations without bias.
           <br />
-          Decisiones con datos.
+          Decisions backed by data.
         </h1>
         <p className="mt-5 text-base leading-relaxed text-slate-300">
-          El árbitro neutral que tu organización necesita. Protocolos sellados,
-          análisis comparativo y mediación objetiva por RRHH.
+          The neutral referee your organization needs. Sealed protocols,
+          comparative analysis and objective mediation by HR.
         </p>
       </div>
 

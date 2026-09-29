@@ -12,13 +12,13 @@ const TABS: Array<{
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   ownerOnly?: boolean;
 }> = [
-  { id: "personal", label: "Datos personales", icon: UserIcon },
-  { id: "security", label: "Contraseña y seguridad", icon: LockIcon },
-  { id: "role", label: "Rol y permisos", icon: KeyIcon },
-  { id: "organization", label: "Organización", icon: BuildingIcon, ownerOnly: true },
+  { id: "personal", label: "Personal details", icon: UserIcon },
+  { id: "security", label: "Password and security", icon: LockIcon },
+  { id: "role", label: "Role and permissions", icon: KeyIcon },
+  { id: "organization", label: "Organization", icon: BuildingIcon, ownerOnly: true },
 ];
 
-/** Tabs `rol` may open — the "Organización" (company control) tab is Owner-only. */
+/** Tabs `rol` may open — the "Organization" (company control) tab is Owner-only. */
 export function canOpenProfileTab(rol: string, tab: ProfileTab): boolean {
   const ownerOnly = TABS.find(({ id }) => id === tab)?.ownerOnly;
   return !ownerOnly || isOwnerRole(rol);

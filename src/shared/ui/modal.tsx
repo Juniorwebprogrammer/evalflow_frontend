@@ -61,6 +61,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             disabled={disableClose}
+            aria-label="Close"
             className="shrink-0 text-slate-400 transition hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <XIcon className="h-5 w-5" />

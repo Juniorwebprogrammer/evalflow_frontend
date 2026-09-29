@@ -15,7 +15,7 @@ import {
   TrashIcon,
   UsersIcon,
 } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 type Action =
   | { type: "edit"; position: JobPositionSummaryResponse }
@@ -44,15 +44,13 @@ export function JobPositionsTable() {
   }, [positions, search]);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando cargos…</p>;
+    return <p className="text-sm text-slate-500">Loading job positions…</p>;
   }
 
   if (error) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el listado de cargos."}
+        {errorMessage(error, "We couldn't load the job positions.")}
       </Notice>
     );
   }
@@ -61,7 +59,7 @@ export function JobPositionsTable() {
     return (
       <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
         <BriefcaseIcon className="h-5 w-5 shrink-0 text-slate-400" />
-        <span>Todavía no has creado ningún cargo.</span>
+        <span>You haven&apos;t created any job positions yet.</span>
       </div>
     );
   }
@@ -80,7 +78,7 @@ export function JobPositionsTable() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar cargo…"
+            placeholder="Search job positions…"
             className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
           />
         </div>
@@ -90,10 +88,10 @@ export function JobPositionsTable() {
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="px-5 py-3">Cargo</th>
-              <th className="px-5 py-3">Descripción</th>
-              <th className="px-5 py-3">Empleados asignados</th>
-              <th className="px-5 py-3 text-right">Acciones</th>
+              <th className="px-5 py-3">Job position</th>
+              <th className="px-5 py-3">Description</th>
+              <th className="px-5 py-3">Assigned employees</th>
+              <th className="px-5 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -115,7 +113,7 @@ export function JobPositionsTable() {
                   title={position.descripcion ?? undefined}
                 >
                   {position.descripcion ?? (
-                    <span className="text-slate-400 italic">Sin descripción</span>
+                    <span className="text-slate-400 italic">No description</span>
                   )}
                 </td>
 
@@ -143,7 +141,7 @@ export function JobPositionsTable() {
                       className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                     >
                       <EditIcon className="h-4 w-4 text-slate-400" />
-                      Editar
+                      Edit
                     </button>
                     <button
                       type="button"
@@ -154,7 +152,7 @@ export function JobPositionsTable() {
                       className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                     >
                       <TrashIcon className="h-4 w-4" />
-                      Eliminar
+                      Delete
                     </button>
                   </DropdownMenu>
                 </td>
@@ -165,15 +163,15 @@ export function JobPositionsTable() {
 
         {filtered.length === 0 && (
           <p className="px-5 py-6 text-center text-sm text-slate-500">
-            Ningún cargo coincide con la búsqueda.
+            No job positions match your search.
           </p>
         )}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatTile label="Total de cargos" value={stats.total} />
-        <StatTile label="Sin descripción" value={stats.sinDescripcion} />
-        <StatTile label="Empleados con cargo" value={stats.empleadosAsignados} />
+        <StatTile label="Total job positions" value={stats.total} />
+        <StatTile label="No description" value={stats.sinDescripcion} />
+        <StatTile label="Employees with a job position" value={stats.empleadosAsignados} />
       </div>
 
       {action?.type === "edit" && (

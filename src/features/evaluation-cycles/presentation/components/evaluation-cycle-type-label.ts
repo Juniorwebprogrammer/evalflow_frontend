@@ -1,7 +1,7 @@
 import { EvaluationType } from "@/features/evaluation-cycles/domain/evaluation-cycle";
 
 const LABEL: Record<EvaluationType, string> = {
-  [EvaluationType.Auto]: "Auto",
+  [EvaluationType.Auto]: "Self",
   [EvaluationType.Evaluacion180]: "180°",
   [EvaluationType.Evaluacion360]: "360°",
 };

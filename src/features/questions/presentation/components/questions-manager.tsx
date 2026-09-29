@@ -24,12 +24,12 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 const TYPE_BADGE: Record<QuestionType, { label: string; className: string }> = {
-  [QuestionType.Estrellas]: { label: "★ Valoración", className: "bg-indigo-100 text-indigo-600" },
-  [QuestionType.Seleccion]: { label: "Múltiple", className: "bg-amber-100 text-amber-700" },
-  [QuestionType.Escala1a5]: { label: "Escala 1-5", className: "bg-emerald-100 text-emerald-700" },
+  [QuestionType.Estrellas]: { label: "★ Rating", className: "bg-indigo-100 text-indigo-600" },
+  [QuestionType.Seleccion]: { label: "Multiple choice", className: "bg-amber-100 text-amber-700" },
+  [QuestionType.Escala1a5]: { label: "Scale 1–5", className: "bg-emerald-100 text-emerald-700" },
 };
 
 type Action =
@@ -66,7 +66,7 @@ function groupByTopic(questions: QuestionResponse[]): TopicGroup[] {
     }
   }
   return [...map.entries()]
-    .sort(([a], [b]) => a.localeCompare(b, "es", { sensitivity: "base" }))
+    .sort(([a], [b]) => a.localeCompare(b, "en-US", { sensitivity: "base" }))
     .map(([topic, groupQuestions]) => ({ topic, questions: groupQuestions }));
 }
 
@@ -173,9 +173,7 @@ export function QuestionsManager({
       );
     } catch (err) {
       setReorderError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo guardar el nuevo orden. Actualiza la página e inténtalo de nuevo.",
+        errorMessage(err, "We couldn't save the new order. Refresh the page and try again."),
       );
     } finally {
       setReordering(false);
@@ -183,15 +181,13 @@ export function QuestionsManager({
   }
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando preguntas…</p>;
+    return <p className="text-sm text-slate-500">Loading questions…</p>;
   }
 
   if (error) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el listado de preguntas."}
+        {errorMessage(error, "We couldn't load the questions.")}
       </Notice>
     );
   }
@@ -199,11 +195,11 @@ export function QuestionsManager({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-base font-bold text-slate-900">Preguntas</h2>
+        <h2 className="text-base font-bold text-slate-900">Questions</h2>
         {canManage && (
           <Button type="button" onClick={() => setAction({ type: "create" })}>
             <PlusIcon className="h-4 w-4" />
-            Nueva pregunta
+            New question
           </Button>
         )}
       </div>
@@ -211,7 +207,7 @@ export function QuestionsManager({
       {(!questions || questions.length === 0) && (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
           <ListIcon className="h-5 w-5 shrink-0 text-slate-400" />
-          <span>Esta plantilla todavía no tiene preguntas.</span>
+          <span>This template doesn&apos;t have any questions yet.</span>
         </div>
       )}
 
@@ -258,7 +254,7 @@ export function QuestionsManager({
                             draggable={!reordering}
                             onDragStart={(e) => handleDragStart(group.topic, index, e)}
                             onDragEnd={handleDragEnd}
-                            title="Arrastra para reordenar dentro del mismo topic"
+                            title="Drag to reorder within the same topic"
                             className="mt-0.5 flex h-7 w-5 shrink-0 cursor-grab items-center justify-center text-slate-300 transition hover:text-slate-500 active:cursor-grabbing"
                           >
                             <GripIcon className="h-4 w-4" />
@@ -283,7 +279,7 @@ export function QuestionsManager({
                           <div className="flex shrink-0 items-center gap-1">
                             <button
                               type="button"
-                              title="Editar"
+                              title="Edit"
                               onClick={() => setAction({ type: "edit", question })}
                               className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-200 hover:text-slate-600"
                             >
@@ -291,7 +287,7 @@ export function QuestionsManager({
                             </button>
                             <button
                               type="button"
-                              title="Eliminar"
+                              title="Delete"
                               onClick={() => setAction({ type: "delete", question })}
                               className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-100 hover:text-red-600"
                             >
@@ -312,7 +308,7 @@ export function QuestionsManager({
       {reordering && (
         <p className="flex items-center gap-2 text-sm text-slate-500">
           <Spinner />
-          Guardando el nuevo orden…
+          Saving the new order…
         </p>
       )}
       {reorderError && <Notice tone="error">{reorderError}</Notice>}

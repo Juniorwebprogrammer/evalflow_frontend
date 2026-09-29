@@ -13,9 +13,9 @@ const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
   ["minute", 60],
 ];
 
-const relativeTimeFormatter = new Intl.RelativeTimeFormat("es", { numeric: "auto" });
+const relativeTimeFormatter = new Intl.RelativeTimeFormat("en-US", { numeric: "auto" });
 
-/** Formats `date` as a short relative string ("hace 2h", "hace 3 días"...). */
+/** Formats `date` as a short relative string ("2 hours ago", "3 days ago"...). */
 export function formatRelativeTime(date: string | Date): string {
   const value = date instanceof Date ? date : new Date(date);
   if (Number.isNaN(value.getTime())) return "";

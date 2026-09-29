@@ -1,14 +1,15 @@
 import type { EmployeeResponse } from "@/features/team/presentation/api/team-client";
+import { roleLabel } from "@/features/team/presentation/lib/format";
 
 const HEADER = [
-  "Nombre",
-  "Apellidos",
+  "First name",
+  "Last name",
   "Email",
-  "Departamento",
-  "Superior directo",
-  "Cargo",
-  "Rol",
-  "Estado",
+  "Department",
+  "Manager",
+  "Job position",
+  "Role",
+  "Status",
 ];
 
 function toRow(employee: EmployeeResponse): string[] {
@@ -21,8 +22,8 @@ function toRow(employee: EmployeeResponse): string[] {
       ? `${employee.superior.nombre} ${employee.superior.apellidos}`
       : "",
     employee.cargo ?? "",
-    employee.rol,
-    employee.activo ? "Activo" : "Inactivo",
+    roleLabel(employee.rol),
+    employee.activo ? "Active" : "Inactive",
   ];
 }
 
@@ -40,7 +41,7 @@ export function exportEmployeesToCsv(employees: EmployeeResponse[]): void {
 
   const link = document.createElement("a");
   link.href = url;
-  link.download = "empleados.csv";
+  link.download = "employees.csv";
   link.click();
 
   URL.revokeObjectURL(url);

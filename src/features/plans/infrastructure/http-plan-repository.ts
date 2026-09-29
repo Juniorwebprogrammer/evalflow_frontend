@@ -44,7 +44,7 @@ export class HttpPlanRepository implements PlanRepository {
     const dto = await this.client.request<Record<string, unknown>>("/Company/plan", { accessToken });
     const plan = dto && pick<PlanDto>(dto, "Plan");
     const usage = (dto && pick<Record<string, unknown>>(dto, "Usage")) ?? {};
-    if (!plan) throw new UpstreamError("El servidor no devolvió el plan de la empresa");
+    if (!plan) throw new UpstreamError("The server did not return the company plan");
 
     const count = (name: string) => pick<number>(usage, name) ?? 0;
     return {

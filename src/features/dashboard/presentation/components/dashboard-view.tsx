@@ -29,8 +29,8 @@ export function DashboardView() {
           <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
           <p className="mt-1 text-sm text-slate-500">
             {canManage
-              ? "Resumen de tu organización y del ciclo de evaluación activo"
-              : "Tus evaluaciones y el ciclo de evaluación activo"}
+              ? "An overview of your organization and the active evaluation cycle"
+              : "Your evaluations and the active evaluation cycle"}
           </p>
         </div>
         {canManage && <CompanySummary />}
@@ -59,9 +59,9 @@ export function DashboardView() {
 function CompanySummary() {
   const { data: stats } = useDashboardStats();
   const items = [
-    { label: "Empleados activos", value: stats?.activeEmployeesCount },
-    { label: "Departamentos", value: stats?.departmentsCount },
-    { label: "Ciclos activos", value: stats?.activeCyclesCount },
+    { label: "Active employees", value: stats?.activeEmployeesCount },
+    { label: "Departments", value: stats?.departmentsCount },
+    { label: "Active cycles", value: stats?.activeCyclesCount },
   ];
 
   return (

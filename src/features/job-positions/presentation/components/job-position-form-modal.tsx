@@ -16,11 +16,11 @@ export function JobPositionFormModal({
   return (
     <Modal
       onClose={onClose}
-      title={position ? "Editar cargo" : "Nuevo cargo"}
+      title={position ? "Edit job position" : "New job position"}
       description={
         position
-          ? "Actualiza el nombre o la descripción de este cargo."
-          : "Crea un cargo para asignarlo a tus empleados."
+          ? "Update the name or description of this job position."
+          : "Create a job position to assign to your employees."
       }
       icon={<BriefcaseIcon className="h-5 w-5" />}
     >

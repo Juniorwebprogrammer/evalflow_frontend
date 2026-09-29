@@ -7,7 +7,7 @@ import {
   type CycleSubmissionResponse,
 } from "@/features/evaluation-submissions/presentation/api/evaluation-submission-client";
 import { cycleSubmissionsQueryKey } from "@/features/evaluation-submissions/presentation/hooks/use-cycle-submissions";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 /** Deletes a submission (Owner/Rrhh only) and removes it from the cycle's cached progress list. */
 export function useDeleteSubmission(cycleId: number) {
@@ -27,9 +27,14 @@ export function useDeleteSubmission(cycleId: number) {
       return result;
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo eliminar el formulario. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't delete the form.", {
+          byDetail: [
+            [
+              "ya se ha completado",
+              "This cycle has already been completed, so its forms can no longer be deleted.",
+            ],
+          ],
+        }),
       );
       throw err;
     } finally {

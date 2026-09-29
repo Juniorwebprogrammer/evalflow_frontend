@@ -23,7 +23,7 @@ export function DropdownMenu({
   open,
   onOpenChange,
   children,
-  triggerTitle = "Más acciones",
+  triggerTitle = "More actions",
   menuClassName = "w-52",
 }: DropdownMenuProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);

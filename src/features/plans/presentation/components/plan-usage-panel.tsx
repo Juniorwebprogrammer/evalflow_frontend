@@ -3,19 +3,19 @@
 import { planLimit, type PlanResource } from "@/features/plans/domain/plan";
 import { useCompanyPlan } from "@/features/plans/presentation/hooks/use-plans";
 import { CheckCircleIcon, CrownIcon } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 const ROWS: Array<{ resource: PlanResource; label: string }> = [
-  { resource: "employees", label: "Empleados activos" },
-  { resource: "activeCycles", label: "Ciclos activos a la vez" },
-  { resource: "cyclesThisYear", label: "Ciclos que empiezan este año" },
-  { resource: "customTemplates", label: "Plantillas propias" },
-  { resource: "departments", label: "Departamentos" },
+  { resource: "employees", label: "Active employees" },
+  { resource: "activeCycles", label: "Active cycles at a time" },
+  { resource: "cyclesThisYear", label: "Cycles starting this year" },
+  { resource: "customTemplates", label: "Custom templates" },
+  { resource: "departments", label: "Departments" },
 ];
 
-const AI_ROW = { resource: "aiAnalysesThisMonth" as const, label: "Análisis con IA este mes" };
+const AI_ROW = { resource: "aiAnalysesThisMonth" as const, label: "AI analyses this month" };
 
-/** "Plan y uso": the company plan, each limit as a meter, and included features. */
+/** "Plan and usage": the company plan, each limit as a meter, and included features. */
 export function PlanUsagePanel() {
   const { data, isLoading, error } = useCompanyPlan();
 
@@ -23,15 +23,15 @@ export function PlanUsagePanel() {
     <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Plan y uso</h2>
+          <h2 className="text-lg font-bold text-slate-900">Plan and usage</h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            Límites de tu plan y cuánto estás usando de cada uno
+            Your plan&apos;s limits and how much of each you&apos;re using
           </p>
         </div>
         {data && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
             <CrownIcon style={{ width: 14, height: 14 }} />
-            Plan {data.plan.nombre}
+            {data.plan.nombre} plan
           </span>
         )}
       </header>
@@ -40,7 +40,7 @@ export function PlanUsagePanel() {
 
       {error && (
         <p className="mt-5 text-sm text-red-600">
-          {error instanceof ApiError ? error.message : "No se pudo cargar el plan."}
+          {errorMessage(error, "We couldn't load your plan.")}
         </p>
       )}
 
@@ -57,7 +57,7 @@ export function PlanUsagePanel() {
                   <div className="flex items-baseline justify-between gap-3 text-sm">
                     <span className="text-slate-600">{label}</span>
                     <span className={`font-semibold tabular-nums ${full ? "text-red-600" : "text-slate-900"}`}>
-                      {limit === null ? `${used} · ilimitado` : `${used} de ${limit}`}
+                      {limit === null ? `${used} · unlimited` : `${used} of ${limit}`}
                     </span>
                   </div>
                   <div className="mt-1.5 h-2.5 w-full overflow-hidden rounded-r bg-[#e6effb]">
@@ -72,7 +72,7 @@ export function PlanUsagePanel() {
                   </div>
                   {full && (
                     <p className="mt-1 text-xs text-red-600">
-                      Límite alcanzado: no podrás añadir más hasta mejorar el plan.
+                      Limit reached: you can&apos;t add more until you upgrade your plan.
                     </p>
                   )}
                 </li>
@@ -85,11 +85,11 @@ export function PlanUsagePanel() {
               className={`h-4 w-4 ${data.plan.hasAiFeatures ? "text-emerald-500" : "text-slate-300"}`}
             />
             <span className={data.plan.hasAiFeatures ? "text-slate-700" : "text-slate-400"}>
-              Funciones de IA {data.plan.hasAiFeatures ? "incluidas" : "no incluidas (disponibles en Growth y Enterprise)"}
+              AI features {data.plan.hasAiFeatures ? "included" : "not included (available on Growth and Enterprise)"}
             </span>
           </div>
           <p className="mt-3 text-xs text-slate-400">
-            Para cambiar de plan, contacta con el equipo de EvalFlow.
+            To change your plan, contact the EvalFlow team.
           </p>
         </>
       )}

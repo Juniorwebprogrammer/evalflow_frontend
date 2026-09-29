@@ -30,7 +30,7 @@ export function DonutChart({
   totalLabel,
 }: {
   segments: DonutSegment[];
-  /** What the total in the center counts, e.g. "empleados". */
+  /** What the total in the center counts, e.g. "employees". */
   totalLabel: string;
 }) {
   const [activeKey, setActiveKey] = useState<string | null>(null);

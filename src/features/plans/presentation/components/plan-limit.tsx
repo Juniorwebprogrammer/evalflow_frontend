@@ -6,12 +6,12 @@ import { Notice } from "@/shared/ui/notice";
 import { AlertTriangleIcon } from "@/shared/ui/icons";
 
 const WHAT: Record<PlanResource, (limit: number) => string> = {
-  employees: (n) => `${n} empleados activos`,
-  activeCycles: (n) => (n === 1 ? "1 ciclo activo a la vez" : `${n} ciclos activos a la vez`),
-  cyclesThisYear: (n) => `${n} ciclos de evaluación que empiecen este año`,
-  customTemplates: (n) => `${n} plantillas propias`,
-  departments: (n) => `${n} departamentos`,
-  aiAnalysesThisMonth: (n) => `${n} análisis con IA al mes`,
+  employees: (n) => `${n} active ${n === 1 ? "employee" : "employees"}`,
+  activeCycles: (n) => `${n} active ${n === 1 ? "cycle" : "cycles"} at a time`,
+  cyclesThisYear: (n) => `${n} evaluation ${n === 1 ? "cycle" : "cycles"} starting this year`,
+  customTemplates: (n) => `${n} custom ${n === 1 ? "template" : "templates"}`,
+  departments: (n) => `${n} ${n === 1 ? "department" : "departments"}`,
+  aiAnalysesThisMonth: (n) => `${n} AI ${n === 1 ? "analysis" : "analyses"} per month`,
 };
 
 /**
@@ -25,7 +25,7 @@ export function usePlanLimit(resource: PlanResource) {
   const limit = data ? planLimit(data.plan, resource) : null;
   const message =
     atLimit && data && limit !== null
-      ? `Tu plan ${data.plan.nombre} permite hasta ${WHAT[resource](limit)}. Contacta con EvalFlow para mejorar tu plan.`
+      ? `Your ${data.plan.nombre} plan allows up to ${WHAT[resource](limit)}. Contact EvalFlow to upgrade your plan.`
       : null;
   return { atLimit, message };
 }

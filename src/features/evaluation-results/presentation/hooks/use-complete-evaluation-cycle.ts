@@ -6,7 +6,7 @@ import { completeEvaluationCycle } from "@/features/evaluation-results/presentat
 import { cycleEvaluationResultsQueryKey } from "@/features/evaluation-results/presentation/hooks/use-evaluation-results";
 import { cycleComparisonsQueryKey } from "@/features/evaluation-comparisons/presentation/hooks/use-cycle-comparisons";
 import { EVALUATION_CYCLES_QUERY_KEY } from "@/features/evaluation-cycles/presentation/hooks/use-evaluation-cycles";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 export function useCompleteEvaluationCycle(cycleId: number) {
   const queryClient = useQueryClient();
@@ -26,9 +26,16 @@ export function useCompleteEvaluationCycle(cycleId: number) {
       return result;
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo completar la evaluación. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't complete the evaluation.", {
+          byDetail: [
+            [
+              "desequilibrios sin aceptar",
+              "Some discrepancies haven't been accepted yet. Accept them before completing the evaluation.",
+            ],
+            ["no tiene formularios generados", "This cycle has no forms yet. Generate the forms before completing the evaluation."],
+            ["ya se ha completado", "This evaluation cycle has already been completed."],
+          ],
+        }),
       );
       throw err;
     } finally {

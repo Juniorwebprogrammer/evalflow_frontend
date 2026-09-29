@@ -8,6 +8,7 @@ import { ProgressRing } from "@/features/dashboard/presentation/components/chart
 import { SEQUENTIAL } from "@/features/dashboard/presentation/components/charts/chart-palette";
 import { ChevronRightIcon } from "@/shared/ui/icons";
 import { formatDate } from "@/shared/lib/format-date";
+import { errorMessage } from "@/shared/lib/api-error";
 
 /** Forms listed under the ring before linking to the full screen. */
 const MAX_PENDING = 3;
@@ -22,30 +23,34 @@ export function MyEvaluationsCard({ className = "" }: { className?: string }) {
 
   return (
     <ChartCard
-      title="Mis evaluaciones"
-      subtitle="Formularios que te han asignado"
+      title="My evaluations"
+      subtitle="Forms assigned to you"
       action={
         <Link
           href="/dashboard/mis-evaluaciones"
           className="text-sm font-semibold text-[var(--brand)] hover:underline"
         >
-          Ver todas
+          View all
         </Link>
       }
       loading={pending.isLoading || completed.isLoading}
-      error={pending.error || completed.error ? "No se pudieron cargar tus evaluaciones." : null}
-      empty={total === 0 ? "No tienes evaluaciones asignadas por ahora." : null}
+      error={
+        pending.error || completed.error
+          ? errorMessage(pending.error ?? completed.error, "We couldn't load your evaluations.")
+          : null
+      }
+      empty={total === 0 ? "You have no evaluations assigned right now." : null}
       className={className}
     >
       <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-        <ProgressRing value={completedCount} total={total} caption="completadas" size={152} />
+        <ProgressRing value={completedCount} total={total} caption="completed" size={152} />
 
         <div className="w-full min-w-0 flex-1">
           <dl className="grid grid-cols-2 gap-3">
             <div>
               <dt className="flex items-center gap-1.5 text-xs text-slate-500">
                 <span className="h-2.5 w-2.5 rounded-sm" style={{ background: SEQUENTIAL.base }} />
-                Completadas
+                Completed
               </dt>
               <dd className="mt-0.5 text-2xl font-bold tabular-nums text-slate-900">
                 {completedCount}
@@ -54,7 +59,7 @@ export function MyEvaluationsCard({ className = "" }: { className?: string }) {
             <div>
               <dt className="flex items-center gap-1.5 text-xs text-slate-500">
                 <span className="h-2.5 w-2.5 rounded-sm" style={{ background: SEQUENTIAL.track }} />
-                Pendientes
+                Pending
               </dt>
               <dd className="mt-0.5 text-2xl font-bold tabular-nums text-slate-900">
                 {pendingList.length}
@@ -75,7 +80,7 @@ export function MyEvaluationsCard({ className = "" }: { className?: string }) {
                         {s.templateTitle}
                       </span>
                       <span className="block truncate text-xs text-slate-500">
-                        {s.evaluatedUserName} · hasta {formatDate(s.fechaFinCiclo)}
+                        {s.evaluatedUserName} · due {formatDate(s.fechaFinCiclo)}
                       </span>
                     </span>
                     <ChevronRightIcon className="h-4 w-4 shrink-0 text-slate-400" />
@@ -84,7 +89,7 @@ export function MyEvaluationsCard({ className = "" }: { className?: string }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-4 text-sm text-emerald-600">¡Estás al día! No tienes formularios pendientes.</p>
+            <p className="mt-4 text-sm text-emerald-600">You&apos;re all caught up! You have no pending forms.</p>
           )}
         </div>
       </div>

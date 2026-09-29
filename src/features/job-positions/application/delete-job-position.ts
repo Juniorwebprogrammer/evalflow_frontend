@@ -11,10 +11,10 @@ export class DeleteJobPosition {
 
   async execute(id: number, accessToken: string): Promise<JobPositionActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!Number.isInteger(id) || id <= 0) {
-      throw new DomainError("El identificador del cargo no es válido", 400);
+      throw new DomainError("Invalid job position ID.", 400);
     }
 
     return this.jobPositions.remove(id, accessToken);

@@ -7,13 +7,13 @@ import { useCompletedSubmissions } from "@/features/evaluation-submissions/prese
 import type { PendingSubmissionResponse } from "@/features/evaluation-submissions/presentation/api/evaluation-submission-client";
 import { Notice } from "@/shared/ui/notice";
 import { AlertTriangleIcon, CalendarIcon, ClipboardIcon, DocIcon } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 
 type Tab = "pending" | "completed";
 
 /**
- * "Mis evaluaciones" — the caller's own pending/completed submissions
+ * "My evaluations" — the caller's own pending/completed submissions
  * (backend `GET /evaluation-submissions/pending|completed`). A pending card
  * links to the form; a completed one doesn't, since there's no endpoint to
  * view previously saved answers.
@@ -30,8 +30,8 @@ export function SubmissionsView() {
       <div className="flex gap-2 overflow-x-auto border-b border-slate-100">
         {(
           [
-            { key: "pending", label: "Pendientes" },
-            { key: "completed", label: "Completadas" },
+            { key: "pending", label: "Pending" },
+            { key: "completed", label: "Completed" },
           ] as const
         ).map(({ key, label }) => (
           <button
@@ -50,14 +50,12 @@ export function SubmissionsView() {
       </div>
 
       {active.isLoading && (
-        <p className="text-sm text-slate-500">Cargando formularios…</p>
+        <p className="text-sm text-slate-500">Loading forms…</p>
       )}
 
       {active.error && (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          {active.error instanceof ApiError
-            ? active.error.message
-            : "No se pudo cargar el listado de formularios."}
+          {errorMessage(active.error, "We couldn't load your forms.")}
         </Notice>
       )}
 
@@ -66,8 +64,8 @@ export function SubmissionsView() {
           <ClipboardIcon className="h-5 w-5 shrink-0 text-slate-400" />
           <span>
             {tab === "pending"
-              ? "No tienes formularios pendientes por ahora."
-              : "Todavía no has completado ningún formulario."}
+              ? "You have no pending forms right now."
+              : "You haven't completed any forms yet."}
           </span>
         </div>
       )}
@@ -104,14 +102,14 @@ function SubmissionCard({
           <div>
             <h3 className="font-bold text-slate-900">{submission.templateTitle}</h3>
             <p className="text-sm text-slate-500">
-              {submission.cycleName} · Evaluado(a): {submission.evaluatedUserName}
+              {submission.cycleName} · Evaluating: {submission.evaluatedUserName}
             </p>
           </div>
         </div>
       </div>
       <span className="inline-flex items-center gap-1.5 text-sm text-slate-500">
         <CalendarIcon className="h-4 w-4 text-slate-400" />
-        Vence {formatDate(submission.fechaFinCiclo)}
+        Due {formatDate(submission.fechaFinCiclo)}
       </span>
     </section>
   );

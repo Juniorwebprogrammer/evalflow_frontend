@@ -16,11 +16,11 @@ export function TemplateFormModal({
   return (
     <Modal
       onClose={onClose}
-      title={template ? "Editar plantilla" : "Nueva plantilla"}
+      title={template ? "Edit template" : "New template"}
       description={
         template
-          ? "Actualiza los datos de la plantilla."
-          : "Crea una plantilla de evaluación para tu empresa."
+          ? "Update the template details."
+          : "Create an evaluation template for your company."
       }
       icon={<DocIcon className="h-5 w-5" />}
       size="lg"

@@ -18,7 +18,7 @@ export async function GET() {
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const result = await useCases.getAllEvaluationCycles.execute(session.jwt);
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const body = (await request.json().catch(() => null)) as
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       | null;
 
     if (!body) {
-      throw new DomainError("El cuerpo de la petición no es válido", 400);
+      throw new DomainError("The request is not valid.", 400);
     }
 
     const input: CreateEvaluationCycleInput = {

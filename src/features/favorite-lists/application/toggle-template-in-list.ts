@@ -15,7 +15,7 @@ export class ToggleTemplateInList {
     accessToken: string,
   ): Promise<FavoriteListActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is invalid. Please sign in again.", 401);
     }
     if (
       !Number.isInteger(listId) ||
@@ -23,7 +23,7 @@ export class ToggleTemplateInList {
       !Number.isInteger(templateId) ||
       templateId <= 0
     ) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is invalid", 400);
     }
 
     return this.favoriteLists.toggleTemplate(listId, templateId, accessToken);

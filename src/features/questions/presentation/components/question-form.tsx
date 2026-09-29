@@ -14,13 +14,13 @@ import {
 } from "@/features/questions/presentation/api/question-client";
 import { QuestionType } from "@/features/questions/domain/question";
 import { questionsQueryKey } from "@/features/questions/presentation/hooks/use-questions";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { upsertById } from "@/shared/lib/query-cache";
 
 const QUESTION_TYPE_OPTIONS = [
-  { value: String(QuestionType.Estrellas), label: "Estrellas (1 a 5)" },
-  { value: String(QuestionType.Seleccion), label: "Selección múltiple" },
-  { value: String(QuestionType.Escala1a5), label: "Escala numérica (1 a 5)" },
+  { value: String(QuestionType.Estrellas), label: "Stars (1 to 5)" },
+  { value: String(QuestionType.Seleccion), label: "Multiple choice" },
+  { value: String(QuestionType.Escala1a5), label: "Numeric scale (1 to 5)" },
 ] as const;
 
 interface FormState {
@@ -126,9 +126,12 @@ export function QuestionForm({
       );
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : `No se pudo ${isEditing ? "actualizar" : "crear"} la pregunta. Inténtalo de nuevo.`,
+        errorMessage(
+          err,
+          isEditing
+            ? "We couldn't update the question."
+            : "We couldn't create the question.",
+        ),
       );
     } finally {
       setSubmitting(false);
@@ -142,10 +145,10 @@ export function QuestionForm({
           tone="success"
           icon={<CheckCircleIcon className="h-5 w-5 text-emerald-600" />}
         >
-          Pregunta {isEditing ? "actualizada" : "creada"} con éxito.
+          Question {isEditing ? "updated" : "created"} successfully.
         </Notice>
         <Button type="button" className="mt-5 w-full" onClick={onSaved}>
-          Aceptar
+          OK
         </Button>
       </>
     );
@@ -154,16 +157,16 @@ export function QuestionForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field
-        label="Texto de la pregunta"
+        label="Question text"
         value={form.texto}
         onChange={(e) => update({ texto: e.target.value })}
-        placeholder="¿Cómo valorarías el desempeño general?"
+        placeholder="How would you rate overall performance?"
         required
         autoFocus
       />
 
       <Field
-        label="Tema"
+        label="Topic"
         value={form.topic}
         onChange={(e) => update({ topic: e.target.value })}
         placeholder="General"
@@ -171,20 +174,20 @@ export function QuestionForm({
       />
 
       <Select
-        label="Tipo"
+        label="Type"
         value={String(form.tipo)}
         onChange={(e) => update({ tipo: Number(e.target.value) as QuestionType })}
         options={QUESTION_TYPE_OPTIONS}
       />
       {/*
-        No manual "Orden" field — the order is set by dragging questions in
+        No manual "order" field — the order is set by dragging questions in
         the list (see QuestionsManager). A new question is appended at the
         end (`nextOrden`); an edit keeps the question's current position.
       */}
 
       {form.tipo === QuestionType.Seleccion && (
         <div>
-          <p className="mb-1.5 text-sm font-medium text-slate-700">Opciones</p>
+          <p className="mb-1.5 text-sm font-medium text-slate-700">Options</p>
           <div className="space-y-2">
             {form.opciones.map((option, index) => (
               <div key={index} className="flex items-center gap-2">
@@ -192,14 +195,14 @@ export function QuestionForm({
                   className="w-full flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
                   value={option}
                   onChange={(e) => updateOption(index, e.target.value)}
-                  placeholder={`Opción ${index + 1}`}
+                  placeholder={`Option ${index + 1}`}
                 />
                 <button
                   type="button"
                   onClick={() => removeOption(index)}
                   disabled={form.opciones.length <= 2}
                   className="shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
-                  title="Quitar opción"
+                  title="Remove option"
                 >
                   <TrashIcon className="h-4 w-4" />
                 </button>
@@ -212,7 +215,7 @@ export function QuestionForm({
             className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand)] hover:underline"
           >
             <PlusIcon className="h-3.5 w-3.5" />
-            Añadir opción
+            Add option
           </button>
         </div>
       )}
@@ -221,10 +224,10 @@ export function QuestionForm({
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="submit" loading={submitting}>
-          {isEditing ? "Guardar cambios" : "Crear pregunta"}
+          {isEditing ? "Save changes" : "Create question"}
         </Button>
       </div>
     </form>

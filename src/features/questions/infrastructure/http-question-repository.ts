@@ -84,12 +84,12 @@ export class HttpQuestionRepository implements QuestionRepository {
 
     if (!dto) {
       throw new UpstreamError(
-        "El servidor no devolvió una respuesta al crear la pregunta",
+        "The server returned no response when creating the question",
       );
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Pregunta creada con éxito.",
+      message: dto.Message ?? dto.message ?? "Question created.",
       questionId: dto.QuestionId ?? dto.questionId ?? dto.Id ?? dto.id ?? 0,
     };
   }
@@ -116,7 +116,7 @@ export class HttpQuestionRepository implements QuestionRepository {
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Pregunta actualizada correctamente.",
+      message: dto?.Message ?? dto?.message ?? "Question updated.",
     };
   }
 
@@ -131,7 +131,7 @@ export class HttpQuestionRepository implements QuestionRepository {
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Pregunta eliminada correctamente.",
+      message: dto?.Message ?? dto?.message ?? "Question deleted.",
     };
   }
 

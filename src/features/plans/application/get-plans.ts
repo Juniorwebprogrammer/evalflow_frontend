@@ -11,13 +11,13 @@ export class GetPlans {
   }
 }
 
-/** Reads the caller's company plan and usage (backend `GET /Company/plan`, Owner/Rrhh). */
+/** Reads the caller's company plan and usage (backend `GET /Company/plan`, Owner/HR). */
 export class GetCompanyPlan {
   constructor(private readonly plans: PlanRepository) {}
 
   async execute(accessToken: string): Promise<CompanyPlan> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     return this.plans.getCompanyPlan(accessToken);
   }

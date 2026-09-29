@@ -8,7 +8,7 @@ export class ListTemplates {
 
   async execute(accessToken: string): Promise<Template[]> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is invalid. Please sign in again.", 401);
     }
 
     return this.templates.listAll(accessToken);

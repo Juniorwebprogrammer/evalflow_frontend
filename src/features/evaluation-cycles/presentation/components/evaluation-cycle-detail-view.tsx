@@ -40,7 +40,7 @@ import {
   TrashIcon,
   UsersIcon,
 } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 import { usePlanLimit } from "@/features/plans/presentation/components/plan-limit";
 
@@ -51,8 +51,8 @@ type ModalAction = "edit" | "delete" | "manage-templates" | "complete" | null;
  * so this reuses the `GET /evaluation-cycles` list already cached by
  * `useEvaluationCycles` and finds the matching entry — `templateIds` is
  * already part of that DTO, so nothing is lost by not having a dedicated
- * endpoint. Owner/Rrhh get "Editar" / "Gestionar plantillas" / "Eliminar"
- * (moved here from the list) plus a "Generar formularios" button and a
+ * endpoint. Owner/HR get "Edit" / "Manage templates" / "Delete"
+ * (moved here from the list) plus a "Generate forms" button and a
  * progress list of every assigned user's submission
  * (`GET /evaluation-cycles/{cycleId}/submissions`), each deletable.
  */
@@ -71,15 +71,13 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
   const cycle = cycles?.find((c) => c.id === cycleId);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando ciclo de evaluación…</p>;
+    return <p className="text-sm text-slate-500">Loading evaluation cycle…</p>;
   }
 
   if (error) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el ciclo de evaluación."}
+        {errorMessage(error, "We couldn't load the evaluation cycle.")}
       </Notice>
     );
   }
@@ -87,7 +85,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
   if (!cycle) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        No se encontró este ciclo de evaluación.
+        We couldn&apos;t find this evaluation cycle. It may have been deleted.
       </Notice>
     );
   }
@@ -103,7 +101,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
         className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
       >
         <ArrowRightIcon className="h-3.5 w-3.5 rotate-180" />
-        Volver a ciclos de evaluación
+        Back to evaluation cycles
       </Link>
 
       <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
@@ -136,7 +134,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
             >
               <ScaleIcon className="h-4 w-4" />
-              {cycle.tipoEvaluacion === EvaluationType.Evaluacion360 ? "Ver comparación" : "Ver resultados"}
+              {cycle.tipoEvaluacion === EvaluationType.Evaluacion360 ? "View comparison" : "View results"}
             </Link>
           )}
 
@@ -144,18 +142,18 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
             <div className="flex flex-wrap items-center gap-2">
               <Button type="button" loading={isGenerating} onClick={() => generate()}>
                 <SparkleIcon className="h-4 w-4" />
-                Generar formularios
+                Generate forms
               </Button>
               <Button type="button" variant="outline" onClick={() => setModalAction("complete")}>
                 <CheckCircleIcon className="h-4 w-4" />
-                Completar evaluación
+                Complete evaluation
               </Button>
               <Link
                 href={`/dashboard/ciclos-evaluacion/${cycleId}/comparacion`}
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 <ScaleIcon className="h-4 w-4" />
-                {cycle.tipoEvaluacion === EvaluationType.Evaluacion360 ? "Comparar evaluaciones" : "Revisar resultados"}
+                {cycle.tipoEvaluacion === EvaluationType.Evaluacion360 ? "Compare evaluations" : "Review results"}
               </Link>
               <Button
                 type="button"
@@ -166,7 +164,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
                 onClick={() => toggleActive(cycle)}
               >
                 <PowerIcon className="h-4 w-4" />
-                {cycle.activo ? "Desactivar ciclo" : "Activar ciclo"}
+                {cycle.activo ? "Deactivate cycle" : "Activate cycle"}
               </Button>
               <Button
                 type="button"
@@ -174,15 +172,15 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
                 onClick={() => setModalAction("manage-templates")}
               >
                 <DocIcon className="h-4 w-4" />
-                Gestionar plantillas
+                Manage templates
               </Button>
               <Button type="button" variant="outline" onClick={() => setModalAction("edit")}>
                 <EditIcon className="h-4 w-4" />
-                Editar
+                Edit
               </Button>
               <button
                 type="button"
-                title="Eliminar"
+                title="Delete"
                 onClick={() => setModalAction("delete")}
                 className="rounded-lg p-2.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
               >
@@ -195,7 +193,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
         <div className="mt-5 grid grid-cols-1 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Fecha de inicio
+              Start date
             </p>
             <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-slate-800">
               <CalendarIcon className="h-4 w-4 text-slate-400" />
@@ -204,7 +202,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Fecha de fin
+              End date
             </p>
             <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-slate-800">
               <CalendarIcon className="h-4 w-4 text-slate-400" />
@@ -235,8 +233,8 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
         )}
         {isCompleted && (
           <Notice tone="success" icon={<CheckCircleIcon className="h-5 w-5" />} className="mt-5">
-            Evaluación completada el {formatDate(cycle.fechaCompletado ?? "")}. El ciclo está cerrado y
-            los resultados de cada empleado ya están guardados.
+            Evaluation completed on {formatDate(cycle.fechaCompletado ?? "")}. The cycle is closed and
+            every employee&apos;s results have been saved.
           </Notice>
         )}
       </section>
@@ -245,12 +243,12 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
 
       <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
         <h2 className="text-sm font-bold text-slate-900">
-          Plantillas del ciclo ({cycleTemplates.length})
+          Cycle templates ({cycleTemplates.length})
         </h2>
 
         {cycleTemplates.length === 0 ? (
           <p className="mt-3 text-sm text-slate-500">
-            Este ciclo todavía no tiene plantillas asignadas.
+            This cycle doesn&apos;t have any templates assigned yet.
           </p>
         ) : (
           <div className="mt-3 space-y-2">
@@ -296,7 +294,7 @@ export function EvaluationCycleDetailView({ cycleId }: { cycleId: number }) {
 
 /**
  * Progress of every assigned user's submission for this cycle
- * (`GET /evaluation-cycles/{cycleId}/submissions`, Owner/Rrhh only) — who
+ * (`GET /evaluation-cycles/{cycleId}/submissions`, Owner/HR only) — who
  * has to answer, who they're evaluating, and whether they're done, each
  * deletable in case of a mistake.
  */
@@ -309,25 +307,23 @@ function CycleProgressSection({ cycleId, enabled }: { cycleId: number; enabled: 
     <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
       <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
         <UsersIcon className="h-4 w-4 text-slate-400" />
-        Usuarios asignados {submissions ? `(${submissions.length})` : ""}
+        Assigned users {submissions ? `(${submissions.length})` : ""}
       </h2>
 
       {isLoading && (
-        <p className="mt-3 text-sm text-slate-500">Cargando progreso del ciclo…</p>
+        <p className="mt-3 text-sm text-slate-500">Loading cycle progress…</p>
       )}
 
       {error && (
         <Notice tone="error" className="mt-3" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          {error instanceof ApiError
-            ? error.message
-            : "No se pudo cargar el progreso del ciclo."}
+          {errorMessage(error, "We couldn't load the cycle's progress.")}
         </Notice>
       )}
 
       {submissions && submissions.length === 0 && (
         <p className="mt-3 text-sm text-slate-500">
-          Todavía no se han generado formularios para este ciclo — usa
-          &ldquo;Generar formularios&rdquo; arriba.
+          No forms have been generated for this cycle yet — use
+          &ldquo;Generate forms&rdquo; above.
         </p>
       )}
 
@@ -342,7 +338,7 @@ function CycleProgressSection({ cycleId, enabled }: { cycleId: number; enabled: 
                 <p className="font-medium text-slate-800">
                   {submission.respondentUserName}{" "}
                   <span className="font-normal text-slate-500">
-                    evalúa a {submission.evaluatedUserName}
+                    evaluates {submission.evaluatedUserName}
                   </span>
                 </p>
                 <p className="text-xs text-slate-400">{submission.templateTitle}</p>
@@ -361,12 +357,12 @@ function CycleProgressSection({ cycleId, enabled }: { cycleId: number; enabled: 
                   ) : (
                     <ClockIcon className="h-3.5 w-3.5" />
                   )}
-                  {submission.isCompleted ? "Completado" : "Pendiente"}
+                  {submission.isCompleted ? "Completed" : "Pending"}
                 </span>
 
                 {confirmingId === submission.submissionId ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500">¿Eliminar?</span>
+                    <span className="text-xs text-slate-500">Delete?</span>
                     <Button
                       type="button"
                       variant="danger"
@@ -381,20 +377,20 @@ function CycleProgressSection({ cycleId, enabled }: { cycleId: number; enabled: 
                       }}
                       className="px-2.5 py-1.5 text-xs"
                     >
-                      Confirmar
+                      Confirm
                     </Button>
                     <button
                       type="button"
                       onClick={() => setConfirmingId(null)}
                       className="text-xs font-medium text-slate-500 hover:text-slate-700"
                     >
-                      Cancelar
+                      Cancel
                     </button>
                   </div>
                 ) : (
                   <button
                     type="button"
-                    title="Eliminar formulario"
+                    title="Delete form"
                     onClick={() => setConfirmingId(submission.submissionId)}
                     className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
                   >

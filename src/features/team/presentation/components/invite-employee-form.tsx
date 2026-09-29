@@ -8,7 +8,7 @@ import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
 import { UserIcon, MailIcon, ArrowRightIcon } from "@/shared/ui/icons";
 import { inviteEmployee } from "@/features/team/presentation/api/team-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { InviteSuccessNotice } from "@/features/team/presentation/components/invite-success-notice";
 import { EMPLOYEES_QUERY_KEY } from "@/features/team/presentation/hooks/use-employees";
 import { usePlanLimit } from "@/features/plans/presentation/components/plan-limit";
@@ -19,9 +19,9 @@ import { usePlanLimit } from "@/features/plans/presentation/components/plan-limi
  * Employee). Swap this list for a fetched one once `GET /Team/roles` exists.
  */
 const ROLES = [
-  { value: "Employee", label: "Empleado" },
-  { value: "Superior", label: "Superior" },
-  { value: "RRHH", label: "RRHH" },
+  { value: "Employee", label: "Employee" },
+  { value: "Superior", label: "Manager" },
+  { value: "RRHH", label: "HR" },
 ] as const;
 
 interface FormState {
@@ -67,9 +67,18 @@ export function InviteEmployeeForm() {
       queryClient.invalidateQueries({ queryKey: EMPLOYEES_QUERY_KEY });
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo enviar la invitación. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't send the invitation.", {
+          byDetail: [
+            ["ya existe", "A user with this email address already exists."],
+            ["email no es válido", "Enter a valid email address."],
+            ["no es válido para este entorno", "The selected role isn't valid. Choose a different role."],
+            [
+              "tu plan",
+              "You've reached your plan's limit of active employees. Upgrade your plan to invite more.",
+            ],
+          ],
+          byStatus: { 409: "A user with this email address already exists." },
+        }),
       );
     } finally {
       setSubmitting(false);
@@ -78,9 +87,9 @@ export function InviteEmployeeForm() {
 
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
-      <h2 className="text-lg font-bold text-slate-900">Invitar empleado</h2>
+      <h2 className="text-lg font-bold text-slate-900">Invite an employee</h2>
       <p className="mt-0.5 text-sm text-slate-500">
-        Enviaremos una invitación por correo para que complete su registro.
+        We&apos;ll email them an invitation to complete their registration.
       </p>
 
       {notified && (
@@ -93,7 +102,7 @@ export function InviteEmployeeForm() {
       <form onSubmit={handleSubmit} className="mt-5 space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field
-            label="Nombre"
+            label="First name"
             icon={<UserIcon className="h-4 w-4" />}
             value={form.nombre}
             onChange={(e) => update({ nombre: e.target.value })}
@@ -101,26 +110,26 @@ export function InviteEmployeeForm() {
             required
           />
           <Field
-            label="Apellidos"
+            label="Last name"
             value={form.apellidos}
             onChange={(e) => update({ apellidos: e.target.value })}
-            placeholder="Martínez"
+            placeholder="Martinez"
             required
           />
         </div>
 
         <Field
-          label="Correo electrónico"
+          label="Email"
           type="email"
           icon={<MailIcon className="h-4 w-4" />}
           value={form.email}
           onChange={(e) => update({ email: e.target.value })}
-          placeholder="laura.martinez@empresa.es"
+          placeholder="laura.martinez@company.com"
           required
         />
 
         <Select
-          label="Rol"
+          label="Role"
           options={ROLES.map((r) => ({ value: r.value, label: r.label }))}
           value={form.rol}
           onChange={(e) => update({ rol: e.target.value })}
@@ -129,7 +138,7 @@ export function InviteEmployeeForm() {
         {error && <Notice tone="error">{error}</Notice>}
 
         <Button type="submit" loading={submitting} disabled={employeeLimit.atLimit}>
-          Enviar invitación
+          Send invitation
           <ArrowRightIcon className="h-4 w-4" />
         </Button>
       </form>

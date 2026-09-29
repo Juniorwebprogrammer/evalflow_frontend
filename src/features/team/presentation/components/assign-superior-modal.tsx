@@ -11,7 +11,8 @@ import {
   assignSuperior,
   type EmployeeResponse,
 } from "@/features/team/presentation/api/team-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
+import { SUPERIOR_ERRORS } from "@/features/team/presentation/lib/superior-errors";
 import { ORG_CHART_QUERY_KEY } from "@/features/team/presentation/hooks/use-org-chart";
 import { EMPLOYEES_QUERY_KEY } from "@/features/team/presentation/hooks/use-employees";
 
@@ -37,7 +38,7 @@ export function AssignSuperiorModal({
   const [done, setDone] = useState(false);
 
   const options = [
-    { value: NONE, label: "Sin superior" },
+    { value: NONE, label: "No manager" },
     ...employees
       .filter((e) => e.id !== employee.id)
       .map((e) => ({ value: e.id, label: `${e.nombre} ${e.apellidos}` })),
@@ -58,7 +59,9 @@ export function AssignSuperiorModal({
       queryClient.invalidateQueries({ queryKey: EMPLOYEES_QUERY_KEY });
     } catch (err) {
       setError(
-        err instanceof ApiError ? err.message : "No se pudo asignar el superior.",
+        errorMessage(err, "We couldn't assign the manager.", {
+          byDetail: SUPERIOR_ERRORS,
+        }),
       );
     } finally {
       setSubmitting(false);
@@ -68,8 +71,8 @@ export function AssignSuperiorModal({
   return (
     <Modal
       onClose={onClose}
-      title="Asignar superior"
-      description={`Elige quién será el superior directo de ${employee.nombre} ${employee.apellidos}.`}
+      title="Assign manager"
+      description={`Choose who will be the manager of ${employee.nombre} ${employee.apellidos}.`}
       icon={<ScaleIcon className="h-5 w-5" />}
     >
       {done ? (
@@ -78,16 +81,16 @@ export function AssignSuperiorModal({
             tone="success"
             icon={<CheckCircleIcon className="h-5 w-5 text-emerald-600" />}
           >
-            Superior actualizado correctamente.
+            Manager updated.
           </Notice>
           <Button type="button" className="mt-5 w-full" onClick={onClose}>
-            Cerrar
+            Close
           </Button>
         </>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <Select
-            label="Superior directo"
+            label="Manager"
             options={options}
             value={superiorId}
             onChange={(e) => setSuperiorId(e.target.value)}
@@ -97,10 +100,10 @@ export function AssignSuperiorModal({
 
           <div className="flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={onClose}>
-              Cancelar
+              Cancel
             </Button>
             <Button type="submit" loading={submitting}>
-              Guardar
+              Save
             </Button>
           </div>
         </form>

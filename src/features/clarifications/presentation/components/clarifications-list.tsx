@@ -7,12 +7,12 @@ import {
 } from "@/features/clarifications/presentation/components/clarification-status";
 import { formatDate } from "@/shared/lib/format-date";
 
-/** Owner/RRHH view of the clarification requests of one employee comparison, with both answers. */
+/** Owner/HR view of the clarification requests of one employee comparison, with both answers. */
 export function ClarificationsList({ clarifications }: { clarifications: ClarificationResponse[] }) {
   return (
     <div>
       <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-        Solicitudes de información
+        Information requests
       </h3>
       <div className="mt-2 space-y-2">
         {clarifications.map((clarification) => (
@@ -23,7 +23,7 @@ export function ClarificationsList({ clarifications }: { clarifications: Clarifi
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <p className="font-medium text-slate-800">
-                  {clarification.questionText ?? "Evaluación completa"}
+                  {clarification.questionText ?? "Entire evaluation"}
                 </p>
                 <p className="text-xs text-slate-400">
                   {clarification.requestedByName} · {formatDate(clarification.fechaCreacion)}
@@ -40,12 +40,12 @@ export function ClarificationsList({ clarifications }: { clarifications: Clarifi
 
             <div className="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
               <ParticipantAnswer
-                label={`Evaluado · ${clarification.evaluatedUserName}`}
+                label={`Employee · ${clarification.evaluatedUserName}`}
                 response={clarification.evaluatedResponse}
                 respondedAt={clarification.evaluatedRespondedAt}
               />
               <ParticipantAnswer
-                label={`Evaluador · ${clarification.managerName}`}
+                label={`Manager · ${clarification.managerName}`}
                 response={clarification.managerResponse}
                 respondedAt={clarification.managerRespondedAt}
               />
@@ -75,7 +75,7 @@ function ParticipantAnswer({
           <p className="mt-1 text-slate-400">{formatDate(respondedAt)}</p>
         </>
       ) : (
-        <p className="mt-0.5 italic text-slate-400">Pendiente de respuesta</p>
+        <p className="mt-0.5 italic text-slate-400">Awaiting response</p>
       )}
     </div>
   );

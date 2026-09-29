@@ -21,16 +21,16 @@ export class SaveSubmissionAnswers {
     accessToken: string,
   ): Promise<SubmissionActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is no longer valid. Please sign in again.", 401);
     }
     if (!Number.isInteger(submissionId) || submissionId <= 0) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is not valid.", 400);
     }
     if (!Array.isArray(answers) || answers.length === 0) {
-      throw new DomainError("Debes responder todas las preguntas.", 400);
+      throw new DomainError("You must answer every question.", 400);
     }
     if (answers.some((a) => !a.RawPayload || !a.RawPayload.trim())) {
-      throw new DomainError("Ninguna respuesta puede quedar vacía.", 400);
+      throw new DomainError("No answer can be left blank.", 400);
     }
 
     return this.submissions.saveAnswers(submissionId, answers, accessToken);

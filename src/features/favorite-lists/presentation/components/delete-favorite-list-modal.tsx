@@ -11,7 +11,7 @@ import {
   type FavoriteListResponse,
 } from "@/features/favorite-lists/presentation/api/favorite-list-client";
 import { FAVORITE_LISTS_QUERY_KEY } from "@/features/favorite-lists/presentation/hooks/use-favorite-lists";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { removeById } from "@/shared/lib/query-cache";
 
 /** Confirms deleting a favorite list. */
@@ -36,11 +36,7 @@ export function DeleteFavoriteListModal({
       );
       onClose();
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo eliminar la lista. Inténtalo de nuevo.",
-      );
+      setError(errorMessage(err, "We couldn't delete the list."));
     } finally {
       setSubmitting(false);
     }
@@ -49,12 +45,12 @@ export function DeleteFavoriteListModal({
   return (
     <Modal
       onClose={onClose}
-      title="Eliminar lista"
+      title="Delete list"
       icon={<TrashIcon className="h-5 w-5" />}
       disableClose={submitting}
     >
       <p className="text-sm text-slate-600">
-        ¿Seguro que quieres eliminar <strong>{list.nombre}</strong>?
+        Are you sure you want to delete <strong>{list.nombre}</strong>?
       </p>
 
       {error && (
@@ -65,10 +61,10 @@ export function DeleteFavoriteListModal({
 
       <div className="mt-5 flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="button" variant="danger" loading={submitting} onClick={handleConfirm}>
-          Eliminar
+          Delete
         </Button>
       </div>
     </Modal>

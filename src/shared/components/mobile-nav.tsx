@@ -47,7 +47,7 @@ export function MobileNav({ initialProfile }: { initialProfile: Profile }) {
         className="flex h-14 items-center justify-between px-4 text-slate-300"
         style={panelStyle}
       >
-        <Link href="/dashboard" aria-label="Ir al dashboard">
+        <Link href="/dashboard" aria-label="Go to dashboard">
           <Logo />
         </Link>
         <button
@@ -55,7 +55,7 @@ export function MobileNav({ initialProfile }: { initialProfile: Profile }) {
           onClick={() => setOpenOn(open ? null : pathname)}
           aria-expanded={open}
           aria-controls="mobile-nav-menu"
-          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-label={open ? "Close menu" : "Open menu"}
           className="-mr-2 rounded-lg p-2 text-slate-200 transition hover:bg-white/10"
         >
           {open ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
@@ -101,7 +101,7 @@ export function MobileNav({ initialProfile }: { initialProfile: Profile }) {
                 <UserAvatar version={avatarVersion} initials={initials} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-white">{userName}</p>
-                  <p className="truncate text-xs text-slate-400">Ver perfil</p>
+                  <p className="truncate text-xs text-slate-400">View profile</p>
                 </div>
               </Link>
               <button
@@ -115,7 +115,7 @@ export function MobileNav({ initialProfile }: { initialProfile: Profile }) {
                 ) : (
                   <LogoutIcon style={{ width: 18, height: 18 }} />
                 )}
-                Salir
+                Sign out
               </button>
             </div>
           </div>

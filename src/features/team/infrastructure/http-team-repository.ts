@@ -128,12 +128,12 @@ export class HttpTeamRepository implements TeamRepository {
 
     if (!dto) {
       throw new UpstreamError(
-        "El servidor no devolvió una respuesta de invitación",
+        "The server did not return an invitation response.",
       );
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Invitación enviada",
+      message: dto.Message ?? dto.message ?? "Invitation sent.",
       userId: dto.UserId ?? dto.userId ?? "",
       email: dto.Email ?? dto.email ?? input.Email,
       rolAsignado: dto.RolAsignado ?? dto.rolAsignado ?? input.Rol,
@@ -155,7 +155,7 @@ export class HttpTeamRepository implements TeamRepository {
 
     return {
       message:
-        dto?.Message ?? dto?.message ?? "Departamento actualizado correctamente.",
+        dto?.Message ?? dto?.message ?? "Department updated.",
     };
   }
 
@@ -173,7 +173,7 @@ export class HttpTeamRepository implements TeamRepository {
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Superior asignado correctamente.",
+      message: dto?.Message ?? dto?.message ?? "Manager assigned.",
     };
   }
 
@@ -191,7 +191,7 @@ export class HttpTeamRepository implements TeamRepository {
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Cargo asignado correctamente.",
+      message: dto?.Message ?? dto?.message ?? "Job position assigned.",
     };
   }
 
@@ -233,8 +233,8 @@ export class HttpTeamRepository implements TeamRepository {
         dto?.Message ??
         dto?.message ??
         (input.Activo
-          ? "La cuenta del empleado ha sido activada correctamente."
-          : "La cuenta del empleado ha sido desactivada correctamente."),
+          ? "The employee account has been activated."
+          : "The employee account has been deactivated."),
     };
   }
 
@@ -289,7 +289,7 @@ export class HttpTeamRepository implements TeamRepository {
       message:
         dto?.Message ??
         dto?.message ??
-        "Invitación aceptada correctamente. Ya puedes iniciar sesión.",
+        "Invitation accepted. You can now sign in.",
     };
   }
 }

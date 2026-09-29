@@ -23,7 +23,7 @@ export interface AcceptDiscrepancyTarget {
 }
 
 /**
- * Owner/RRHH accepts one or more imbalances, choosing which answer (the
+ * Owner/HR accepts one or more imbalances, choosing which answer (the
  * manager's or the self-evaluation) becomes the final one in the result
  * and the PDF report.
  */
@@ -59,7 +59,7 @@ export function AcceptDiscrepancyModal({
   return (
     <Modal
       onClose={onClose}
-      title={single ? "Aceptar desequilibrio" : `Aceptar ${target.questions.length} desequilibrios`}
+      title={single ? "Accept imbalance" : `Accept ${target.questions.length} imbalances`}
       description={`${target.evaluatedUserName} · ${target.templateTitle}`}
       icon={<CheckCircleIcon className="h-5 w-5" />}
       size="lg"
@@ -71,8 +71,8 @@ export function AcceptDiscrepancyModal({
             <div key={question.questionId} className="rounded-lg bg-slate-50 px-3.5 py-2.5 text-sm">
               <p className="font-medium text-slate-700">{question.texto}</p>
               <p className="mt-1 text-xs text-slate-500">
-                Autoevaluación <strong className="text-slate-700">{answerLabel(question, "self")}</strong> ·
-                Superior <strong className="text-slate-700">{answerLabel(question, "manager")}</strong>
+                Self-assessment <strong className="text-slate-700">{answerLabel(question, "self")}</strong> ·
+                Manager <strong className="text-slate-700">{answerLabel(question, "manager")}</strong>
               </p>
             </div>
           ))}
@@ -80,22 +80,22 @@ export function AcceptDiscrepancyModal({
 
         <fieldset>
           <legend className="mb-2 text-sm font-medium text-slate-700">
-            ¿Qué respuesta queda como definitiva en el informe?
+            Which answer should be final in the report?
           </legend>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <SourceOption
               value="Superior"
               selected={source}
               onChange={setSource}
-              title="Respuesta del superior"
-              description={target.managerName ?? "Evaluador"}
+              title="Manager's answer"
+              description={target.managerName ?? "Evaluator"}
               disabled={isSaving}
             />
             <SourceOption
               value="Autoevaluacion"
               selected={source}
               onChange={setSource}
-              title="Autoevaluación"
+              title="Self-assessment"
               description={target.evaluatedUserName}
               disabled={isSaving}
             />
@@ -110,10 +110,10 @@ export function AcceptDiscrepancyModal({
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
-            Cancelar
+            Cancel
           </Button>
           <Button type="submit" loading={isSaving}>
-            Aceptar
+            Accept
           </Button>
         </div>
       </form>

@@ -17,14 +17,14 @@ export class InviteEmployee {
     accessToken: string,
   ): Promise<InviteEmployeeResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
 
     const required: Array<[keyof InviteEmployeeInput, string]> = [
-      ["Nombre", "El nombre es obligatorio"],
-      ["Apellidos", "Los apellidos son obligatorios"],
-      ["Email", "El correo electrónico es obligatorio"],
-      ["Rol", "El rol es obligatorio"],
+      ["Nombre", "First name is required."],
+      ["Apellidos", "Last name is required."],
+      ["Email", "Email is required."],
+      ["Rol", "Role is required."],
     ];
 
     for (const [field, message] of required) {
@@ -34,7 +34,7 @@ export class InviteEmployee {
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.Email)) {
-      throw new DomainError("El correo electrónico no es válido", 400);
+      throw new DomainError("Enter a valid email address.", 400);
     }
 
     return this.team.invite(input, accessToken);

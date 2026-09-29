@@ -24,11 +24,11 @@ import {
 } from "@/shared/ui/icons";
 
 const TABS = [
-  { key: "directorio", label: "Directorio", icon: UsersIcon, countOf: "employees" },
-  { key: "organigrama", label: "Organigrama", icon: SitemapIcon, countOf: null },
-  { key: "departamentos", label: "Departamentos", icon: BuildingIcon, countOf: "departments" },
-  { key: "cargos", label: "Cargos", icon: BriefcaseIcon, countOf: "jobPositions" },
-  { key: "invitar", label: "Invitar empleados", icon: UserPlusIcon, countOf: null },
+  { key: "directorio", label: "Directory", icon: UsersIcon, countOf: "employees" },
+  { key: "organigrama", label: "Org chart", icon: SitemapIcon, countOf: null },
+  { key: "departamentos", label: "Departments", icon: BuildingIcon, countOf: "departments" },
+  { key: "cargos", label: "Job positions", icon: BriefcaseIcon, countOf: "jobPositions" },
+  { key: "invitar", label: "Invite employees", icon: UserPlusIcon, countOf: null },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -43,7 +43,7 @@ function isTabKey(value: string | null): value is TabKey {
 export function UsersView() {
   const departmentLimit = usePlanLimit("departments");
   const searchParams = useSearchParams();
-  // Lets links like "Volver a departamentos" (from the department detail
+  // Lets links like "Back to departments" (from the department detail
   // page) land back on the right tab, e.g. /dashboard/usuarios?tab=departamentos.
   const initialTab = searchParams.get("tab");
   const [tab, setTab] = useState<TabKey>(isTabKey(initialTab) ? initialTab : "directorio");
@@ -64,9 +64,9 @@ export function UsersView() {
     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Empleados</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Employees</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Directorio, departamentos y estructura organizativa
+            Directory, departments and organizational structure
           </p>
         </div>
 
@@ -78,14 +78,14 @@ export function UsersView() {
             onClick={() => setShowCreateDepartment(true)}
           >
             <PlusIcon className="h-4 w-4" />
-            Nuevo departamento
+            New department
           </Button>
         )}
 
         {tab === "cargos" && (
           <Button type="button" onClick={() => setShowCreateJobPosition(true)}>
             <PlusIcon className="h-4 w-4" />
-            Nuevo cargo
+            New job position
           </Button>
         )}
       </header>

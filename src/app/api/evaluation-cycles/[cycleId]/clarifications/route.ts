@@ -12,7 +12,7 @@ export async function GET(
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const { cycleId } = await ctx.params;
@@ -38,7 +38,7 @@ export async function POST(
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const { cycleId } = await ctx.params;
@@ -50,7 +50,7 @@ export async function POST(
     } | null;
 
     if (!body) {
-      throw new DomainError("El cuerpo de la petición no es válido", 400);
+      throw new DomainError("The request is not valid.", 400);
     }
 
     const result = await useCases.createClarification.execute(

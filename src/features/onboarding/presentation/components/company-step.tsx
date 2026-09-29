@@ -4,22 +4,22 @@ import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
 import { BuildingIcon, DocIcon, MapPinIcon } from "@/shared/ui/icons";
 import type { CompanyData } from "@/features/onboarding/presentation/components/types";
-import { SECTORS } from "@/shared/data/sectors";
+import { SECTOR_OPTIONS } from "@/shared/data/sectors";
 import type { Plan } from "@/features/plans/domain/plan";
 import { usePlans } from "@/features/plans/presentation/hooks/use-plans";
 
 /** Shown while `/api/plans` loads, or if it fails. */
 const FALLBACK_PLANS = [
-  { id: 1, name: "Starter", detail: "Hasta 25 empleados", ai: false },
-  { id: 2, name: "Growth", detail: "Hasta 100 empleados", ai: true },
-  { id: 3, name: "Enterprise", detail: "Empleados ilimitados", ai: true },
+  { id: 1, name: "Starter", detail: "Up to 25 employees", ai: false },
+  { id: 2, name: "Growth", detail: "Up to 100 employees", ai: true },
+  { id: 3, name: "Enterprise", detail: "Unlimited employees", ai: true },
 ];
 
 function toCard(plan: Plan) {
   return {
     id: plan.id,
     name: plan.nombre,
-    detail: plan.maxEmployees === null ? "Empleados ilimitados" : `Hasta ${plan.maxEmployees} empleados`,
+    detail: plan.maxEmployees === null ? "Unlimited employees" : `Up to ${plan.maxEmployees} employees`,
     ai: plan.hasAiFeatures,
   };
 }
@@ -43,24 +43,24 @@ export function CompanyStep({
   const plans = loadedPlans && loadedPlans.length > 0 ? loadedPlans.map(toCard) : FALLBACK_PLANS;
   return (
     <form onSubmit={onSubmit}>
-      <h2 className="text-xl font-bold text-slate-900">Tu empresa</h2>
+      <h2 className="text-xl font-bold text-slate-900">Your company</h2>
       <p className="mt-1 text-sm text-slate-500">
-        Configura la organización que vas a evaluar.
+        Set up the organization you&apos;ll be evaluating.
       </p>
 
       <Field
         className="mt-5"
-        label="Nombre de la empresa"
+        label="Company name"
         icon={<BuildingIcon className="h-4 w-4" />}
         value={value.CompanyNombre}
         onChange={(e) => onChange({ CompanyNombre: e.target.value })}
-        placeholder="Clínica San Rafael"
+        placeholder="St. Raphael Clinic"
         required
       />
 
       <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field
-          label="CIF / NIF"
+          label="Tax ID"
           icon={<DocIcon className="h-4 w-4" />}
           value={value.Cif}
           onChange={(e) => onChange({ Cif: e.target.value })}
@@ -69,7 +69,7 @@ export function CompanyStep({
         />
         <Select
           label="Sector"
-          options={SECTORS.map((s) => ({ value: s, label: s }))}
+          options={SECTOR_OPTIONS}
           value={value.Sector}
           onChange={(e) => onChange({ Sector: e.target.value })}
         />
@@ -77,17 +77,17 @@ export function CompanyStep({
 
       <Field
         className="mt-3"
-        label="Dirección fiscal"
+        label="Registered address"
         icon={<MapPinIcon className="h-4 w-4" />}
         value={value.DireccionFiscal}
         onChange={(e) => onChange({ DireccionFiscal: e.target.value })}
-        placeholder="Calle Mayor 45, 28001 Madrid"
+        placeholder="45 Main Street, Springfield"
         required
       />
 
       <div className="mt-3">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Color de marca
+          Brand color
         </label>
         <div className="flex items-center gap-3">
           <input
@@ -95,7 +95,7 @@ export function CompanyStep({
             value={value.CompanyColors}
             onChange={(e) => onChange({ CompanyColors: e.target.value })}
             className="h-11 w-14 cursor-pointer rounded-lg border border-slate-200 bg-white p-1"
-            aria-label="Color de marca"
+            aria-label="Brand color"
           />
           <span className="font-mono text-sm text-slate-500">
             {value.CompanyColors}
@@ -129,7 +129,7 @@ export function CompanyStep({
                 </span>
                 {plan.ai && (
                   <span className="mt-1 block text-[11px] font-semibold text-[var(--brand)]">
-                    Incluye IA
+                    Includes AI
                   </span>
                 )}
               </button>
@@ -151,10 +151,10 @@ export function CompanyStep({
           onClick={onBack}
           disabled={submitting}
         >
-          Atrás
+          Back
         </Button>
         <Button type="submit" loading={submitting}>
-          Crear cuenta y empezar
+          Create account and get started
         </Button>
       </div>
     </form>

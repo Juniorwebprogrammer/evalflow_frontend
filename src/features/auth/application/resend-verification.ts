@@ -14,7 +14,7 @@ export class ResendVerification {
 
   async execute(email: string): Promise<ResendVerificationResult> {
     if (!email.trim()) {
-      throw new DomainError("El correo electrónico es obligatorio", 400);
+      throw new DomainError("Email is required", 400);
     }
     return this.auth.resendVerification({ Email: email });
   }

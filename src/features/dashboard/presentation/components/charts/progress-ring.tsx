@@ -31,7 +31,7 @@ export function ProgressRing({
         viewBox={`0 0 ${size} ${size}`}
         className="-rotate-90"
         role="img"
-        aria-label={`${pct}% ${caption} (${value} de ${total})`}
+        aria-label={`${pct}% ${caption} (${value} of ${total})`}
       >
         <circle
           cx={size / 2}

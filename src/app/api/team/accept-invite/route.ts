@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       | null;
 
     if (!body) {
-      throw new DomainError("El cuerpo de la petición no es válido", 400);
+      throw new DomainError("The request is not valid.", 400);
     }
 
     const input: AcceptInviteInput = {

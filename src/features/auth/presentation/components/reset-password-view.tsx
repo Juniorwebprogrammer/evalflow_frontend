@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { resetPassword } from "@/features/auth/presentation/api/auth-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { Field } from "@/shared/ui/field";
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
@@ -34,24 +34,27 @@ export function ResetPasswordView({ token }: { token: string | null }) {
 
     if (password.length < MIN_PASSWORD_LENGTH) {
       setError(
-        `La nueva contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`,
+        `Your new password must be at least ${MIN_PASSWORD_LENGTH} characters long.`,
       );
       return;
     }
     if (password !== confirm) {
-      setError("Las contraseñas no coinciden.");
+      setError("The passwords don't match.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const result = await resetPassword(token as string, password);
-      setDone(result.message);
+      await resetPassword(token as string, password);
+      setDone("Your password has been updated. You can now sign in.");
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo restablecer la contraseña. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't reset your password.", {
+          byDetail: [
+            ["inválido", "This reset link is invalid or has expired. Request a new one from the sign-in page."],
+            ["caducado", "This reset link has expired. Request a new one from the sign-in page."],
+          ],
+        }),
       );
     } finally {
       setSubmitting(false);
@@ -70,18 +73,18 @@ export function ResetPasswordView({ token }: { token: string | null }) {
                 <AlertTriangleIcon className="h-6 w-6" />
               </span>
               <h1 className="mt-4 text-xl font-bold text-slate-900">
-                Enlace no válido
+                Invalid link
               </h1>
               <p className="mt-2 text-sm text-slate-500">
-                El enlace de recuperación no es válido. Revisa el correo e
-                inténtalo de nuevo.
+                This password reset link isn&apos;t valid. Check the email and try
+                again.
               </p>
               <Button
                 type="button"
                 className="mt-6 w-full"
                 onClick={() => router.push("/login")}
               >
-                Ir a iniciar sesión
+                Go to sign in
               </Button>
             </div>
           ) : done ? (
@@ -90,7 +93,7 @@ export function ResetPasswordView({ token }: { token: string | null }) {
                 <CheckCircleIcon className="h-6 w-6" />
               </span>
               <h1 className="mt-4 text-xl font-bold text-slate-900">
-                ¡Contraseña actualizada!
+                Password updated
               </h1>
               <p className="mt-2 text-sm text-slate-500">{done}</p>
               <Button
@@ -98,22 +101,22 @@ export function ResetPasswordView({ token }: { token: string | null }) {
                 className="mt-6 w-full"
                 onClick={() => router.push("/login")}
               >
-                Ir a iniciar sesión
+                Go to sign in
               </Button>
             </div>
           ) : (
             <>
               <h2 className="text-2xl font-bold text-slate-900">
-                Restablecer contraseña
+                Reset your password
               </h2>
               <p className="mt-1 text-sm text-slate-500">
-                Elige una nueva contraseña de al menos {MIN_PASSWORD_LENGTH}{" "}
-                caracteres.
+                Choose a new password with at least {MIN_PASSWORD_LENGTH}{" "}
+                characters.
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <Field
-                  label="Nueva contraseña"
+                  label="New password"
                   type="password"
                   icon={<KeyIcon className="h-4 w-4" />}
                   value={password}
@@ -124,7 +127,7 @@ export function ResetPasswordView({ token }: { token: string | null }) {
                   autoFocus
                 />
                 <Field
-                  label="Confirmar nueva contraseña"
+                  label="Confirm new password"
                   type="password"
                   icon={<KeyIcon className="h-4 w-4" />}
                   value={confirm}
@@ -137,7 +140,7 @@ export function ResetPasswordView({ token }: { token: string | null }) {
                 {error && <Notice tone="error">{error}</Notice>}
 
                 <Button type="submit" className="w-full" loading={submitting}>
-                  Restablecer contraseña
+                  Reset password
                 </Button>
               </form>
             </>

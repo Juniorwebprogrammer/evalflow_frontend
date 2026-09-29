@@ -14,20 +14,20 @@ export class ChangePassword {
     accessToken: string,
   ): Promise<void> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!input.CurrentPassword) {
-      throw new DomainError("La contraseña actual es obligatoria", 400);
+      throw new DomainError("Current password is required.", 400);
     }
     if (input.NewPassword.length < MIN_PASSWORD_LENGTH) {
       throw new DomainError(
-        `La nueva contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`,
+        `New password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
         400,
       );
     }
     if (input.NewPassword === input.CurrentPassword) {
       throw new DomainError(
-        "La nueva contraseña debe ser distinta de la actual",
+        "New password must be different from your current one.",
         400,
       );
     }

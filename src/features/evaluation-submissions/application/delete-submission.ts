@@ -8,10 +8,10 @@ export class DeleteSubmission {
 
   async execute(submissionId: number, accessToken: string): Promise<SubmissionActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is no longer valid. Please sign in again.", 401);
     }
     if (!Number.isInteger(submissionId) || submissionId <= 0) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is not valid.", 400);
     }
 
     return this.submissions.remove(submissionId, accessToken);

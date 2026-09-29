@@ -15,8 +15,8 @@ import {
   MapPinIcon,
   CheckCircleIcon,
 } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
-import { SECTORS } from "@/shared/data/sectors";
+import { errorMessage } from "@/shared/lib/api-error";
+import { SECTORS, sectorLabel } from "@/shared/data/sectors";
 
 type Status = { tone: "success" | "error"; text: string } | null;
 
@@ -30,8 +30,8 @@ function firstHex(colors: string | null): string {
 }
 
 /**
- * Editable company form. Nombre, LogoUrl, Colors, CIF, Sector and Dirección
- * fiscal are all persisted via the backend `Company/update`.
+ * Editable company form. Nombre, LogoUrl, Colors, CIF, Sector and
+ * DireccionFiscal are all persisted via the backend `Company/update`.
  */
 export function OrganizationForm({
   identificationId,
@@ -73,7 +73,7 @@ export function OrganizationForm({
     form.sector && !SECTORS.includes(form.sector)
       ? [form.sector, ...SECTORS]
       : SECTORS
-  ).map((s) => ({ value: s, label: s }));
+  ).map((s) => ({ value: s, label: sectorLabel(s) }));
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -88,14 +88,11 @@ export function OrganizationForm({
         direccionFiscal: form.direccionFiscal,
       });
       setSaved(form);
-      setStatus({ tone: "success", text: "Empresa actualizada correctamente." });
+      setStatus({ tone: "success", text: "Company updated." });
     } catch (err) {
       setStatus({
         tone: "error",
-        text:
-          err instanceof ApiError
-            ? err.message
-            : "No se pudo guardar la empresa. Inténtalo de nuevo.",
+        text: errorMessage(err, "We couldn't save the company."),
       });
     }
   }
@@ -113,10 +110,10 @@ export function OrganizationForm({
       className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6"
     >
       <h2 className="text-lg font-bold text-slate-900">
-        Información de la empresa
+        Company information
       </h2>
       <p className="mt-0.5 text-sm text-slate-500">
-        Datos legales y de contacto de tu organización
+        Your organization&apos;s legal and contact details
       </p>
 
       {status && (
@@ -145,7 +142,7 @@ export function OrganizationForm({
         />
         <div className="flex-1">
           <Field
-            label="URL del logotipo"
+            label="Logo URL"
             icon={<GlobeIcon className="h-4 w-4" />}
             value={form.logoUrl}
             onChange={(e) => update({ logoUrl: e.target.value })}
@@ -157,7 +154,7 @@ export function OrganizationForm({
 
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field
-          label="Nombre de la empresa"
+          label="Company name"
           icon={<BuildingIcon className="h-4 w-4" />}
           value={form.nombre}
           onChange={(e) => update({ nombre: e.target.value })}
@@ -165,7 +162,7 @@ export function OrganizationForm({
           required
         />
         <Field
-          label="CIF / NIF"
+          label="Tax ID (CIF / NIF)"
           icon={<DocIcon className="h-4 w-4" />}
           value={form.cif}
           onChange={(e) => update({ cif: e.target.value })}
@@ -182,7 +179,7 @@ export function OrganizationForm({
 
       <Field
         className="mt-4"
-        label="Dirección fiscal"
+        label="Registered address"
         icon={<MapPinIcon className="h-4 w-4" />}
         value={form.direccionFiscal}
         onChange={(e) => update({ direccionFiscal: e.target.value })}
@@ -191,7 +188,7 @@ export function OrganizationForm({
 
       <div className="mt-4">
         <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Color de marca
+          Brand color
         </label>
         <div className="flex items-center gap-3">
           <input
@@ -200,7 +197,7 @@ export function OrganizationForm({
             onChange={(e) => update({ colors: e.target.value })}
             disabled={!canEdit}
             className="h-11 w-14 cursor-pointer rounded-lg border border-slate-200 bg-white p-1 disabled:cursor-not-allowed disabled:opacity-60"
-            aria-label="Color de marca"
+            aria-label="Brand color"
           />
           <span className="font-mono text-sm text-slate-500">{form.colors}</span>
         </div>
@@ -217,7 +214,7 @@ export function OrganizationForm({
             }}
             disabled={updateMutation.isPending || !dirty}
           >
-            Descartar
+            Discard
           </Button>
           <Button
             type="submit"
@@ -225,7 +222,7 @@ export function OrganizationForm({
             disabled={!dirty}
           >
             <CheckCircleIcon className="h-4 w-4" />
-            Guardar empresa
+            Save company
           </Button>
         </div>
       )}

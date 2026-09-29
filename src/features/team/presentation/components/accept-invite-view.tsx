@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { acceptInvite } from "@/features/team/presentation/api/team-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { Field } from "@/shared/ui/field";
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
@@ -54,11 +54,11 @@ export function AcceptInviteView({ token }: { token: string | null }) {
     setError(null);
 
     if (form.password.length < MIN_PASSWORD_LENGTH) {
-      setError(`La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`);
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
       return;
     }
     if (form.password !== form.confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+      setError("Passwords don't match.");
       return;
     }
 
@@ -73,9 +73,22 @@ export function AcceptInviteView({ token }: { token: string | null }) {
       setAccepted(true);
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo aceptar la invitación. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't accept the invitation.", {
+          byDetail: [
+            [
+              "caducado",
+              "This invitation has expired. Ask your administrator to send you a new one.",
+            ],
+            [
+              "inválido o no existe",
+              "This invitation link is not valid. Check the invitation email, or ask your administrator to send you a new one.",
+            ],
+            [
+              "invitation link is not valid",
+              "This invitation link is not valid. Check the invitation email, or ask your administrator to send you a new one.",
+            ],
+          ],
+        }),
       );
     } finally {
       setSubmitting(false);
@@ -94,18 +107,18 @@ export function AcceptInviteView({ token }: { token: string | null }) {
                 <AlertTriangleIcon className="h-6 w-6" />
               </span>
               <h1 className="mt-4 text-xl font-bold text-slate-900">
-                Enlace de invitación no válido
+                Invalid invitation link
               </h1>
               <p className="mt-2 text-sm text-slate-500">
-                Revisa el correo de invitación e inténtalo de nuevo, o pide a
-                tu administrador que te envíe una nueva.
+                Check the invitation email and try again, or ask your
+                administrator to send you a new one.
               </p>
               <Button
                 type="button"
                 className="mt-6 w-full"
                 onClick={() => router.push("/login")}
               >
-                Ir a iniciar sesión
+                Go to sign in
               </Button>
             </div>
           ) : accepted ? (
@@ -114,32 +127,32 @@ export function AcceptInviteView({ token }: { token: string | null }) {
                 <CheckCircleIcon className="h-6 w-6" />
               </span>
               <h1 className="mt-4 text-xl font-bold text-slate-900">
-                ¡Invitación aceptada!
+                Invitation accepted!
               </h1>
               <p className="mt-2 text-sm text-slate-500">
-                Ya puedes iniciar sesión con tu correo y tu nueva contraseña.
+                You can now sign in with your email and new password.
               </p>
               <Button
                 type="button"
                 className="mt-6 w-full"
                 onClick={() => router.push("/login")}
               >
-                Ir a iniciar sesión
+                Go to sign in
               </Button>
             </div>
           ) : (
             <>
               <h2 className="text-2xl font-bold text-slate-900">
-                Completa tu registro
+                Complete your registration
               </h2>
               <p className="mt-1 text-sm text-slate-500">
-                Confirma tus datos y crea una contraseña para acceder a EvalFlow.
+                Confirm your details and create a password to access EvalFlow.
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field
-                    label="Nombre"
+                    label="First name"
                     icon={<UserIcon className="h-4 w-4" />}
                     value={form.nombre}
                     onChange={(e) => update({ nombre: e.target.value })}
@@ -147,31 +160,31 @@ export function AcceptInviteView({ token }: { token: string | null }) {
                     required
                   />
                   <Field
-                    label="Apellidos"
+                    label="Last name"
                     value={form.apellidos}
                     onChange={(e) => update({ apellidos: e.target.value })}
-                    placeholder="Martínez"
+                    placeholder="Martinez"
                     required
                   />
                 </div>
 
                 <Field
-                  label="Contraseña"
+                  label="Password"
                   type="password"
                   icon={<LockIcon className="h-4 w-4" />}
                   value={form.password}
                   onChange={(e) => update({ password: e.target.value })}
-                  placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
+                  placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
                   minLength={MIN_PASSWORD_LENGTH}
                   required
                 />
                 <Field
-                  label="Confirmar contraseña"
+                  label="Confirm password"
                   type="password"
                   icon={<LockIcon className="h-4 w-4" />}
                   value={form.confirmPassword}
                   onChange={(e) => update({ confirmPassword: e.target.value })}
-                  placeholder="Repite la contraseña"
+                  placeholder="Repeat your password"
                   minLength={MIN_PASSWORD_LENGTH}
                   required
                 />
@@ -179,7 +192,7 @@ export function AcceptInviteView({ token }: { token: string | null }) {
                 {error && <Notice tone="error">{error}</Notice>}
 
                 <Button type="submit" className="w-full" loading={submitting}>
-                  Aceptar invitación
+                  Accept invitation
                 </Button>
               </form>
             </>

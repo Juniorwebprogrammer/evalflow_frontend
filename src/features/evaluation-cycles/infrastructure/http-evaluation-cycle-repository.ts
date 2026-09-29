@@ -100,12 +100,12 @@ export class HttpEvaluationCycleRepository implements EvaluationCycleRepository 
 
     if (!dto) {
       throw new UpstreamError(
-        "El servidor no devolvió una respuesta al crear el ciclo de evaluación",
+        "The server returned no response when creating the evaluation cycle",
       );
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Ciclo de evaluación creado con éxito.",
+      message: dto.Message ?? dto.message ?? "Evaluation cycle created.",
       evaluationCycleId:
         dto.EvaluationCycleId ?? dto.evaluationCycleId ?? dto.Id ?? dto.id ?? 0,
     };
@@ -134,7 +134,7 @@ export class HttpEvaluationCycleRepository implements EvaluationCycleRepository 
 
     return {
       message:
-        dto?.Message ?? dto?.message ?? "Ciclo de evaluación actualizado correctamente.",
+        dto?.Message ?? dto?.message ?? "Evaluation cycle updated.",
     };
   }
 
@@ -149,7 +149,7 @@ export class HttpEvaluationCycleRepository implements EvaluationCycleRepository 
 
     return {
       message:
-        dto?.Message ?? dto?.message ?? "Ciclo de evaluación eliminado correctamente.",
+        dto?.Message ?? dto?.message ?? "Evaluation cycle deleted.",
     };
   }
 
@@ -174,7 +174,7 @@ export class HttpEvaluationCycleRepository implements EvaluationCycleRepository 
 
     return {
       message:
-        dto?.Message ?? dto?.message ?? "Ciclo de evaluación actualizado correctamente.",
+        dto?.Message ?? dto?.message ?? "Evaluation cycle updated.",
     };
   }
 
@@ -188,7 +188,7 @@ export class HttpEvaluationCycleRepository implements EvaluationCycleRepository 
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Formularios generados con éxito.",
+      message: dto?.Message ?? dto?.message ?? "Forms generated.",
     };
   }
 }

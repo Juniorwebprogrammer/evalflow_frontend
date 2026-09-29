@@ -36,7 +36,7 @@ export function CompleteCycleModal({
   return (
     <Modal
       onClose={onClose}
-      title="Completar evaluación"
+      title="Complete evaluation"
       description={cycleName}
       icon={<CheckCircleIcon className="h-5 w-5" />}
       disableClose={isCompleting}
@@ -44,32 +44,34 @@ export function CompleteCycleModal({
       {result ? (
         <div className="space-y-4">
           <Notice tone="success" icon={<CheckCircleIcon className="h-5 w-5" />}>
-            {result.message} Se han generado <strong>{result.resultsGenerated}</strong> informes
+            The evaluation is complete. <strong>{result.resultsGenerated}</strong>{" "}
+            {result.resultsGenerated === 1 ? "report was" : "reports were"} generated
             {result.autoCompletedSubmissions > 0 && (
               <>
-                {" "}y se han completado automáticamente{" "}
-                <strong>{result.autoCompletedSubmissions}</strong> formularios pendientes
+                {" "}and <strong>{result.autoCompletedSubmissions}</strong> pending{" "}
+                {result.autoCompletedSubmissions === 1 ? "form was" : "forms were"} completed
+                automatically
               </>
             )}
-            . Los empleados ya pueden descargarlos desde «Resultados de evaluación».
+            . Employees can now download them from &ldquo;Evaluation results&rdquo;.
           </Notice>
           <div className="flex justify-end">
             <Button type="button" onClick={onClose}>
-              Cerrar
+              Close
             </Button>
           </div>
         </div>
       ) : (
         <div className="space-y-4 text-sm text-slate-600">
-          <p>Al completar la evaluación:</p>
+          <p>When you complete the evaluation:</p>
           <ul className="list-disc space-y-1 pl-5">
-            <li>Los formularios que sigan pendientes se completarán con las respuestas que tengan ahora.</li>
+            <li>Any forms still pending will be completed with the answers they have now.</li>
             <li>
-              Se guardará el resultado de cada empleado con la respuesta aceptada de cada pregunta y se
-              generará su informe en PDF.
+              Each employee&apos;s result will be saved with the accepted answer for each question, and
+              their PDF report will be generated.
             </li>
-            <li>Cada empleado recibirá un email para descargar su informe.</li>
-            <li>El ciclo quedará cerrado y ya no admitirá cambios.</li>
+            <li>Each employee will receive an email to download their report.</li>
+            <li>The cycle will be closed and can no longer be changed.</li>
           </ul>
 
           {error && (
@@ -80,10 +82,10 @@ export function CompleteCycleModal({
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose} disabled={isCompleting}>
-              Cancelar
+              Cancel
             </Button>
             <Button type="button" loading={isCompleting} onClick={handleConfirm}>
-              Completar evaluación
+              Complete evaluation
             </Button>
           </div>
         </div>

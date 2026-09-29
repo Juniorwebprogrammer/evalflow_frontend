@@ -17,17 +17,17 @@ export class AcceptInvite {
 
   async execute(input: AcceptInviteInput): Promise<AcceptInviteResult> {
     if (!input.Token.trim()) {
-      throw new DomainError("El enlace de invitación no es válido.", 400);
+      throw new DomainError("The invitation link is not valid.", 400);
     }
     if (!input.Nombre.trim()) {
-      throw new DomainError("El nombre es obligatorio", 400);
+      throw new DomainError("First name is required.", 400);
     }
     if (!input.Apellidos.trim()) {
-      throw new DomainError("Los apellidos son obligatorios", 400);
+      throw new DomainError("Last name is required.", 400);
     }
     if (input.Password.length < MIN_PASSWORD_LENGTH) {
       throw new DomainError(
-        `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`,
+        `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
         400,
       );
     }

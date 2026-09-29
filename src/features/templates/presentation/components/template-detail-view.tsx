@@ -8,7 +8,7 @@ import { QuestionsManager } from "@/features/questions/presentation/components/q
 import { Notice } from "@/shared/ui/notice";
 import { Button } from "@/shared/ui/button";
 import { AlertTriangleIcon, ArrowRightIcon, DocIcon, EditIcon, UsersIcon } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { isPrivilegedRole } from "@/shared/lib/roles";
@@ -21,15 +21,15 @@ export function TemplateDetailView({ templateId }: { templateId: number }) {
   const [editing, setEditing] = useState(false);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando plantilla…</p>;
+    return <p className="text-sm text-slate-500">Loading template…</p>;
   }
 
   if (error || !template) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar la plantilla."}
+        {error
+          ? errorMessage(error, "We couldn't load the template.")
+          : "We couldn't find this template. It may have been deleted."}
       </Notice>
     );
   }
@@ -41,7 +41,7 @@ export function TemplateDetailView({ templateId }: { templateId: number }) {
         className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
       >
         <ArrowRightIcon className="h-3.5 w-3.5 rotate-180" />
-        Volver a plantillas
+        Back to templates
       </Link>
 
       <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
@@ -60,7 +60,7 @@ export function TemplateDetailView({ templateId }: { templateId: number }) {
           {canManage && (
             <Button type="button" variant="outline" onClick={() => setEditing(true)}>
               <EditIcon className="h-4 w-4" />
-              Editar
+              Edit
             </Button>
           )}
         </div>
@@ -68,7 +68,7 @@ export function TemplateDetailView({ templateId }: { templateId: number }) {
         <div className="mt-5 grid grid-cols-1 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Fecha de inicio
+              Start date
             </p>
             <p className="mt-1 text-sm font-medium text-slate-800">
               {formatDate(template.fechaInicio)}
@@ -76,7 +76,7 @@ export function TemplateDetailView({ templateId }: { templateId: number }) {
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Fecha de fin
+              End date
             </p>
             <p className="mt-1 text-sm font-medium text-slate-800">
               {formatDate(template.fechaFin)}
@@ -84,7 +84,7 @@ export function TemplateDetailView({ templateId }: { templateId: number }) {
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Empleados asignados
+              Assigned employees
             </p>
             <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-slate-800">
               <UsersIcon className="h-4 w-4 text-slate-400" />

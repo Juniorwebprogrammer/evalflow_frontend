@@ -17,16 +17,16 @@ export class AssignJobPosition {
     accessToken: string,
   ): Promise<AssignJobPositionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!Number.isInteger(input.UserId) || input.UserId <= 0) {
-      throw new DomainError("El identificador del empleado no es válido", 400);
+      throw new DomainError("Invalid employee ID.", 400);
     }
     if (
       input.JobPositionId !== null &&
       (!Number.isInteger(input.JobPositionId) || input.JobPositionId <= 0)
     ) {
-      throw new DomainError("El identificador del cargo no es válido", 400);
+      throw new DomainError("Invalid job position ID.", 400);
     }
 
     return this.team.assignJobPosition(input, accessToken);

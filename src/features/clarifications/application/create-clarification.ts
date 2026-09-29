@@ -20,28 +20,28 @@ export class CreateClarification {
     accessToken: string,
   ): Promise<Clarification> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is no longer valid. Please sign in again.", 401);
     }
     if (!Number.isInteger(cycleId) || cycleId <= 0) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is not valid.", 400);
     }
     if (!Number.isInteger(input.evaluatedUserId) || input.evaluatedUserId <= 0) {
-      throw new DomainError("El empleado indicado no es válido", 400);
+      throw new DomainError("The selected employee is not valid.", 400);
     }
     if (!Number.isInteger(input.templateId) || input.templateId <= 0) {
-      throw new DomainError("La plantilla indicada no es válida", 400);
+      throw new DomainError("The selected template is not valid.", 400);
     }
     if (input.questionId !== null && (!Number.isInteger(input.questionId) || input.questionId <= 0)) {
-      throw new DomainError("La pregunta indicada no es válida", 400);
+      throw new DomainError("The selected question is not valid.", 400);
     }
 
     const mensaje = input.mensaje.trim();
     if (!mensaje) {
-      throw new DomainError("Indica qué información necesitas.", 400);
+      throw new DomainError("Tell us what information you need.", 400);
     }
     if (mensaje.length > CLARIFICATION_MESSAGE_MAX_LENGTH) {
       throw new DomainError(
-        `El mensaje no puede superar los ${CLARIFICATION_MESSAGE_MAX_LENGTH} caracteres.`,
+        `The message cannot exceed ${CLARIFICATION_MESSAGE_MAX_LENGTH} characters.`,
         400,
       );
     }

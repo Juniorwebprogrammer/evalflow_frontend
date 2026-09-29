@@ -25,19 +25,19 @@ export function CompanyLookupStep({
 }) {
   return (
     <form onSubmit={onSubmit}>
-      <h2 className="text-xl font-bold text-slate-900">¿Cuál es tu empresa?</h2>
+      <h2 className="text-xl font-bold text-slate-900">What company do you work for?</h2>
       <p className="mt-1 text-sm text-slate-500">
-        Introduce el nombre de tu empresa para acceder a su panel de
-        evaluaciones.
+        Enter your company name to access its evaluation
+        dashboard.
       </p>
 
       <Field
         className="mt-5"
-        label="Nombre de la empresa"
+        label="Company name"
         icon={<BuildingIcon className="h-4 w-4" />}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Clínica San Rafael"
+        placeholder="St. Raphael Clinic"
         autoFocus
         required
       />
@@ -55,10 +55,10 @@ export function CompanyLookupStep({
           onClick={onBack}
           disabled={submitting}
         >
-          Atrás
+          Back
         </Button>
         <Button type="submit" loading={submitting}>
-          Continuar
+          Continue
           <ArrowRightIcon className="h-4 w-4" />
         </Button>
       </div>

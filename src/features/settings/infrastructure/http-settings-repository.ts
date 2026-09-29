@@ -29,7 +29,7 @@ export class HttpSettingsRepository implements SettingsRepository {
       message:
         dto?.Message ??
         dto?.message ??
-        `Autenticación de dos factores ${input.Enable ? "activada" : "desactivada"} correctamente`,
+        `Two-factor authentication ${input.Enable ? "enabled" : "disabled"} successfully`,
     };
   }
 }

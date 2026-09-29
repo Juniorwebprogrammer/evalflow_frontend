@@ -12,7 +12,7 @@ export async function GET(
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const { resultId } = await ctx.params;
@@ -23,7 +23,7 @@ export async function GET(
       headers: {
         "Content-Type": file.contentType,
         "Content-Disposition":
-          file.contentDisposition ?? `attachment; filename="informe-evaluacion-${resultId}.pdf"`,
+          file.contentDisposition ?? `attachment; filename="evaluation-report-${resultId}.pdf"`,
         "Cache-Control": "no-store",
       },
     });

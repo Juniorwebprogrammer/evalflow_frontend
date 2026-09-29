@@ -3,12 +3,12 @@
 import { useMemo, useState } from "react";
 import { useOrgChart } from "@/features/team/presentation/hooks/use-org-chart";
 import { layoutOrgChart } from "@/features/team/presentation/lib/org-chart-layout";
-import { initials } from "@/features/team/presentation/lib/format";
+import { initials, roleLabel } from "@/features/team/presentation/lib/format";
 import type { EmployeeResponse } from "@/features/team/presentation/api/team-client";
 import { SuperiorRelationModal } from "@/features/team/presentation/components/superior-relation-modal";
 import { Notice } from "@/shared/ui/notice";
 import { AlertTriangleIcon, UsersIcon } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 const COLUMN_WIDTH = 200;
 const ROW_HEIGHT = 132;
@@ -36,15 +36,13 @@ export function OrgChart() {
   }, [data]);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando organigrama…</p>;
+    return <p className="text-sm text-slate-500">Loading org chart…</p>;
   }
 
   if (error) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el organigrama."}
+        {errorMessage(error, "We couldn't load the org chart.")}
       </Notice>
     );
   }
@@ -53,7 +51,7 @@ export function OrgChart() {
     return (
       <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
         <UsersIcon className="h-5 w-5 shrink-0 text-slate-400" />
-        <span>Todavía no hay empleados en tu organización.</span>
+        <span>There are no employees in your organization yet.</span>
       </div>
     );
   }
@@ -90,7 +88,7 @@ export function OrgChart() {
       <Notice tone="info">
         {selectedId ? (
           <>
-            Ahora haz clic en quién será el superior directo de{" "}
+            Now click the person who will be the manager of{" "}
             <strong>
               {byId.get(selectedId)?.nombre} {byId.get(selectedId)?.apellidos}
             </strong>
@@ -99,11 +97,11 @@ export function OrgChart() {
               onClick={() => setSelectedId(null)}
               className="ml-1 font-semibold text-[var(--brand)] hover:underline"
             >
-              Cancelar
+              Cancel
             </button>
           </>
         ) : (
-          "Haz clic en un empleado y luego en quien será su superior directo. Haz clic en una línea para quitar esa relación."
+          "Click an employee, then click who their manager will be. Click a line to remove that reporting line."
         )}
       </Notice>
 
@@ -186,7 +184,7 @@ export function OrgChart() {
                     {employee.nombre} {employee.apellidos}
                   </span>
                   <span className="block truncate text-xs text-slate-500">
-                    {employee.rol}
+                    {roleLabel(employee.rol)}
                   </span>
                 </span>
               </button>

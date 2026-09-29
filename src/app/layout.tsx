@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EvalFlow — Evaluaciones sin sesgos",
+  title: "EvalFlow — Bias-free evaluations",
   description:
-    "El árbitro neutral que tu organización necesita. Protocolos sellados, análisis comparativo y mediación objetiva por RRHH.",
+    "The neutral referee your organization needs. Sealed protocols, comparative analysis and objective mediation by HR.",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="es"
+      lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

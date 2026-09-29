@@ -7,21 +7,21 @@ import {
 } from "@/shared/ui/icons";
 import { EXAMPLE_PROFILE } from "@/features/profile/presentation/data/example";
 import { AvatarEditor } from "@/features/profile/presentation/components/avatar-editor";
+import { roleLabel } from "@/features/team/presentation/lib/format";
 
 function initials(nombre: string, apellidos: string) {
   return `${nombre.charAt(0)}${apellidos.charAt(0)}`.toUpperCase() || "U";
 }
 
-/** Formats an ISO date as e.g. "Enero 2023". */
+/** Formats an ISO date as e.g. "January 2023". */
 function memberSince(iso: string): string {
   if (!iso) return "—";
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
-  const formatted = new Intl.DateTimeFormat("es-ES", {
+  return new Intl.DateTimeFormat("en-US", {
     month: "long",
     year: "numeric",
   }).format(date);
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
 /** The dark banner at the top of the profile screen. */
@@ -45,11 +45,11 @@ export function ProfileHeader({ profile }: { profile: Profile }) {
 
           <div className="min-w-0 pt-1">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h1 className="text-xl font-bold sm:text-2xl">{fullName || "Usuario"}</h1>
+              <h1 className="text-xl font-bold sm:text-2xl">{fullName || "User"}</h1>
               {profile.rol && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2.5 py-0.5 text-xs font-semibold text-amber-300">
                   <CrownIcon style={{ width: 13, height: 13 }} />
-                  {profile.rol}
+                  {roleLabel(profile.rol)}
                 </span>
               )}
             </div>
@@ -66,19 +66,19 @@ export function ProfileHeader({ profile }: { profile: Profile }) {
               )}
               <span className="inline-flex items-center gap-1.5 text-emerald-400">
                 <CheckCircleIcon style={{ width: 14, height: 14 }} />
-                Cuenta verificada
+                Verified account
               </span>
             </div>
           </div>
         </div>
 
         <div className="hidden text-right text-xs text-slate-400 sm:block">
-          <p className="tracking-widest">MIEMBRO DESDE</p>
+          <p className="tracking-widest">MEMBER SINCE</p>
           <p className="mt-0.5 text-base font-semibold text-white">
             {memberSince(profile.fechaCreacion)}
           </p>
           <p className="mt-2 text-slate-400">
-            Último acceso: {EXAMPLE_PROFILE.lastAccess}
+            Last access: {EXAMPLE_PROFILE.lastAccess}
           </p>
         </div>
       </div>

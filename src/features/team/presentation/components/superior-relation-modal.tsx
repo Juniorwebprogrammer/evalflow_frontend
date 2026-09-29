@@ -12,7 +12,8 @@ import {
 } from "@/features/team/presentation/api/team-client";
 import { ORG_CHART_QUERY_KEY } from "@/features/team/presentation/hooks/use-org-chart";
 import { EMPLOYEES_QUERY_KEY } from "@/features/team/presentation/hooks/use-employees";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
+import { SUPERIOR_ERRORS } from "@/features/team/presentation/lib/superior-errors";
 
 /** Confirms creating or removing a single "reports to" edge in the org chart. */
 export function SuperiorRelationModal({
@@ -46,9 +47,13 @@ export function SuperiorRelationModal({
       onClose();
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo actualizar la relación. Inténtalo de nuevo.",
+        errorMessage(
+          err,
+          type === "connect"
+            ? "We couldn't assign the manager."
+            : "We couldn't remove the reporting line.",
+          { byDetail: SUPERIOR_ERRORS },
+        ),
       );
     } finally {
       setSubmitting(false);
@@ -61,19 +66,19 @@ export function SuperiorRelationModal({
   return (
     <Modal
       onClose={onClose}
-      title={type === "connect" ? "Asignar superior" : "Quitar relación"}
+      title={type === "connect" ? "Assign manager" : "Remove reporting line"}
       icon={<ScaleIcon className="h-5 w-5" />}
       disableClose={submitting}
     >
       <p className="text-sm text-slate-600">
         {type === "connect" ? (
           <>
-            ¿Quieres que <strong>{superiorName}</strong> sea el superior directo de{" "}
+            Make <strong>{superiorName}</strong> the manager of{" "}
             <strong>{employeeName}</strong>?
           </>
         ) : (
           <>
-            ¿Quitar a <strong>{superiorName}</strong> como superior directo de{" "}
+            Remove <strong>{superiorName}</strong> as the manager of{" "}
             <strong>{employeeName}</strong>?
           </>
         )}
@@ -87,7 +92,7 @@ export function SuperiorRelationModal({
 
       <div className="mt-5 flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button
           type="button"
@@ -95,7 +100,7 @@ export function SuperiorRelationModal({
           loading={submitting}
           onClick={handleConfirm}
         >
-          {type === "connect" ? "Asignar" : "Quitar"}
+          {type === "connect" ? "Assign" : "Remove"}
         </Button>
       </div>
     </Modal>

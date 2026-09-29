@@ -15,7 +15,7 @@ export interface EvaluationCompletedEvent {
   timestamp: string;
 }
 
-/** One live entry in the dashboard's "actividad reciente" feed. */
+/** One live entry in the dashboard's "recent activity" feed. */
 export interface LiveActivityItem {
   id: string;
   respondentUserName: string;

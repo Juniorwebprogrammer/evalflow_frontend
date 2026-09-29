@@ -96,7 +96,7 @@ export class HttpClarificationRepository implements ClarificationRepository {
       `/evaluation-cycles/${cycleId}/clarifications`,
       { method: "POST", body: input, accessToken },
     );
-    if (!dto) throw new UpstreamError("El servidor no devolvió la solicitud creada");
+    if (!dto) throw new UpstreamError("The server did not return the created request.");
     return mapClarification(dto);
   }
 
@@ -129,7 +129,7 @@ export class HttpClarificationRepository implements ClarificationRepository {
       `/clarifications/${clarificationId}/response`,
       { method: "PUT", body: { respuesta }, accessToken },
     );
-    if (!dto) throw new UpstreamError("El servidor no devolvió la respuesta guardada");
+    if (!dto) throw new UpstreamError("The server did not return the saved response.");
     return mapMyClarification(dto);
   }
 }

@@ -5,7 +5,8 @@ import { Notice } from "@/shared/ui/notice";
 import { UsersIcon, AlertTriangleIcon } from "@/shared/ui/icons";
 import { useSubordinates } from "@/features/team/presentation/hooks/use-subordinates";
 import type { EmployeeResponse } from "@/features/team/presentation/api/team-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
+import { roleLabel } from "@/features/team/presentation/lib/format";
 
 /** Shows an employee's direct reports (backend `Team/{userId}/subordinates`). */
 export function TeamModal({
@@ -20,22 +21,20 @@ export function TeamModal({
   return (
     <Modal
       onClose={onClose}
-      title="Equipo a cargo"
-      description={`Empleados que reportan a ${employee.nombre} ${employee.apellidos}.`}
+      title="Direct reports"
+      description={`Employees who report to ${employee.nombre} ${employee.apellidos}.`}
       icon={<UsersIcon className="h-5 w-5" />}
       size="lg"
     >
       {isLoading ? (
-        <p className="text-sm text-slate-500">Cargando equipo…</p>
+        <p className="text-sm text-slate-500">Loading direct reports…</p>
       ) : error ? (
         <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-          {error instanceof ApiError
-            ? error.message
-            : "No se pudo obtener el equipo de este empleado."}
+          {errorMessage(error, "We couldn't load this employee's direct reports.")}
         </Notice>
       ) : !subordinates || subordinates.length === 0 ? (
         <p className="text-sm text-slate-500">
-          Este empleado no tiene a nadie a su cargo todavía.
+          This employee doesn&apos;t have any direct reports yet.
         </p>
       ) : (
         <ul className="divide-y divide-slate-100 rounded-lg border border-slate-100">
@@ -61,10 +60,10 @@ export function TeamModal({
                       : "bg-slate-100 text-slate-500"
                   }`}
                 >
-                  {s.activo ? "Activo" : "Inactivo"}
+                  {s.activo ? "Active" : "Inactive"}
                 </span>
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                  {s.rol}
+                  {roleLabel(s.rol)}
                 </span>
               </div>
             </li>

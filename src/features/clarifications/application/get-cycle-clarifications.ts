@@ -12,13 +12,13 @@ export class GetCycleClarifications {
     accessToken: string,
   ): Promise<Clarification[]> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Your session is no longer valid. Please sign in again.", 401);
     }
     if (!Number.isInteger(cycleId) || cycleId <= 0) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is not valid.", 400);
     }
     if (evaluatedUserId !== null && (!Number.isInteger(evaluatedUserId) || evaluatedUserId <= 0)) {
-      throw new DomainError("El empleado indicado no es válido", 400);
+      throw new DomainError("The selected employee is not valid.", 400);
     }
 
     return this.clarifications.getByCycle(cycleId, evaluatedUserId, accessToken);

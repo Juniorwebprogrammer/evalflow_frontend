@@ -18,7 +18,7 @@ export async function GET(
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const { id } = await ctx.params;
@@ -29,7 +29,7 @@ export async function GET(
 
     if (!department) {
       return Response.json(
-        { message: "Departamento no encontrado o no pertenece a tu empresa." },
+        { message: "Department not found or does not belong to your company." },
         { status: 404 },
       );
     }

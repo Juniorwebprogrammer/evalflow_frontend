@@ -29,17 +29,17 @@ export class HttpOnboardingRepository implements OnboardingRepository {
     );
 
     if (!dto) {
-      throw new UpstreamError("El servidor no devolvió una respuesta de registro");
+      throw new UpstreamError("The server did not return a registration response");
     }
 
     const jwt = dto.Jwt ?? dto.jwt;
     const refreshToken = dto.RefreshToken ?? dto.refreshToken;
     if (!jwt || !refreshToken) {
-      throw new UpstreamError("La respuesta de registro es incompleta");
+      throw new UpstreamError("The registration response is incomplete");
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Registro completado",
+      message: dto.Message ?? dto.message ?? "Registration completed",
       userNombre: dto.UserNombre ?? dto.userNombre ?? input.UserNombre,
       jwt,
       refreshToken,

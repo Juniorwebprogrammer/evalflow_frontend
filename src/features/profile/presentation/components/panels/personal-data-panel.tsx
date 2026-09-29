@@ -8,23 +8,18 @@ import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
 import { UserIcon, MailIcon, CheckCircleIcon } from "@/shared/ui/icons";
 import { useUpdateProfile } from "@/features/profile/presentation/hooks/use-profile";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
+import { roleLabel } from "@/features/team/presentation/lib/format";
 import {
   EXAMPLE_PROFILE,
-  LANGUAGES,
 } from "@/features/profile/presentation/data/example";
-import {
-  getLanguage,
-  setLanguage,
-  subscribeLanguage,
-} from "@/features/profile/presentation/lib/language-preference";
 
 type Status = { tone: "success" | "error"; text: string } | null;
 
 /**
  * Only Nombre + Apellidos are editable and persisted (backend
  * `Profile/update`). Email and Cargo (the user's role) are real but read-only;
- * Departamento is example data. The interface language is a local preference.
+ * Departamento is example data.
  */
 export function PersonalDataPanel({ profile }: { profile: Profile }) {
   const updateMutation = useUpdateProfile();
@@ -37,17 +32,6 @@ export function PersonalDataPanel({ profile }: { profile: Profile }) {
   });
   const [status, setStatus] = useState<Status>(null);
 
-  // Interface language: a local preference read from / written to localStorage
-  // via an external store (no visual effect yet).
-  const language = useSyncExternalStore(
-    subscribeLanguage,
-    () => {
-      const value = getLanguage(EXAMPLE_PROFILE.language);
-      return LANGUAGES.includes(value) ? value : EXAMPLE_PROFILE.language;
-    },
-    () => EXAMPLE_PROFILE.language,
-  );
-
   const dirty = nombre !== saved.nombre || apellidos !== saved.apellidos;
 
   async function handleSave(e: React.FormEvent) {
@@ -58,14 +42,11 @@ export function PersonalDataPanel({ profile }: { profile: Profile }) {
       // this panel on remount) and revalidates against the backend on settle.
       await updateMutation.mutateAsync({ nombre, apellidos });
       setSaved({ nombre, apellidos });
-      setStatus({ tone: "success", text: "Perfil actualizado correctamente." });
+      setStatus({ tone: "success", text: "Profile updated." });
     } catch (err) {
       setStatus({
         tone: "error",
-        text:
-          err instanceof ApiError
-            ? err.message
-            : "No se pudo guardar el perfil. Inténtalo de nuevo.",
+        text: errorMessage(err, "We couldn't save your profile."),
       });
     }
   }
@@ -81,9 +62,9 @@ export function PersonalDataPanel({ profile }: { profile: Profile }) {
       onSubmit={handleSave}
       className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6"
     >
-      <h2 className="text-lg font-bold text-slate-900">Datos personales</h2>
+      <h2 className="text-lg font-bold text-slate-900">Personal details</h2>
       <p className="mt-0.5 text-sm text-slate-500">
-        Información visible para tu equipo de RRHH
+        Information visible to your HR team
       </p>
 
       {status && (
@@ -102,28 +83,28 @@ export function PersonalDataPanel({ profile }: { profile: Profile }) {
 
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field
-          label="Nombre"
+          label="First name"
           icon={<UserIcon className="h-4 w-4" />}
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           required
         />
         <Field
-          label="Apellidos"
+          label="Last name"
           value={apellidos}
           onChange={(e) => setApellidos(e.target.value)}
           required
         />
         <Field
-          label="Email corporativo"
+          label="Work email"
           type="email"
           icon={<MailIcon className="h-4 w-4" />}
           value={profile.email}
           disabled
         />
-        <Field label="Cargo / Posición" value={profile.rol} disabled />
+        <Field label="Role" value={roleLabel(profile.rol)} disabled />
         <Select
-          label="Departamento"
+          label="Department"
           options={[
             {
               value: EXAMPLE_PROFILE.department,
@@ -132,12 +113,6 @@ export function PersonalDataPanel({ profile }: { profile: Profile }) {
           ]}
           value={EXAMPLE_PROFILE.department}
           disabled
-        />
-        <Select
-          label="Idioma de la interfaz"
-          options={LANGUAGES.map((l) => ({ value: l, label: l }))}
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
         />
       </div>
 
@@ -148,7 +123,7 @@ export function PersonalDataPanel({ profile }: { profile: Profile }) {
           onClick={discard}
           disabled={updateMutation.isPending || !dirty}
         >
-          Descartar cambios
+          Discard changes
         </Button>
         <Button
           type="submit"
@@ -156,7 +131,7 @@ export function PersonalDataPanel({ profile }: { profile: Profile }) {
           disabled={!dirty}
         >
           <CheckCircleIcon className="h-4 w-4" />
-          Guardar cambios
+          Save changes
         </Button>
       </div>
     </form>

@@ -14,10 +14,10 @@ export class UpdateCompany {
     accessToken: string,
   ): Promise<void> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!input.Nombre.trim()) {
-      throw new DomainError("El nombre de la empresa es obligatorio", 400);
+      throw new DomainError("Company name is required", 400);
     }
     return this.companies.update(input, accessToken);
   }

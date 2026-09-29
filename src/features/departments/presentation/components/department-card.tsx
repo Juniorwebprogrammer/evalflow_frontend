@@ -33,7 +33,7 @@ export function DepartmentCard({ department }: { department: DepartmentSummaryRe
         <span className="mt-auto flex items-center gap-1.5 text-sm text-slate-500">
           <UsersIcon className="h-4 w-4 text-slate-400" />
           {department.employeeCount}{" "}
-          {department.employeeCount === 1 ? "empleado" : "empleados"}
+          {department.employeeCount === 1 ? "employee" : "employees"}
         </span>
       </span>
     </Link>

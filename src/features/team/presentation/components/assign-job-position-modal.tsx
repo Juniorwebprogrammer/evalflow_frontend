@@ -16,7 +16,7 @@ import {
   JOB_POSITIONS_QUERY_KEY,
   useJobPositions,
 } from "@/features/job-positions/presentation/hooks/use-job-positions";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 const NONE = "";
 
@@ -39,7 +39,7 @@ export function AssignJobPositionModal({
   const [done, setDone] = useState(false);
 
   const options = [
-    { value: NONE, label: "Sin cargo" },
+    { value: NONE, label: "No job position" },
     ...(jobPositions ?? []).map((jp) => ({
       value: String(jp.id),
       label: jp.nombre,
@@ -60,7 +60,14 @@ export function AssignJobPositionModal({
       queryClient.invalidateQueries({ queryKey: JOB_POSITIONS_QUERY_KEY });
     } catch (err) {
       setError(
-        err instanceof ApiError ? err.message : "No se pudo asignar el cargo.",
+        errorMessage(err, "We couldn't assign the job position.", {
+          byDetail: [
+            [
+              "el cargo no existe",
+              "This job position no longer exists. Refresh the page and choose another one.",
+            ],
+          ],
+        }),
       );
     } finally {
       setSubmitting(false);
@@ -70,8 +77,8 @@ export function AssignJobPositionModal({
   return (
     <Modal
       onClose={onClose}
-      title="Asignar cargo"
-      description={`Elige el cargo de ${employee.nombre} ${employee.apellidos}.`}
+      title="Assign job position"
+      description={`Choose the job position for ${employee.nombre} ${employee.apellidos}.`}
       icon={<BriefcaseIcon className="h-5 w-5" />}
     >
       {done ? (
@@ -80,16 +87,16 @@ export function AssignJobPositionModal({
             tone="success"
             icon={<CheckCircleIcon className="h-5 w-5 text-emerald-600" />}
           >
-            Cargo actualizado correctamente.
+            Job position updated.
           </Notice>
           <Button type="button" className="mt-5 w-full" onClick={onClose}>
-            Cerrar
+            Close
           </Button>
         </>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <Select
-            label="Cargo"
+            label="Job position"
             options={options}
             value={jobPositionId}
             onChange={(e) => setJobPositionId(e.target.value)}
@@ -99,10 +106,10 @@ export function AssignJobPositionModal({
 
           <div className="flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={onClose}>
-              Cancelar
+              Cancel
             </Button>
             <Button type="submit" loading={submitting}>
-              Guardar
+              Save
             </Button>
           </div>
         </form>

@@ -9,7 +9,7 @@ import { Notice } from "@/shared/ui/notice";
 import { LockIcon, KeyIcon, CheckCircleIcon } from "@/shared/ui/icons";
 import { useChangePassword } from "@/features/profile/presentation/hooks/use-profile";
 import { useToggle2FA } from "@/features/settings/presentation/hooks/use-toggle-2fa";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 type Status = { tone: "success" | "error"; text: string } | null;
 
@@ -35,9 +35,12 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
       await toggle2FAMutation.mutateAsync(!profile.twoFactorEnabled);
     } catch (err) {
       setTwoFactorError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo actualizar la autenticación en dos pasos.",
+        errorMessage(
+          err,
+          profile.twoFactorEnabled
+            ? "We couldn't turn off two-step verification."
+            : "We couldn't turn on two-step verification.",
+        ),
       );
     }
   }
@@ -49,12 +52,12 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
     if (next.length < MIN_PASSWORD_LENGTH) {
       setStatus({
         tone: "error",
-        text: `La nueva contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`,
+        text: `Your new password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
       });
       return;
     }
     if (next !== confirm) {
-      setStatus({ tone: "error", text: "Las contraseñas no coinciden." });
+      setStatus({ tone: "error", text: "Passwords don't match." });
       return;
     }
 
@@ -65,7 +68,7 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
       });
       setStatus({
         tone: "success",
-        text: "Contraseña actualizada correctamente.",
+        text: "Password updated.",
       });
       setCurrent("");
       setNext("");
@@ -73,10 +76,18 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
     } catch (err) {
       setStatus({
         tone: "error",
-        text:
-          err instanceof ApiError
-            ? err.message
-            : "No se pudo cambiar la contraseña. Inténtalo de nuevo.",
+        text: errorMessage(err, "We couldn't change your password.", {
+          byDetail: [
+            [
+              "contraseña actual es incorrecta",
+              "Your current password is incorrect. Check it and try again.",
+            ],
+            [
+              "different from your current",
+              "Your new password must be different from your current one.",
+            ],
+          ],
+        }),
       });
     }
   }
@@ -87,15 +98,15 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
         onSubmit={handleSubmit}
         className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6"
       >
-        <h2 className="text-lg font-bold text-slate-900">Cambiar contraseña</h2>
+        <h2 className="text-lg font-bold text-slate-900">Change password</h2>
         <p className="mt-0.5 text-sm text-slate-500">
-          Usa una contraseña de al menos {MIN_PASSWORD_LENGTH} caracteres con
-          números y símbolos
+          Use a password of at least {MIN_PASSWORD_LENGTH} characters with
+          numbers and symbols
         </p>
 
         <div className="mt-5 max-w-md space-y-4">
           <Field
-            label="Contraseña actual"
+            label="Current password"
             type="password"
             icon={<LockIcon className="h-4 w-4" />}
             value={current}
@@ -104,7 +115,7 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
             required
           />
           <Field
-            label="Nueva contraseña"
+            label="New password"
             type="password"
             icon={<KeyIcon className="h-4 w-4" />}
             value={next}
@@ -113,7 +124,7 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
             required
           />
           <Field
-            label="Confirmar nueva contraseña"
+            label="Confirm new password"
             type="password"
             icon={<KeyIcon className="h-4 w-4" />}
             value={confirm}
@@ -137,7 +148,7 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
 
           <Button type="submit" loading={changePasswordMutation.isPending}>
             <KeyIcon className="h-4 w-4" />
-            Actualizar contraseña
+            Update password
           </Button>
         </div>
       </form>
@@ -146,17 +157,18 @@ export function SecurityPanel({ profile }: { profile: Profile }) {
         <div className="flex items-center justify-between">
           <div className="pr-6">
             <h3 className="text-base font-bold text-slate-900">
-              Autenticación en dos pasos
+              Two-step verification
             </h3>
             <p className="mt-0.5 text-sm text-slate-500">
-              Añade una capa extra de seguridad. Se te pedirá un código de
-              verificación cada vez que inicies sesión.
+              Add an extra layer of security. You&apos;ll be asked for a
+              verification code every time you sign in.
             </p>
           </div>
           <button
             type="button"
             role="switch"
             aria-checked={profile.twoFactorEnabled}
+            aria-label="Two-step verification"
             disabled={toggle2FAMutation.isPending}
             onClick={handleToggle2FA}
             className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:cursor-not-allowed disabled:opacity-60 ${

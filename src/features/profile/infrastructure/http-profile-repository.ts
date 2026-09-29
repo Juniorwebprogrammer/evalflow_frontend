@@ -48,7 +48,7 @@ export class HttpProfileRepository implements ProfileRepository {
     });
 
     if (!dto) {
-      throw new UpstreamError("El servidor no devolvió el perfil");
+      throw new UpstreamError("The server did not return the profile.");
     }
 
     return {

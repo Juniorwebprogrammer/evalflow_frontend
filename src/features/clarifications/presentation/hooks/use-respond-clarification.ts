@@ -7,7 +7,7 @@ import {
   type MyClarificationResponse,
 } from "@/features/clarifications/presentation/api/clarification-client";
 import { MY_CLARIFICATIONS_QUERY_KEY } from "@/features/clarifications/presentation/hooks/use-my-clarifications";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 export function useRespondClarification(clarificationId: number) {
   const queryClient = useQueryClient();
@@ -26,9 +26,19 @@ export function useRespondClarification(clarificationId: number) {
       return updated;
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo enviar la respuesta. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't send your response.", {
+          byDetail: [
+            ["ya has respondido", "You've already responded to this request."],
+            ["no puede superar", "Your response is too long. Please shorten it and try again."],
+            ["no puede estar vacía", "Please write a response before sending it."],
+            // Our own route validation (application layer) rejects these first.
+            ["cannot exceed", "Your response is too long. Please shorten it and try again."],
+            ["cannot be empty", "Please write a response before sending it."],
+          ],
+          byStatus: {
+            404: "We couldn't find this information request. It may have been removed.",
+          },
+        }),
       );
       throw err;
     } finally {

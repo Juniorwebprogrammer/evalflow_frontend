@@ -8,7 +8,7 @@ export class ListJobPositions {
 
   async execute(accessToken: string): Promise<JobPositionSummary[]> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
 
     return this.jobPositions.listAll(accessToken);

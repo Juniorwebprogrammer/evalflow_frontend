@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const token = String(body?.token ?? "").trim();
     const newPassword = String(body?.newPassword ?? "");
     if (!token) {
-      throw new DomainError("El enlace de recuperación no es válido.", 400);
+      throw new DomainError("The password reset link is not valid.", 400);
     }
 
     const result = await useCases.resetPassword.execute(token, newPassword);

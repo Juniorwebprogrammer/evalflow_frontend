@@ -15,7 +15,7 @@ export class ToggleTemplateInCycle {
     accessToken: string,
   ): Promise<EvaluationCycleActionResult> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (
       !Number.isInteger(cycleId) ||
@@ -23,7 +23,7 @@ export class ToggleTemplateInCycle {
       !Number.isInteger(templateId) ||
       templateId <= 0
     ) {
-      throw new DomainError("El identificador no es válido", 400);
+      throw new DomainError("The ID is not valid", 400);
     }
 
     return this.cycles.toggleTemplate(cycleId, templateId, accessToken);

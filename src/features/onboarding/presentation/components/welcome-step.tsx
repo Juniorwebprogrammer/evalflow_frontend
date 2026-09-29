@@ -8,9 +8,9 @@ import {
 } from "@/shared/ui/icons";
 
 const WELCOME_POINTS = [
-  { icon: ShieldIcon, text: "Respuestas selladas hasta la revisión de RRHH" },
-  { icon: ScaleIcon, text: "Análisis automático de brechas y sesgos" },
-  { icon: CheckCircleIcon, text: "Mediación objetiva y trazable entre partes" },
+  { icon: ShieldIcon, text: "Responses stay sealed until HR reviews them" },
+  { icon: ScaleIcon, text: "Automatic analysis of gaps and bias" },
+  { icon: CheckCircleIcon, text: "Objective, traceable mediation between both sides" },
 ];
 
 export function WelcomeStep({
@@ -29,12 +29,12 @@ export function WelcomeStep({
         <SparkleIcon className="h-6 w-6" />
       </span>
       <h2 className="mt-5 text-2xl font-bold text-slate-900">
-        Bienvenido a EvalFlow
+        Welcome to EvalFlow
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-500">
-        EvalFlow es el árbitro neutral de tus evaluaciones de desempeño. Sella
-        las respuestas hasta que RRHH las revisa, pre-analiza brechas y sesgos, y
-        facilita una mediación objetiva basada en datos.
+        EvalFlow is the neutral referee for your performance evaluations. It
+        seals responses until HR reviews them, pre-analyzes gaps and bias, and
+        enables objective, data-driven mediation.
       </p>
 
       <ul className="mt-6 space-y-3">
@@ -56,11 +56,11 @@ export function WelcomeStep({
 
       <div className="mt-7 flex flex-col gap-2">
         <Button onClick={onStart}>
-          Crear una cuenta
+          Create an account
           <ArrowRightIcon className="h-4 w-4" />
         </Button>
         <Button variant="ghost" onClick={onExistingAccount}>
-          Ya tengo una cuenta
+          I already have an account
         </Button>
       </div>
     </div>

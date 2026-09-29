@@ -16,11 +16,11 @@ export function EvaluationCycleFormModal({
   return (
     <Modal
       onClose={onClose}
-      title={cycle ? "Editar ciclo de evaluación" : "Nuevo ciclo de evaluación"}
+      title={cycle ? "Edit evaluation cycle" : "New evaluation cycle"}
       description={
         cycle
-          ? "Actualiza los datos del ciclo."
-          : "Crea un ciclo de evaluación para tu empresa."
+          ? "Update the cycle details."
+          : "Create an evaluation cycle for your company."
       }
       icon={<ClipboardIcon className="h-5 w-5" />}
       size="lg"

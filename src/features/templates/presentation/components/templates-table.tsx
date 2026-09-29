@@ -18,7 +18,7 @@ import {
   TrashIcon,
   UsersIcon,
 } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 import { useMyRole } from "@/features/profile/presentation/hooks/use-profile";
 import { isPrivilegedRole } from "@/shared/lib/roles";
@@ -32,7 +32,7 @@ type Action =
 
 /**
  * Template directory (backend `GET /templates`) — a search box, a table
- * with a per-row actions menu, and a "Nueva plantilla" button restricted to
+ * with a per-row actions menu, and a "New template" button restricted to
  * Owner/Rrhh.
  */
 export function TemplatesTable() {
@@ -55,15 +55,13 @@ export function TemplatesTable() {
   }, [templates, search]);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando plantillas…</p>;
+    return <p className="text-sm text-slate-500">Loading templates…</p>;
   }
 
   if (error) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el listado de plantillas."}
+        {errorMessage(error, "We couldn't load the templates.")}
       </Notice>
     );
   }
@@ -76,7 +74,7 @@ export function TemplatesTable() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar plantilla…"
+            placeholder="Search templates…"
             className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
           />
         </div>
@@ -88,7 +86,7 @@ export function TemplatesTable() {
             onClick={() => setAction({ type: "create" })}
           >
             <PlusIcon className="h-4 w-4" />
-            Nueva plantilla
+            New template
           </Button>
         )}
       </div>
@@ -98,7 +96,7 @@ export function TemplatesTable() {
       {(!templates || templates.length === 0) && (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
           <DocIcon className="h-5 w-5 shrink-0 text-slate-400" />
-          <span>Todavía no hay ninguna plantilla creada.</span>
+          <span>No templates have been created yet.</span>
         </div>
       )}
 
@@ -107,11 +105,11 @@ export function TemplatesTable() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
               <tr>
-                <th className="px-5 py-3">Título</th>
-                <th className="px-5 py-3">Fecha inicio</th>
-                <th className="px-5 py-3">Fecha fin</th>
-                <th className="px-5 py-3">Asignados</th>
-                <th className="px-5 py-3 text-right">Acciones</th>
+                <th className="px-5 py-3">Title</th>
+                <th className="px-5 py-3">Start date</th>
+                <th className="px-5 py-3">End date</th>
+                <th className="px-5 py-3">Assigned</th>
+                <th className="px-5 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -155,7 +153,7 @@ export function TemplatesTable() {
                         className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                       >
                         <DocIcon className="h-4 w-4 text-slate-400" />
-                        Ver preguntas
+                        View questions
                       </Link>
                       {canManage && (
                         <>
@@ -168,7 +166,7 @@ export function TemplatesTable() {
                             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                           >
                             <EditIcon className="h-4 w-4 text-slate-400" />
-                            Editar
+                            Edit
                           </button>
                           <button
                             type="button"
@@ -179,7 +177,7 @@ export function TemplatesTable() {
                             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                           >
                             <TrashIcon className="h-4 w-4" />
-                            Eliminar
+                            Delete
                           </button>
                         </>
                       )}
@@ -192,7 +190,7 @@ export function TemplatesTable() {
 
           {filtered.length === 0 && (
             <p className="px-5 py-6 text-center text-sm text-slate-500">
-              Ninguna plantilla coincide con la búsqueda.
+              No templates match your search.
             </p>
           )}
         </div>

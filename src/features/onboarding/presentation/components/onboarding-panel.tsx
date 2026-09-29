@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { registerOwner } from "@/features/onboarding/presentation/api/onboarding-client";
 import { fetchCompanyByName } from "@/features/company/presentation/api/company-client";
 import { CheckEmailNotice } from "@/features/auth/presentation/components/check-email-notice";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { WelcomeStep } from "@/features/onboarding/presentation/components/welcome-step";
 import { AccountStep } from "@/features/onboarding/presentation/components/account-step";
 import { CompanyStep } from "@/features/onboarding/presentation/components/company-step";
@@ -53,7 +53,7 @@ export function OnboardingPanel() {
     e.preventDefault();
     const name = existingCompany.trim();
     if (!name) {
-      setError("Introduce el nombre de tu empresa.");
+      setError("Enter your company name.");
       return;
     }
     setError(null);
@@ -62,7 +62,7 @@ export function OnboardingPanel() {
       const found = await fetchCompanyByName(name);
       if (!found) {
         setError(
-          "No encontramos ninguna empresa con ese nombre. Revísalo e inténtalo de nuevo.",
+          "We couldn't find a company with that name. Check it and try again.",
         );
         setSubmitting(false);
         return;
@@ -70,8 +70,8 @@ export function OnboardingPanel() {
       // Redirect to the branded login using the canonical name, where the
       // company (and its identificationId) is resolved from the URL.
       router.push(`/login/${encodeURIComponent(found.nombre)}`);
-    } catch {
-      setError("No se pudo verificar la empresa. Inténtalo de nuevo.");
+    } catch (err) {
+      setError(errorMessage(err, "We couldn't look up the company."));
       setSubmitting(false);
     }
   }
@@ -80,7 +80,7 @@ export function OnboardingPanel() {
     e.preventDefault();
     setError(null);
     if (account.Password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
+      setError("Your password must be at least 8 characters long.");
       return;
     }
     setStep("company");
@@ -99,9 +99,17 @@ export function OnboardingPanel() {
       setSubmitting(false);
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo completar el registro. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't complete your registration.", {
+          byDetail: [
+            ["ya existe", "An account with this email already exists. Sign in instead, or use a different email."],
+            ["plan seleccionado", "The selected plan isn't available. Please choose another one."],
+            ["email no es válido", "Please enter a valid email address."],
+            ["al menos", "Your password is too short. Please choose a longer one."],
+          ],
+          byStatus: {
+            409: "An account with this email already exists. Sign in instead, or use a different email.",
+          },
+        }),
       );
       setSubmitting(false);
     }
@@ -115,9 +123,9 @@ export function OnboardingPanel() {
       <div className="relative z-10 max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl">
         {(step === "account" || step === "company") && (
           <div className="flex items-center gap-2 border-b border-slate-100 px-6 py-4">
-            <StepDot active label="1. Cuenta" done={step === "company"} />
+            <StepDot active label="1. Account" done={step === "company"} />
             <span className="h-px flex-1 bg-slate-200" />
-            <StepDot active={step === "company"} label="2. Empresa" />
+            <StepDot active={step === "company"} label="2. Company" />
           </div>
         )}
 
@@ -163,10 +171,10 @@ export function OnboardingPanel() {
 
           {step === "verify-email" && (
             <CheckEmailNotice
-              title="¡Cuenta creada!"
-              message="Antes de poder iniciar sesión, confirma tu correo electrónico."
+              title="Account created!"
+              message="Confirm your email before you sign in."
               email={account.Email}
-              actionLabel="Ir a iniciar sesión"
+              actionLabel="Go to sign in"
               onAction={() =>
                 router.push(`/login/${encodeURIComponent(company.CompanyNombre)}`)
               }

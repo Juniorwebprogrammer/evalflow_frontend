@@ -9,7 +9,7 @@ import {
 import { PENDING_SUBMISSIONS_QUERY_KEY } from "@/features/evaluation-submissions/presentation/hooks/use-pending-submissions";
 import { COMPLETED_SUBMISSIONS_QUERY_KEY } from "@/features/evaluation-submissions/presentation/hooks/use-completed-submissions";
 import type { PendingSubmissionResponse } from "@/features/evaluation-submissions/presentation/api/evaluation-submission-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 /**
  * Submits every answer of a submission in one shot. On success, removes it
@@ -36,9 +36,24 @@ export function useSaveSubmissionAnswers(submissionId: number) {
       return result;
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudieron guardar las respuestas. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't submit your answers.", {
+          byDetail: [
+            ["ya ha sido enviado", "This form has already been submitted."],
+            [
+              "ciclo de evaluación ya se ha completado",
+              "This evaluation cycle has already been closed, so answers can no longer be submitted.",
+            ],
+            [
+              "plazo",
+              "The deadline for completing this evaluation has passed.",
+            ],
+            ["faltan respuestas", "Please answer every question before submitting."],
+            ["vacía", "Please answer every question before submitting."],
+            // Our own route validation (application layer) rejects these first.
+            ["every question", "Please answer every question before submitting."],
+            ["left blank", "Please answer every question before submitting."],
+          ],
+        }),
       );
       throw err;
     } finally {

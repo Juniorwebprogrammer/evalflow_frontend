@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDeleteCompany } from "@/features/company/presentation/hooks/use-company";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { Field } from "@/shared/ui/field";
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
@@ -26,7 +26,7 @@ export function DeleteCompanyModal({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     setError(null);
     if (!password) {
-      setError("Introduce tu contraseña para confirmar.");
+      setError("Enter your password to confirm.");
       return;
     }
     try {
@@ -41,9 +41,11 @@ export function DeleteCompanyModal({ onClose }: { onClose: () => void }) {
       window.location.assign("/login");
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo eliminar la empresa. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't delete the company.", {
+          byDetail: [
+            ["incorrect password", "The password is incorrect. Check it and try again."],
+          ],
+        }),
       );
     }
   }
@@ -63,17 +65,17 @@ export function DeleteCompanyModal({ onClose }: { onClose: () => void }) {
           <ShieldIcon className="h-6 w-6" />
         </span>
         <h2 className="mt-5 text-xl font-bold text-slate-900">
-          Eliminar empresa
+          Delete company
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-500">
-          Esta acción borra <strong>permanentemente</strong> la empresa y{" "}
-          <strong>todos sus usuarios</strong>. No se puede deshacer. Introduce tu
-          contraseña actual para confirmar.
+          This <strong>permanently</strong> deletes the company and{" "}
+          <strong>all of its users</strong>. It can&apos;t be undone. Enter your
+          current password to confirm.
         </p>
 
         <Field
           className="mt-5"
-          label="Contraseña actual"
+          label="Current password"
           type="password"
           icon={<LockIcon className="h-4 w-4" />}
           value={password}
@@ -95,10 +97,10 @@ export function DeleteCompanyModal({ onClose }: { onClose: () => void }) {
             onClick={onClose}
             disabled={pending}
           >
-            Cancelar
+            Cancel
           </Button>
           <Button type="submit" variant="danger" loading={pending}>
-            Eliminar definitivamente
+            Delete permanently
           </Button>
         </div>
       </form>

@@ -26,7 +26,7 @@ import {
   StarIcon,
   TrashIcon,
 } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { formatDate } from "@/shared/lib/format-date";
 import { toggleId } from "@/shared/lib/query-cache";
 
@@ -61,9 +61,14 @@ export function FavoriteListDetailView({ listId }: { listId: number }) {
       );
     } catch (err) {
       setToggleError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo actualizar la lista. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't update the list.", {
+          byDetail: [
+            [
+              "template no existe",
+              "This template no longer exists. Refresh the page and try again.",
+            ],
+          ],
+        }),
       );
     } finally {
       setPendingId(null);
@@ -71,13 +76,15 @@ export function FavoriteListDetailView({ listId }: { listId: number }) {
   }
 
   if (loadingLists) {
-    return <p className="text-sm text-slate-500">Cargando lista…</p>;
+    return <p className="text-sm text-slate-500">Loading list…</p>;
   }
 
   if (listsError || !list) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {listsError instanceof ApiError ? listsError.message : "No se pudo cargar la lista."}
+        {listsError
+          ? errorMessage(listsError, "We couldn't load the list.")
+          : "We couldn't find this list. It may have been deleted."}
       </Notice>
     );
   }
@@ -89,7 +96,7 @@ export function FavoriteListDetailView({ listId }: { listId: number }) {
         className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
       >
         <ArrowRightIcon className="h-3.5 w-3.5 rotate-180" />
-        Volver a listas favoritas
+        Back to favorite lists
       </Link>
 
       <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
@@ -108,11 +115,11 @@ export function FavoriteListDetailView({ listId }: { listId: number }) {
           <div className="flex shrink-0 items-center gap-2">
             <Button type="button" variant="outline" onClick={() => setEditing(true)}>
               <EditIcon className="h-4 w-4" />
-              Editar
+              Edit
             </Button>
             <button
               type="button"
-              title="Eliminar lista"
+              title="Delete list"
               onClick={() => setDeleting(true)}
               className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
             >
@@ -124,23 +131,21 @@ export function FavoriteListDetailView({ listId }: { listId: number }) {
 
       <div className="space-y-4">
         <h2 className="text-base font-bold text-slate-900">
-          Plantillas ({list.templateIds.length})
+          Templates ({list.templateIds.length})
         </h2>
 
-        {loadingTemplates && <p className="text-sm text-slate-500">Cargando plantillas…</p>}
+        {loadingTemplates && <p className="text-sm text-slate-500">Loading templates…</p>}
 
         {templatesError && (
           <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-            {templatesError instanceof ApiError
-              ? templatesError.message
-              : "No se pudo cargar el listado de plantillas."}
+            {errorMessage(templatesError, "We couldn't load the templates.")}
           </Notice>
         )}
 
         {templates && templates.length === 0 && (
           <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
             <DocIcon className="h-5 w-5 shrink-0 text-slate-400" />
-            <span>Todavía no hay ninguna plantilla creada.</span>
+            <span>No templates have been created yet.</span>
           </div>
         )}
 

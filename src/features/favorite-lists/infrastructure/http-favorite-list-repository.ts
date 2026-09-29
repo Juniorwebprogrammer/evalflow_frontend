@@ -80,12 +80,12 @@ export class HttpFavoriteListRepository implements FavoriteListRepository {
 
     if (!dto) {
       throw new UpstreamError(
-        "El servidor no devolvió una respuesta al crear la lista",
+        "The server returned no response when creating the list",
       );
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Lista creada con éxito.",
+      message: dto.Message ?? dto.message ?? "List created.",
       favoriteListId:
         dto.FavoriteListId ?? dto.favoriteListId ?? dto.Id ?? dto.id ?? 0,
     };
@@ -109,7 +109,7 @@ export class HttpFavoriteListRepository implements FavoriteListRepository {
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Lista actualizada correctamente.",
+      message: dto?.Message ?? dto?.message ?? "List updated.",
     };
   }
 
@@ -120,7 +120,7 @@ export class HttpFavoriteListRepository implements FavoriteListRepository {
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Lista eliminada correctamente.",
+      message: dto?.Message ?? dto?.message ?? "List deleted.",
     };
   }
 
@@ -144,7 +144,7 @@ export class HttpFavoriteListRepository implements FavoriteListRepository {
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Lista actualizada correctamente.",
+      message: dto?.Message ?? dto?.message ?? "List updated.",
     };
   }
 }

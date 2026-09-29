@@ -7,7 +7,7 @@ import { DomainError } from "@/core/errors/errors";
 export async function GET() {
   try {
     const session = await readSession();
-    if (!session) throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+    if (!session) throw new DomainError("Your session has expired. Please sign in again.", 401);
 
     const companyPlan = await useCases.getCompanyPlan.execute(session.jwt);
     return Response.json(companyPlan);

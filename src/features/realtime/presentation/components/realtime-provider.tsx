@@ -44,7 +44,7 @@ function getSharedConnection(): HubConnection {
 
   const hubUrl = process.env.NEXT_PUBLIC_SIGNALR_HUB_URL;
   if (!hubUrl) {
-    throw new Error("NEXT_PUBLIC_SIGNALR_HUB_URL no está configurada.");
+    throw new Error("NEXT_PUBLIC_SIGNALR_HUB_URL is not configured.");
   }
 
   const connection = new HubConnectionBuilder()
@@ -73,7 +73,7 @@ function getSharedConnection(): HubConnection {
 
   sharedConnection = connection;
   connection.start().catch((err) => {
-    console.error("[realtime] No se pudo conectar al hub de notificaciones:", err);
+    console.error("[realtime] Could not connect to the notifications hub:", err);
   });
 
   return connection;
@@ -86,7 +86,7 @@ function invalidateForEvent(queryClient: QueryClient, event: EvaluationCompleted
 
 const RealtimeActivityContext = createContext<LiveActivityItem[]>([]);
 
-/** The dashboard's "actividad reciente" feed, fed live by `RealtimeProvider`. */
+/** The dashboard's "recent activity" feed, fed live by `RealtimeProvider`. */
 export function useRealtimeActivity(): LiveActivityItem[] {
   return useContext(RealtimeActivityContext);
 }
@@ -100,7 +100,7 @@ export function useRealtimeActivity(): LiveActivityItem[] {
  * - prepends a live activity entry (session-only, no persistence — the feed
  *   starts empty on a fresh page load and fills up as evaluations complete);
  * - invalidates the affected cycle's submissions query, so an open cycle
- *   detail page refreshes "quién completó y quién no" on its own;
+ *   detail page refreshes "who has completed and who hasn't" on its own;
  * - invalidates the dashboard stats query, so counts/progress stay current.
  *
  * The browser can't send an `Authorization` header during a WebSocket
@@ -119,7 +119,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     } catch {
       hubUrlConfigured = false;
       console.warn(
-        "[realtime] NEXT_PUBLIC_SIGNALR_HUB_URL no está configurada; el dashboard no se actualizará en vivo.",
+        "[realtime] NEXT_PUBLIC_SIGNALR_HUB_URL is not configured; the dashboard won't update live.",
       );
     }
     if (!hubUrlConfigured) return;

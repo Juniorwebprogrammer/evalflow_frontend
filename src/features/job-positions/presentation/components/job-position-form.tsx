@@ -13,7 +13,7 @@ import {
 } from "@/features/job-positions/presentation/api/job-position-client";
 import { JOB_POSITIONS_QUERY_KEY } from "@/features/job-positions/presentation/hooks/use-job-positions";
 import { EMPLOYEES_QUERY_KEY } from "@/features/team/presentation/hooks/use-employees";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 interface FormState {
   nombre: string;
@@ -71,9 +71,12 @@ export function JobPositionForm({
       }
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : `No se pudo ${isEditing ? "actualizar" : "crear"} el cargo. Inténtalo de nuevo.`,
+        errorMessage(
+          err,
+          isEditing
+            ? "We couldn't update the job position."
+            : "We couldn't create the job position.",
+        ),
       );
     } finally {
       setSubmitting(false);
@@ -87,11 +90,11 @@ export function JobPositionForm({
           tone="success"
           icon={<CheckCircleIcon className="h-5 w-5 text-emerald-600" />}
         >
-          Cargo <strong>{form.nombre}</strong>{" "}
-          {isEditing ? "actualizado" : "creado"} con éxito.
+          Job position <strong>{form.nombre}</strong>{" "}
+          {isEditing ? "updated" : "created"}.
         </Notice>
         <Button type="button" className="mt-5 w-full" onClick={onSaved}>
-          Aceptar
+          Done
         </Button>
       </>
     );
@@ -100,29 +103,29 @@ export function JobPositionForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field
-        label="Nombre"
+        label="Name"
         icon={<BriefcaseIcon className="h-4 w-4" />}
         value={form.nombre}
         onChange={(e) => update({ nombre: e.target.value })}
-        placeholder="Enfermero/a"
+        placeholder="Account Manager"
         required
         autoFocus
       />
       <Field
-        label="Descripción"
+        label="Description"
         value={form.descripcion}
         onChange={(e) => update({ descripcion: e.target.value })}
-        placeholder="Atención directa al paciente en planta"
+        placeholder="Manages relationships with key customers"
       />
 
       {error && <Notice tone="error">{error}</Notice>}
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="submit" loading={submitting}>
-          {isEditing ? "Guardar cambios" : "Crear cargo"}
+          {isEditing ? "Save changes" : "Create job position"}
         </Button>
       </div>
     </form>

@@ -15,13 +15,14 @@ import {
 import { EvaluationType } from "@/features/evaluation-cycles/domain/evaluation-cycle";
 import { EVALUATION_CYCLES_QUERY_KEY } from "@/features/evaluation-cycles/presentation/hooks/use-evaluation-cycles";
 import { toDateInputValue } from "@/shared/lib/format-date";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
+import { CYCLE_SAVE_ERRORS } from "@/features/evaluation-cycles/presentation/components/cycle-errors";
 import { upsertById } from "@/shared/lib/query-cache";
 
 const EVALUATION_TYPE_OPTIONS = [
-  { value: String(EvaluationType.Evaluacion360), label: "360° — Autoevaluación + evaluador" },
-  { value: String(EvaluationType.Evaluacion180), label: "180° — Solo el evaluador" },
-  { value: String(EvaluationType.Auto), label: "Auto — Solo autoevaluación" },
+  { value: String(EvaluationType.Evaluacion360), label: "360° — Self-assessment + evaluator" },
+  { value: String(EvaluationType.Evaluacion180), label: "180° — Evaluator only" },
+  { value: String(EvaluationType.Auto), label: "Self — Self-assessment only" },
 ];
 
 interface FormState {
@@ -39,7 +40,7 @@ function toFormState(cycle?: EvaluationCycleResponse): FormState {
     descripcion: cycle?.descripcion ?? "",
     fechaInicio: cycle ? toDateInputValue(cycle.fechaInicio) : "",
     fechaFin: cycle ? toDateInputValue(cycle.fechaFin) : "",
-    activo: cycle?.activo ?? true,
+    activo: cycle?.activo ?? false,
     tipoEvaluacion: cycle?.tipoEvaluacion ?? EvaluationType.Evaluacion360,
   };
 }
@@ -47,7 +48,7 @@ function toFormState(cycle?: EvaluationCycleResponse): FormState {
 /**
  * Evaluation-cycle create/edit form, meant to be embedded inside a modal.
  * Edits when `cycle` is given, creates otherwise. Whether the cycle is
- * active has its own dedicated "Activar/Desactivar" button on the detail
+ * active has its own dedicated "Activate/Deactivate" button on the detail
  * page — this form only ever carries the current value through unchanged
  * on an edit, it doesn't expose a control for it.
  */
@@ -98,7 +99,7 @@ export function EvaluationCycleForm({
           id: result.evaluationCycleId,
           nombre: form.nombre,
           descripcion: form.descripcion || null,
-          activo: true,
+          activo: false,
           fechaInicio: form.fechaInicio,
           fechaFin: form.fechaFin,
           tipoEvaluacion: form.tipoEvaluacion,
@@ -115,9 +116,11 @@ export function EvaluationCycleForm({
       );
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : `No se pudo ${isEditing ? "actualizar" : "crear"} el ciclo. Inténtalo de nuevo.`,
+        errorMessage(
+          err,
+          isEditing ? "We couldn't update the cycle." : "We couldn't create the cycle.",
+          { byDetail: CYCLE_SAVE_ERRORS },
+        ),
       );
     } finally {
       setSubmitting(false);
@@ -131,10 +134,10 @@ export function EvaluationCycleForm({
           tone="success"
           icon={<CheckCircleIcon className="h-5 w-5 text-emerald-600" />}
         >
-          Ciclo <strong>{form.nombre}</strong> {isEditing ? "actualizado" : "creado"} con éxito.
+          Cycle <strong>{form.nombre}</strong> {isEditing ? "updated" : "created"}.
         </Notice>
         <Button type="button" className="mt-5 w-full" onClick={onSaved}>
-          Aceptar
+          OK
         </Button>
       </>
     );
@@ -143,30 +146,30 @@ export function EvaluationCycleForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field
-        label="Nombre del ciclo"
+        label="Cycle name"
         icon={<ClipboardIcon className="h-4 w-4" />}
         value={form.nombre}
         onChange={(e) => update({ nombre: e.target.value })}
-        placeholder="Ej. Evaluación H1 2026"
+        placeholder="e.g. H1 2026 review"
         required
         autoFocus
       />
       <Field
-        label="Descripción"
+        label="Description"
         value={form.descripcion}
         onChange={(e) => update({ descripcion: e.target.value })}
-        placeholder="Ciclo semestral de evaluación de desempeño"
+        placeholder="Half-yearly performance review cycle"
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field
-          label="Fecha de inicio"
+          label="Start date"
           type="date"
           value={form.fechaInicio}
           onChange={(e) => update({ fechaInicio: e.target.value })}
           required
         />
         <Field
-          label="Fecha de cierre"
+          label="End date"
           type="date"
           value={form.fechaFin}
           onChange={(e) => update({ fechaFin: e.target.value })}
@@ -175,7 +178,7 @@ export function EvaluationCycleForm({
       </div>
 
       <Select
-        label="Tipo de evaluación"
+        label="Evaluation type"
         options={EVALUATION_TYPE_OPTIONS}
         value={String(form.tipoEvaluacion)}
         onChange={(e) => update({ tipoEvaluacion: Number(e.target.value) as EvaluationType })}
@@ -185,10 +188,10 @@ export function EvaluationCycleForm({
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="submit" loading={submitting}>
-          {isEditing ? "Guardar cambios" : "Crear ciclo"}
+          {isEditing ? "Save changes" : "Create cycle"}
         </Button>
       </div>
     </form>

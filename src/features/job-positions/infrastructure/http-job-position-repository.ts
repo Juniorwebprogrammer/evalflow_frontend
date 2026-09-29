@@ -65,12 +65,12 @@ export class HttpJobPositionRepository implements JobPositionRepository {
 
     if (!dto) {
       throw new UpstreamError(
-        "El servidor no devolvió una respuesta al crear el cargo",
+        "The server did not return a response when creating the job position.",
       );
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Cargo creado con éxito.",
+      message: dto.Message ?? dto.message ?? "Job position created.",
       id: dto.Id ?? dto.id ?? 0,
     };
   }
@@ -93,7 +93,7 @@ export class HttpJobPositionRepository implements JobPositionRepository {
     );
 
     return {
-      message: dto?.Message ?? dto?.message ?? "Cargo actualizado correctamente.",
+      message: dto?.Message ?? dto?.message ?? "Job position updated.",
     };
   }
 
@@ -107,7 +107,7 @@ export class HttpJobPositionRepository implements JobPositionRepository {
       message:
         dto?.Message ??
         dto?.message ??
-        "Cargo eliminado correctamente. Los empleados asociados han quedado sin cargo asignado.",
+        "Job position deleted. Employees who held it no longer have a job position.",
     };
   }
 

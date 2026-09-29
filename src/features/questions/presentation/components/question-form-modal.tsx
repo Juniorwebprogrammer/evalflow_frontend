@@ -20,11 +20,11 @@ export function QuestionFormModal({
   return (
     <Modal
       onClose={onClose}
-      title={question ? "Editar pregunta" : "Nueva pregunta"}
+      title={question ? "Edit question" : "New question"}
       description={
         question
-          ? "Actualiza el texto, tipo u opciones de la pregunta."
-          : "Añade una pregunta a esta plantilla."
+          ? "Update the question's text, type, or options."
+          : "Add a question to this template."
       }
       icon={<ListIcon className="h-5 w-5" />}
       size="lg"

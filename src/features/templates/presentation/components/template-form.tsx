@@ -15,7 +15,7 @@ import { TEMPLATES_QUERY_KEY } from "@/features/templates/presentation/hooks/use
 import { templateQueryKey } from "@/features/templates/presentation/hooks/use-template";
 import { useEmployees } from "@/features/team/presentation/hooks/use-employees";
 import { toDateInputValue } from "@/shared/lib/format-date";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { upsertById } from "@/shared/lib/query-cache";
 
 interface FormState {
@@ -103,9 +103,24 @@ export function TemplateForm({
       queryClient.setQueryData(templateQueryKey(savedId), saved);
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : `No se pudo ${isEditing ? "actualizar" : "crear"} la plantilla. Inténtalo de nuevo.`,
+        errorMessage(
+          err,
+          isEditing
+            ? "We couldn't update the template."
+            : "We couldn't create the template.",
+          {
+            byDetail: [
+              [
+                "plantillas propias",
+                "You've reached your plan's limit for custom templates. Upgrade your plan to add more.",
+              ],
+              [
+                "fecha de inicio debe ser anterior",
+                "The start date must be before the end date.",
+              ],
+            ],
+          },
+        ),
       );
     } finally {
       setSubmitting(false);
@@ -119,11 +134,11 @@ export function TemplateForm({
           tone="success"
           icon={<CheckCircleIcon className="h-5 w-5 text-emerald-600" />}
         >
-          Plantilla <strong>{form.titulo}</strong>{" "}
-          {isEditing ? "actualizada" : "creada"} con éxito.
+          Template <strong>{form.titulo}</strong>{" "}
+          {isEditing ? "updated" : "created"} successfully.
         </Notice>
         <Button type="button" className="mt-5 w-full" onClick={onSaved}>
-          Aceptar
+          OK
         </Button>
       </>
     );
@@ -132,30 +147,30 @@ export function TemplateForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field
-        label="Título"
+        label="Title"
         icon={<DocIcon className="h-4 w-4" />}
         value={form.titulo}
         onChange={(e) => update({ titulo: e.target.value })}
-        placeholder="Evaluación de desempeño H1 2026"
+        placeholder="H1 2026 performance review"
         required
         autoFocus
       />
       <Field
-        label="Descripción"
+        label="Description"
         value={form.descripcion}
         onChange={(e) => update({ descripcion: e.target.value })}
-        placeholder="Evaluación semestral de objetivos y competencias"
+        placeholder="Half-yearly review of goals and competencies"
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Field
-          label="Fecha de inicio"
+          label="Start date"
           type="date"
           value={form.fechaInicio}
           onChange={(e) => update({ fechaInicio: e.target.value })}
           required
         />
         <Field
-          label="Fecha de fin"
+          label="End date"
           type="date"
           value={form.fechaFin}
           onChange={(e) => update({ fechaFin: e.target.value })}
@@ -166,14 +181,14 @@ export function TemplateForm({
       <div>
         <p className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-700">
           <UsersIcon className="h-4 w-4 text-slate-400" />
-          Empleados asignados
+          Assigned employees
         </p>
         <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-slate-200 bg-white p-2">
           {loadingEmployees && (
-            <p className="px-2 py-1.5 text-sm text-slate-500">Cargando empleados…</p>
+            <p className="px-2 py-1.5 text-sm text-slate-500">Loading employees…</p>
           )}
           {!loadingEmployees && (!employees || employees.length === 0) && (
-            <p className="px-2 py-1.5 text-sm text-slate-500">No hay empleados.</p>
+            <p className="px-2 py-1.5 text-sm text-slate-500">No employees yet.</p>
           )}
           {employees?.map((employee) => {
             const id = Number(employee.id);
@@ -200,10 +215,10 @@ export function TemplateForm({
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="submit" loading={submitting}>
-          {isEditing ? "Guardar cambios" : "Crear plantilla"}
+          {isEditing ? "Save changes" : "Create template"}
         </Button>
       </div>
     </form>

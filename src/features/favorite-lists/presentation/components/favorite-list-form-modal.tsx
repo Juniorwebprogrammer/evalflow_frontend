@@ -16,11 +16,11 @@ export function FavoriteListFormModal({
   return (
     <Modal
       onClose={onClose}
-      title={list ? "Editar lista" : "Nueva lista"}
+      title={list ? "Edit list" : "New list"}
       description={
         list
-          ? "Actualiza el nombre o la descripción de la lista."
-          : "Crea una lista para organizar tus plantillas favoritas."
+          ? "Update the list's name or description."
+          : "Create a list to organize your favorite templates."
       }
       icon={<StarIcon className="h-5 w-5" />}
     >

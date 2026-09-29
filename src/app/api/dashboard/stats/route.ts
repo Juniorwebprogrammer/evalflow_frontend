@@ -14,7 +14,7 @@ export async function GET() {
   try {
     const session = await readSession();
     if (!session) {
-      throw new DomainError("No autorizado. Inicia sesión de nuevo.", 401);
+      throw new DomainError("Your session has expired. Please sign in again.", 401);
     }
 
     const stats = await useCases.getDashboardStats.execute(session.jwt);

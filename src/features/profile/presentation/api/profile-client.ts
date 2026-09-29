@@ -1,6 +1,12 @@
 import type { Profile } from "@/features/profile/domain/profile";
 import { ApiError, parseMessage } from "@/shared/lib/api-error";
 
+/**
+ * A problem with the picked image file, detected in the browser before
+ * uploading. Its message is written for the user and safe to show as-is.
+ */
+export class AvatarFileError extends Error {}
+
 /** Fetches the current user's profile from our own route handler. */
 export async function fetchProfile(): Promise<Profile> {
   const res = await fetch("/api/profile", { method: "GET" });
@@ -64,17 +70,17 @@ export function avatarUrl(version: string): string {
  */
 async function toAvatarDataUrl(file: File): Promise<string> {
   if (!file.type.startsWith("image/")) {
-    throw new ApiError("Selecciona un archivo de imagen (JPG, PNG o WebP).", 400);
+    throw new AvatarFileError("Select an image file (JPG, PNG or WebP).");
   }
   if (file.size > MAX_SOURCE_BYTES) {
-    throw new ApiError("La imagen es demasiado grande (máximo 10 MB).", 400);
+    throw new AvatarFileError("The image is too large (10 MB maximum).");
   }
 
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(file);
   } catch {
-    throw new ApiError("No se pudo leer la imagen. Prueba con un JPG o PNG.", 400);
+    throw new AvatarFileError("We couldn't read the image. Try a JPG or PNG.");
   }
 
   const side = Math.min(bitmap.width, bitmap.height);
@@ -82,7 +88,7 @@ async function toAvatarDataUrl(file: File): Promise<string> {
   canvas.width = AVATAR_SIZE;
   canvas.height = AVATAR_SIZE;
   const context = canvas.getContext("2d");
-  if (!context) throw new ApiError("Tu navegador no permite procesar la imagen.", 400);
+  if (!context) throw new AvatarFileError("Your browser can't process the image.");
 
   // White backdrop so transparent PNGs don't turn black as JPEG.
   context.fillStyle = "#ffffff";

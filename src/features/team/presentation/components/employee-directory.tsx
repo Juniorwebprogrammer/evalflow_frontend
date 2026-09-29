@@ -30,7 +30,7 @@ import {
   SearchIcon,
   UsersIcon,
 } from "@/shared/ui/icons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 const ALL = "";
 const NONE = "__none__";
@@ -65,9 +65,20 @@ export function EmployeeDirectory() {
       queryClient.invalidateQueries({ queryKey: EMPLOYEES_QUERY_KEY });
     } catch (err) {
       setToggleError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo actualizar el estado del empleado.",
+        errorMessage(
+          err,
+          employee.activo
+            ? "We couldn't deactivate the account."
+            : "We couldn't activate the account.",
+          {
+            byDetail: [
+              [
+                "tu plan",
+                "You've reached your plan's limit of active employees. Upgrade your plan to reactivate this account.",
+              ],
+            ],
+          },
+        ),
       );
     } finally {
       setTogglingId(null);
@@ -91,15 +102,13 @@ export function EmployeeDirectory() {
   }, [employees, search, departmentFilter]);
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando empleados…</p>;
+    return <p className="text-sm text-slate-500">Loading employees…</p>;
   }
 
   if (error) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError
-          ? error.message
-          : "No se pudo cargar el listado de empleados."}
+        {errorMessage(error, "We couldn't load the employee list.")}
       </Notice>
     );
   }
@@ -108,7 +117,7 @@ export function EmployeeDirectory() {
     return (
       <div className="flex items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-5 py-4 text-sm text-slate-500">
         <UsersIcon className="h-5 w-5 shrink-0 text-slate-400" />
-        <span>Todavía no hay empleados en tu organización.</span>
+        <span>There are no employees in your organization yet.</span>
       </div>
     );
   }
@@ -127,7 +136,7 @@ export function EmployeeDirectory() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar empleado…"
+            placeholder="Search employees…"
             className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
           />
         </div>
@@ -137,8 +146,8 @@ export function EmployeeDirectory() {
           onChange={(e) => setDepartmentFilter(e.target.value)}
           className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm outline-none transition focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
         >
-          <option value={ALL}>Todos los departamentos</option>
-          <option value={NONE}>Sin departamento</option>
+          <option value={ALL}>All departments</option>
+          <option value={NONE}>No department</option>
           {(departments ?? []).map((d) => (
             <option key={d.id} value={d.id}>
               {d.nombre}
@@ -152,7 +161,7 @@ export function EmployeeDirectory() {
           onClick={() => exportEmployeesToCsv(filtered)}
         >
           <DownloadIcon className="h-4 w-4" />
-          Exportar
+          Export
         </Button>
       </div>
 
@@ -166,12 +175,12 @@ export function EmployeeDirectory() {
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="px-5 py-3">Empleado</th>
-              <th className="px-5 py-3">Departamento</th>
-              <th className="px-5 py-3">Superior directo</th>
-              <th className="px-5 py-3">Cargo</th>
-              <th className="px-5 py-3">Estado</th>
-              <th className="px-5 py-3 text-right">Acciones</th>
+              <th className="px-5 py-3">Employee</th>
+              <th className="px-5 py-3">Department</th>
+              <th className="px-5 py-3">Manager</th>
+              <th className="px-5 py-3">Job position</th>
+              <th className="px-5 py-3">Status</th>
+              <th className="px-5 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -204,7 +213,7 @@ export function EmployeeDirectory() {
                         {employee.departamento.nombre}
                       </span>
                     ) : (
-                      <span className="text-slate-400 italic">Sin departamento</span>
+                      <span className="text-slate-400 italic">No department</span>
                     )}
                   </td>
 
@@ -217,7 +226,7 @@ export function EmployeeDirectory() {
                         {employee.superior.nombre} {employee.superior.apellidos[0]}.
                       </span>
                     ) : (
-                      <span className="text-slate-400 italic">Sin superior</span>
+                      <span className="text-slate-400 italic">No manager</span>
                     )}
                   </td>
 
@@ -229,7 +238,7 @@ export function EmployeeDirectory() {
                     {togglingId === employee.id ? (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
                         <Spinner className="h-3 w-3" />
-                        Actualizando…
+                        Updating…
                       </span>
                     ) : (
                       <span
@@ -239,7 +248,7 @@ export function EmployeeDirectory() {
                             : "bg-slate-100 text-slate-500"
                         }`}
                       >
-                        {employee.activo ? "Activo" : "Inactivo"}
+                        {employee.activo ? "Active" : "Inactive"}
                       </span>
                     )}
                   </td>
@@ -261,7 +270,7 @@ export function EmployeeDirectory() {
                         className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                       >
                         <ScaleIcon className="h-4 w-4 text-slate-400" />
-                        Asignar superior
+                        Assign manager
                       </button>
                       <button
                         type="button"
@@ -272,7 +281,7 @@ export function EmployeeDirectory() {
                         className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                       >
                         <BriefcaseIcon className="h-4 w-4 text-slate-400" />
-                        Asignar cargo
+                        Assign job position
                       </button>
                       <button
                         type="button"
@@ -283,7 +292,7 @@ export function EmployeeDirectory() {
                         className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                       >
                         <UsersIcon className="h-4 w-4 text-slate-400" />
-                        Ver equipo a cargo
+                        View direct reports
                       </button>
                       <button
                         type="button"
@@ -294,7 +303,7 @@ export function EmployeeDirectory() {
                         <PowerIcon
                           className={`h-4 w-4 ${employee.activo ? "text-red-500" : "text-emerald-500"}`}
                         />
-                        {employee.activo ? "Desactivar cuenta" : "Activar cuenta"}
+                        {employee.activo ? "Deactivate account" : "Activate account"}
                       </button>
                     </DropdownMenu>
                   </td>
@@ -306,15 +315,15 @@ export function EmployeeDirectory() {
 
         {filtered.length === 0 && (
           <p className="px-5 py-6 text-center text-sm text-slate-500">
-            Ningún empleado coincide con los filtros aplicados.
+            No employees match the selected filters.
           </p>
         )}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatTile label="Total activos" value={stats.activos} />
-        <StatTile label="Sin departamento" value={stats.sinDepartamento} />
-        <StatTile label="Sin superior asignado" value={stats.sinSuperior} />
+        <StatTile label="Total active" value={stats.activos} />
+        <StatTile label="No department" value={stats.sinDepartamento} />
+        <StatTile label="No manager assigned" value={stats.sinSuperior} />
       </div>
 
       {action?.type === "superior" && (

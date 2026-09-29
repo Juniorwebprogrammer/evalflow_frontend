@@ -8,10 +8,10 @@ export class GetSubordinates {
 
   async execute(userId: number, accessToken: string): Promise<Subordinate[]> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!Number.isInteger(userId) || userId <= 0) {
-      throw new DomainError("El identificador del empleado no es válido", 400);
+      throw new DomainError("Invalid employee ID.", 400);
     }
 
     return this.team.getSubordinates(userId, accessToken);

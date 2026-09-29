@@ -24,7 +24,8 @@ import {
   useEmployees,
 } from "@/features/team/presentation/hooks/use-employees";
 import { assignDepartment } from "@/features/team/presentation/api/team-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
+import { roleLabel } from "@/features/team/presentation/lib/format";
 import { formatDate } from "@/shared/lib/format-date";
 
 /**
@@ -63,7 +64,14 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
       refreshDepartment();
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "No se pudo asignar el empleado.",
+        errorMessage(err, "We couldn't add the employee to the department.", {
+          byDetail: [
+            [
+              "departamento no existe",
+              "This department no longer exists. Go back to the departments list and try again.",
+            ],
+          ],
+        }),
       );
     } finally {
       setBusyEmployeeId(null);
@@ -78,7 +86,7 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
       refreshDepartment();
     } catch (err) {
       setActionError(
-        err instanceof ApiError ? err.message : "No se pudo quitar al empleado.",
+        errorMessage(err, "We couldn't remove the employee from the department."),
       );
     } finally {
       setBusyEmployeeId(null);
@@ -86,13 +94,13 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
   }
 
   if (isLoading) {
-    return <p className="text-sm text-slate-500">Cargando departamento…</p>;
+    return <p className="text-sm text-slate-500">Loading department…</p>;
   }
 
   if (error || !detail) {
     return (
       <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />}>
-        {error instanceof ApiError ? error.message : "No se pudo cargar el departamento."}
+        {errorMessage(error, "We couldn't load the department.")}
       </Notice>
     );
   }
@@ -107,7 +115,7 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
         className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700"
       >
         <ArrowRightIcon className="h-3.5 w-3.5 rotate-180" />
-        Volver a departamentos
+        Back to departments
       </Link>
 
       <section className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
@@ -121,7 +129,7 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
               <p className="mt-1 text-sm text-slate-500">{detail.descripcion}</p>
             )}
             <p className="mt-1 text-xs text-slate-400">
-              Creado el {formatDate(detail.fechaCreacion)}
+              Created on {formatDate(detail.fechaCreacion)}
             </p>
           </div>
         </div>
@@ -130,7 +138,7 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-base font-bold text-slate-900">
-            Empleados ({detail.usuarios.length})
+            Employees ({detail.usuarios.length})
           </h2>
           {!showPicker && (
             <button
@@ -139,7 +147,7 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
               className="flex items-center gap-1.5 text-sm font-semibold text-[var(--brand)] hover:underline"
             >
               <PlusIcon className="h-4 w-4" />
-              Asignar empleados
+              Add employees
             </button>
           )}
         </div>
@@ -151,11 +159,11 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
           >
             <Select
               className="flex-1"
-              label="Empleado"
+              label="Employee"
               value={selectedEmployeeId}
               onChange={(e) => setSelectedEmployeeId(e.target.value)}
               options={[
-                { value: "", label: "Selecciona un empleado" },
+                { value: "", label: "Select an employee" },
                 ...availableEmployees.map((e) => ({
                   value: e.id,
                   label: `${e.nombre} ${e.apellidos}`,
@@ -168,12 +176,12 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
               loading={busyEmployeeId === selectedEmployeeId && busyEmployeeId !== null}
               disabled={!selectedEmployeeId}
             >
-              Asignar
+              Add
             </Button>
             <button
               type="button"
               onClick={() => setShowPicker(false)}
-              title="Cancelar"
+              title="Cancel"
               className="p-2 text-slate-400 hover:text-slate-600"
             >
               <XIcon className="h-4 w-4" />
@@ -183,7 +191,7 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
 
         {availableEmployees.length === 0 && showPicker && (
           <p className="text-xs text-slate-400">
-            Todos los empleados de tu empresa ya están en este departamento.
+            All employees in your company are already in this department.
           </p>
         )}
 
@@ -191,7 +199,7 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
 
         {detail.usuarios.length === 0 ? (
           <p className="text-sm text-slate-500">
-            Este departamento todavía no tiene empleados asignados.
+            This department doesn&apos;t have any employees yet.
           </p>
         ) : (
           <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white shadow-sm">
@@ -208,11 +216,11 @@ export function DepartmentDetailView({ departmentId }: { departmentId: number })
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                    {u.rol}
+                    {roleLabel(u.rol)}
                   </span>
                   <button
                     type="button"
-                    title="Quitar del departamento"
+                    title="Remove from department"
                     disabled={busyEmployeeId === String(u.id)}
                     onClick={() => handleRemove(String(u.id))}
                     className="text-slate-400 transition hover:text-red-600 disabled:opacity-40"

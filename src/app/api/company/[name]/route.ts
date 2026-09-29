@@ -20,7 +20,7 @@ export async function GET(
 
     if (!company) {
       return Response.json(
-        { message: "Empresa no encontrada" },
+        { message: "Company not found." },
         { status: 404 },
       );
     }

@@ -12,7 +12,7 @@ import {
 } from "@/features/job-positions/presentation/api/job-position-client";
 import { JOB_POSITIONS_QUERY_KEY } from "@/features/job-positions/presentation/hooks/use-job-positions";
 import { EMPLOYEES_QUERY_KEY } from "@/features/team/presentation/hooks/use-employees";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 /** Confirms deleting a job position. Employees holding it are left without one on the backend. */
 export function DeleteJobPositionModal({
@@ -36,11 +36,7 @@ export function DeleteJobPositionModal({
       queryClient.invalidateQueries({ queryKey: EMPLOYEES_QUERY_KEY });
       onClose();
     } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo eliminar el cargo. Inténtalo de nuevo.",
-      );
+      setError(errorMessage(err, "We couldn't delete the job position."));
     } finally {
       setSubmitting(false);
     }
@@ -49,20 +45,16 @@ export function DeleteJobPositionModal({
   return (
     <Modal
       onClose={onClose}
-      title="Eliminar cargo"
+      title="Delete job position"
       icon={<TrashIcon className="h-5 w-5" />}
       disableClose={submitting}
     >
       <p className="text-sm text-slate-600">
-        ¿Seguro que quieres eliminar <strong>{position.nombre}</strong>?{" "}
-        {position.employeeCount > 0 && (
-          <>
-            {position.employeeCount === 1
-              ? "El empleado que lo tiene asignado quedará"
-              : `Los ${position.employeeCount} empleados que lo tienen asignado quedarán`}{" "}
-            sin cargo.
-          </>
-        )}
+        Are you sure you want to delete <strong>{position.nombre}</strong>?{" "}
+        {position.employeeCount > 0 &&
+          (position.employeeCount === 1
+            ? "The employee who holds it will be left without a job position."
+            : `The ${position.employeeCount} employees who hold it will be left without a job position.`)}
       </p>
 
       {error && (
@@ -73,10 +65,10 @@ export function DeleteJobPositionModal({
 
       <div className="mt-5 flex justify-end gap-3">
         <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
-          Cancelar
+          Cancel
         </Button>
         <Button type="button" variant="danger" loading={submitting} onClick={handleConfirm}>
-          Eliminar
+          Delete
         </Button>
       </div>
     </Modal>

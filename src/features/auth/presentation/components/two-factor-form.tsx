@@ -5,7 +5,7 @@ import {
   verify2FA,
   resend2FA,
 } from "@/features/auth/presentation/api/auth-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 import { Field } from "@/shared/ui/field";
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
@@ -40,10 +40,14 @@ export function TwoFactorForm({
     } catch (err) {
       setNotice({
         tone: "error",
-        text:
-          err instanceof ApiError
-            ? err.message
-            : "No se pudo verificar el código. Inténtalo de nuevo.",
+        text: errorMessage(err, "We couldn't verify the code.", {
+          byDetail: [
+            ["caducado", "This code has expired. Sign in again to get a new one."],
+            ["incorrecto", "The code you entered is incorrect. Please check it and try again."],
+            ["ningún código pendiente", "There's no pending code for this account. Sign in again to get a new one."],
+            ["usuario no encontrado", "We couldn't find this account. Sign in again to get a new code."],
+          ],
+        }),
       });
       setSubmitting(false);
     }
@@ -53,15 +57,12 @@ export function TwoFactorForm({
     setResending(true);
     setNotice(null);
     try {
-      const result = await resend2FA(email);
-      setNotice({ tone: "success", text: result.message });
+      await resend2FA(email);
+      setNotice({ tone: "success", text: "We've sent you a new code." });
     } catch (err) {
       setNotice({
         tone: "error",
-        text:
-          err instanceof ApiError
-            ? err.message
-            : "No se pudo reenviar el código. Inténtalo de nuevo.",
+        text: errorMessage(err, "We couldn't resend the code."),
       });
     } finally {
       setResending(false);
@@ -74,16 +75,16 @@ export function TwoFactorForm({
         <MailIcon className="h-6 w-6" />
       </span>
       <h2 className="mt-4 text-center text-2xl font-bold text-slate-900">
-        Verificación en dos pasos
+        Two-step verification
       </h2>
       <p className="mt-2 text-center text-sm leading-relaxed text-slate-500">
-        Hemos enviado un código de verificación a{" "}
+        We sent a verification code to{" "}
         <strong className="text-slate-700">{email}</strong>.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <Field
-          label="Código de verificación"
+          label="Verification code"
           icon={<KeyIcon className="h-4 w-4" />}
           value={code}
           onChange={(e) => setCode(e.target.value)}
@@ -107,19 +108,19 @@ export function TwoFactorForm({
         )}
 
         <Button type="submit" className="w-full" loading={submitting}>
-          Verificar código
+          Verify code
         </Button>
       </form>
 
       <div className="mt-6 text-center text-sm text-slate-500">
-        ¿No te ha llegado el código?{" "}
+        Didn&apos;t get the code?{" "}
         <button
           type="button"
           onClick={handleResend}
           disabled={resending}
           className="font-semibold text-[var(--brand)] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {resending ? "Enviando…" : "Solicítalo de nuevo"}
+          {resending ? "Sending…" : "Send a new one"}
         </button>
       </div>
     </div>

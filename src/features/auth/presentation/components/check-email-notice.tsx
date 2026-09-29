@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
 import { MailIcon } from "@/shared/ui/icons";
 import { resendVerification } from "@/features/auth/presentation/api/auth-client";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 /** Matches the backend's own no-spam window before a code/link can be resent. */
 const RESEND_COOLDOWN_SECONDS = 120;
@@ -45,14 +45,14 @@ export function CheckEmailNotice({
     setResending(true);
     setResendNotice(null);
     try {
-      const result = await resendVerification(email);
-      setResendNotice(result.message);
+      await resendVerification(email);
+      setResendNotice(
+        "If this email is registered and still pending verification, we've sent a new link.",
+      );
       setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (err) {
       setResendNotice(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo reenviar el enlace. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't resend the link."),
       );
     } finally {
       setResending(false);
@@ -70,14 +70,14 @@ export function CheckEmailNotice({
         {email && (
           <>
             {" "}
-            Hemos enviado el enlace a <strong className="text-slate-700">{email}</strong>.
+            We sent the link to <strong className="text-slate-700">{email}</strong>.
           </>
         )}
       </p>
 
       {email && (
         <div className="mt-3 text-sm text-slate-500">
-          ¿No te ha llegado?{" "}
+          Didn&apos;t get it?{" "}
           <button
             type="button"
             onClick={handleResend}
@@ -85,10 +85,10 @@ export function CheckEmailNotice({
             className="font-semibold text-[var(--brand)] hover:underline disabled:cursor-not-allowed disabled:text-slate-400 disabled:no-underline"
           >
             {resending
-              ? "Enviando…"
+              ? "Sending…"
               : cooldown > 0
-                ? `Reenviar en ${cooldown}s`
-                : "Reenviar enlace"}
+                ? `Resend in ${cooldown}s`
+                : "Resend link"}
           </button>
         </div>
       )}

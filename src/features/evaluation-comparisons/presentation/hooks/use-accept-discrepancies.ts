@@ -7,7 +7,7 @@ import {
   type AcceptDiscrepanciesInput,
 } from "@/features/evaluation-comparisons/presentation/api/evaluation-comparison-client";
 import { cycleComparisonsQueryKey } from "@/features/evaluation-comparisons/presentation/hooks/use-cycle-comparisons";
-import { ApiError } from "@/shared/lib/api-error";
+import { errorMessage } from "@/shared/lib/api-error";
 
 export function useAcceptDiscrepancies(cycleId: number) {
   const queryClient = useQueryClient();
@@ -23,9 +23,23 @@ export function useAcceptDiscrepancies(cycleId: number) {
       return result;
     } catch (err) {
       setError(
-        err instanceof ApiError
-          ? err.message
-          : "No se pudo aceptar el desequilibrio. Inténtalo de nuevo.",
+        errorMessage(err, "We couldn't accept the imbalance.", {
+          byDetail: [
+            [
+              "ya se ha completado",
+              "This cycle has already been completed and can no longer be changed.",
+            ],
+            [
+              "deben estar completadas",
+              "Both the self-assessment and the manager's evaluation must be completed before you can accept an imbalance.",
+            ],
+            ["ciclos 360", "Imbalances can only be accepted in 360° cycles."],
+            [
+              "no pertenece a la plantilla",
+              "Some of these questions are no longer part of the template. Refresh the page and try again.",
+            ],
+          ],
+        }),
       );
       throw err;
     } finally {

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     const email = String(body?.Email ?? "").trim();
     if (!email) {
-      throw new DomainError("El correo electrónico es obligatorio", 400);
+      throw new DomainError("Email is required.", 400);
     }
 
     const result = await useCases.forgotPassword.execute(email);

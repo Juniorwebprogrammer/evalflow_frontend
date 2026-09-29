@@ -7,7 +7,7 @@ const MAX_BASE64_LENGTH = Math.ceil((512 * 1024 * 4) / 3) + 64;
 
 function requireToken(accessToken: string) {
   if (!accessToken) {
-    throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+    throw new DomainError("Invalid session. Please sign in again.", 401);
   }
 }
 
@@ -18,10 +18,10 @@ export class UploadAvatar {
   async execute(data: string, accessToken: string): Promise<string | null> {
     requireToken(accessToken);
     if (!data.trim()) {
-      throw new DomainError("Selecciona una imagen", 400);
+      throw new DomainError("Select an image.", 400);
     }
     if (data.length > MAX_BASE64_LENGTH) {
-      throw new DomainError("La imagen es demasiado grande", 400);
+      throw new DomainError("The image is too large.", 400);
     }
     return this.profiles.uploadAvatar(data, accessToken);
   }

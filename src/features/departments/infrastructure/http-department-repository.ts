@@ -77,12 +77,12 @@ export class HttpDepartmentRepository implements DepartmentRepository {
 
     if (!dto) {
       throw new UpstreamError(
-        "El servidor no devolvió una respuesta al crear el departamento",
+        "The server did not return a response when creating the department.",
       );
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Departamento creado con éxito.",
+      message: dto.Message ?? dto.message ?? "Department created.",
       departmentId: dto.DepartmentId ?? dto.departmentId ?? 0,
     };
   }

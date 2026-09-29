@@ -13,7 +13,7 @@ export class Resend2FA {
 
   async execute(email: string): Promise<Resend2FAResult> {
     if (!email.trim()) {
-      throw new DomainError("El correo electrónico es obligatorio", 400);
+      throw new DomainError("Email is required", 400);
     }
     return this.auth.resend2FA({ Email: email });
   }

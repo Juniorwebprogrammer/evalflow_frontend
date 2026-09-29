@@ -15,10 +15,10 @@ export class GetDepartment {
     accessToken: string,
   ): Promise<DepartmentDetails | null> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!Number.isInteger(id) || id <= 0) {
-      throw new DomainError("El identificador del departamento no es válido", 400);
+      throw new DomainError("Invalid department ID.", 400);
     }
 
     return this.departments.getById(id, accessToken);

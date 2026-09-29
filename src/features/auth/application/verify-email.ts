@@ -11,7 +11,7 @@ export class VerifyEmail {
 
   async execute(token: string): Promise<VerifyEmailResult> {
     if (!token.trim()) {
-      throw new DomainError("El enlace de verificación no es válido.", 400);
+      throw new DomainError("The verification link is not valid.", 400);
     }
     return this.auth.verifyEmail({ Token: token });
   }

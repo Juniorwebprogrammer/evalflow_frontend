@@ -19,14 +19,14 @@ export class RegisterOwner {
 
   private validate(input: RegisterOwnerInput): void {
     const required: Array<[keyof RegisterOwnerInput, string]> = [
-      ["UserNombre", "El nombre es obligatorio"],
-      ["Apellidos", "Los apellidos son obligatorios"],
-      ["Email", "El correo electrónico es obligatorio"],
-      ["Password", "La contraseña es obligatoria"],
-      ["CompanyNombre", "El nombre de la empresa es obligatorio"],
-      ["Cif", "El CIF / NIF es obligatorio"],
-      ["Sector", "El sector es obligatorio"],
-      ["DireccionFiscal", "La dirección fiscal es obligatoria"],
+      ["UserNombre", "First name is required"],
+      ["Apellidos", "Last name is required"],
+      ["Email", "Email is required"],
+      ["Password", "Password is required"],
+      ["CompanyNombre", "Company name is required"],
+      ["Cif", "Tax ID is required"],
+      ["Sector", "Sector is required"],
+      ["DireccionFiscal", "Registered address is required"],
     ];
 
     for (const [field, message] of required) {
@@ -36,18 +36,18 @@ export class RegisterOwner {
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.Email)) {
-      throw new DomainError("El correo electrónico no es válido", 400);
+      throw new DomainError("Email is not valid", 400);
     }
 
     if (input.Password.length < 8) {
       throw new DomainError(
-        "La contraseña debe tener al menos 8 caracteres",
+        "Password must be at least 8 characters long",
         400,
       );
     }
 
     if (!Number.isInteger(input.PlanId) || input.PlanId < 0) {
-      throw new DomainError("El plan seleccionado no es válido", 400);
+      throw new DomainError("The selected plan is not valid", 400);
     }
   }
 }

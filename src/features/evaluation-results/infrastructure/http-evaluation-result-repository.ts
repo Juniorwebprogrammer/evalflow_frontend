@@ -49,7 +49,7 @@ export class HttpEvaluationResultRepository implements EvaluationResultRepositor
       { method: "POST", accessToken },
     );
     return {
-      message: dto?.message ?? "Evaluación completada.",
+      message: dto?.message ?? "Evaluation completed.",
       resultsGenerated: dto?.resultsGenerated ?? 0,
       autoCompletedSubmissions: dto?.autoCompletedSubmissions ?? 0,
       completedAt: dto?.completedAt ?? "",

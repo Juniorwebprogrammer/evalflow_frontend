@@ -15,10 +15,10 @@ export class DeleteCompany {
     accessToken: string,
   ): Promise<void> {
     if (!accessToken) {
-      throw new DomainError("Sesión no válida. Vuelve a iniciar sesión.", 401);
+      throw new DomainError("Invalid session. Please sign in again.", 401);
     }
     if (!input.Password) {
-      throw new DomainError("La contraseña es obligatoria", 400);
+      throw new DomainError("Password is required", 400);
     }
     return this.companies.delete(input, accessToken);
   }
