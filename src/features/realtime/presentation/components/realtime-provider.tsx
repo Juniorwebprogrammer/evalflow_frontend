@@ -15,10 +15,13 @@ import type {
 } from "@/features/realtime/domain/evaluation-completed-event";
 import { cycleSubmissionsQueryKey } from "@/features/evaluation-submissions/presentation/hooks/use-cycle-submissions";
 import { DASHBOARD_STATS_QUERY_KEY } from "@/features/dashboard/presentation/hooks/use-dashboard-stats";
+import type { AiAnalysisCompletedEvent } from "@/features/realtime/domain/ai-analysis-completed-event";
+import { cycleAiAnalysesQueryKey } from "@/features/ai-analysis/presentation/hooks/use-ai-analyses";
 
 const MAX_ACTIVITY_ITEMS = 20;
 
 type EventListener = (event: EvaluationCompletedEvent) => void;
+type AiAnalysisListener = (event: AiAnalysisCompletedEvent) => void;
 
 /**
  * Module-level singleton: there's no shared layout across `/dashboard/*`
@@ -34,6 +37,7 @@ type EventListener = (event: EvaluationCompletedEvent) => void;
  */
 let sharedConnection: HubConnection | null = null;
 const listeners = new Set<EventListener>();
+const aiAnalysisListeners = new Set<AiAnalysisListener>();
 
 function getSharedConnection(): HubConnection {
   if (sharedConnection) return sharedConnection;
@@ -61,6 +65,10 @@ function getSharedConnection(): HubConnection {
 
   connection.on("EvaluationCompleted", (event: EvaluationCompletedEvent) => {
     for (const listener of listeners) listener(event);
+  });
+
+  connection.on("AiAnalysisCompleted", (event: AiAnalysisCompletedEvent) => {
+    for (const listener of aiAnalysisListeners) listener(event);
   });
 
   sharedConnection = connection;
@@ -131,12 +139,19 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       invalidateForEvent(queryClient, event);
     };
 
+    // An AI analysis finished: refresh that cycle's analyses (the open comparison view picks it up).
+    const onAiAnalysis: AiAnalysisListener = (event) => {
+      queryClient.invalidateQueries({ queryKey: cycleAiAnalysesQueryKey(event.cycleId) });
+    };
+
     listeners.add(onEvent);
+    aiAnalysisListeners.add(onAiAnalysis);
     // The connection itself is intentionally left open on cleanup — see the
     // singleton comment above. Only this component's own listener (and the
     // `activity` state it feeds) is scoped to its mount.
     return () => {
       listeners.delete(onEvent);
+      aiAnalysisListeners.delete(onAiAnalysis);
     };
   }, [queryClient]);
 

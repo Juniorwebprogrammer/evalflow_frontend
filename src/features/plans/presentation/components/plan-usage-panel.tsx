@@ -13,6 +13,8 @@ const ROWS: Array<{ resource: PlanResource; label: string }> = [
   { resource: "departments", label: "Departamentos" },
 ];
 
+const AI_ROW = { resource: "aiAnalysesThisMonth" as const, label: "Análisis con IA este mes" };
+
 /** "Plan y uso": the company plan, each limit as a meter, and included features. */
 export function PlanUsagePanel() {
   const { data, isLoading, error } = useCompanyPlan();
@@ -45,7 +47,7 @@ export function PlanUsagePanel() {
       {data && (
         <>
           <ul className="mt-5 space-y-4">
-            {ROWS.map(({ resource, label }) => {
+            {ROWS.concat(data.plan.hasAiFeatures ? [AI_ROW] : []).map(({ resource, label }) => {
               const used = data.usage[resource];
               const limit = planLimit(data.plan, resource);
               const ratio = limit ? Math.min(used / limit, 1) : 0;

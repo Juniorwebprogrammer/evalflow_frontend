@@ -10,7 +10,7 @@ export const PLANS_QUERY_KEY = ["plans"] as const;
 export const COMPANY_PLAN_QUERY_KEY = ["company-plan"] as const;
 
 /** Lists whose changes move plan usage — any update to them refreshes it. */
-const USAGE_SOURCES = new Set(["employees", "departments", "templates", "evaluation-cycles"]);
+const USAGE_SOURCES = new Set(["employees", "departments", "templates", "evaluation-cycles", "ai-analyses"]);
 
 /** The plans on sale (sign-up plan picker). */
 export function usePlans() {

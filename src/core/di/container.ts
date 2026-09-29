@@ -19,6 +19,9 @@ import { HttpDashboardRepository } from "@/features/dashboard/infrastructure/htt
 import { HttpEvaluationComparisonRepository } from "@/features/evaluation-comparisons/infrastructure/http-evaluation-comparison-repository";
 import { HttpClarificationRepository } from "@/features/clarifications/infrastructure/http-clarification-repository";
 import { HttpEvaluationResultRepository } from "@/features/evaluation-results/infrastructure/http-evaluation-result-repository";
+import { HttpAiAnalysisRepository } from "@/features/ai-analysis/infrastructure/http-ai-analysis-repository";
+import { GetCycleAiAnalyses } from "@/features/ai-analysis/application/get-cycle-ai-analyses";
+import { RequestAiAnalysis } from "@/features/ai-analysis/application/request-ai-analysis";
 import { GetCompanyByName } from "@/features/company/application/get-company-by-name";
 import { GetCompanyByIdentificationId } from "@/features/company/application/get-company-by-identification-id";
 import { UpdateCompany } from "@/features/company/application/update-company";
@@ -115,6 +118,7 @@ const dashboardRepository = new HttpDashboardRepository(backendClient);
 const evaluationComparisonRepository = new HttpEvaluationComparisonRepository(backendClient);
 const clarificationRepository = new HttpClarificationRepository(backendClient);
 const evaluationResultRepository = new HttpEvaluationResultRepository(backendClient);
+const aiAnalysisRepository = new HttpAiAnalysisRepository(backendClient);
 
 export const useCases = {
   getCompanyByName: new GetCompanyByName(companyRepository),
@@ -193,4 +197,6 @@ export const useCases = {
   getMyEvaluationResults: new GetMyEvaluationResults(evaluationResultRepository),
   getCycleEvaluationResults: new GetCycleEvaluationResults(evaluationResultRepository),
   downloadEvaluationResultPdf: new DownloadEvaluationResultPdf(evaluationResultRepository),
+  getCycleAiAnalyses: new GetCycleAiAnalyses(aiAnalysisRepository),
+  requestAiAnalysis: new RequestAiAnalysis(aiAnalysisRepository),
 };

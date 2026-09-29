@@ -16,6 +16,8 @@ export interface ClarificationTarget {
   templateId: number;
   templateTitle: string;
   question: { questionId: number; texto: string } | null;
+  /** Pre-filled message, e.g. a question suggested by the AI analysis. */
+  initialMessage?: string;
 }
 
 /**
@@ -33,7 +35,7 @@ export function RequestClarificationModal({
   onClose: () => void;
 }) {
   const { create, isSaving, error } = useCreateClarification(cycleId);
-  const [mensaje, setMensaje] = useState("");
+  const [mensaje, setMensaje] = useState(target.initialMessage ?? "");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

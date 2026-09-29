@@ -11,6 +11,7 @@ const WHAT: Record<PlanResource, (limit: number) => string> = {
   cyclesThisYear: (n) => `${n} ciclos de evaluación que empiecen este año`,
   customTemplates: (n) => `${n} plantillas propias`,
   departments: (n) => `${n} departamentos`,
+  aiAnalysesThisMonth: (n) => `${n} análisis con IA al mes`,
 };
 
 /**

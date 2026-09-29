@@ -28,6 +28,7 @@ function mapPlan(dto: PlanDto): Plan {
     maxCustomTemplates: limit(dto, "MaxCustomTemplates"),
     maxDepartments: limit(dto, "MaxDepartments"),
     hasAiFeatures: Boolean(pick<boolean>(dto, "HasAiFeatures")),
+    maxAiAnalysesPerMonth: limit(dto, "MaxAiAnalysesPerMonth"),
   };
 }
 
@@ -54,6 +55,7 @@ export class HttpPlanRepository implements PlanRepository {
         cyclesThisYear: count("CyclesThisYear"),
         customTemplates: count("CustomTemplates"),
         departments: count("Departments"),
+        aiAnalysesThisMonth: count("AiAnalysesThisMonth"),
       },
     };
   }

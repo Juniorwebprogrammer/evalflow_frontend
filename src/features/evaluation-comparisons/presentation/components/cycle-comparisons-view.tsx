@@ -30,6 +30,13 @@ import {
 import { CompleteCycleModal } from "@/features/evaluation-results/presentation/components/complete-cycle-modal";
 import { DownloadReportLink } from "@/features/evaluation-results/presentation/components/download-report-link";
 import { useCycleEvaluationResults } from "@/features/evaluation-results/presentation/hooks/use-evaluation-results";
+import {
+  useCycleAiAnalyses,
+  useHasAiFeatures,
+  useRequestAiAnalysis,
+} from "@/features/ai-analysis/presentation/hooks/use-ai-analyses";
+import type { AiAnalysis } from "@/features/ai-analysis/domain/ai-analysis";
+import { AiAnalysisPanel } from "@/features/ai-analysis/presentation/components/ai-analysis-panel";
 import { QuestionType } from "@/features/questions/domain/question";
 import { EvaluationType } from "@/features/evaluation-cycles/domain/evaluation-cycle";
 import { Button } from "@/shared/ui/button";
@@ -45,6 +52,7 @@ import {
   MailIcon,
   ScaleIcon,
   SearchIcon,
+  SparkleIcon,
   UsersIcon,
 } from "@/shared/ui/icons";
 
@@ -62,6 +70,34 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
   const isCompleted = data?.isCompleted ?? false;
   const pendingImbalances = data?.pendingImbalances ?? 0;
   const { data: results } = useCycleEvaluationResults(cycleId, { enabled: canManage && isCompleted });
+  const hasAiFeatures = useHasAiFeatures();
+  const { data: aiAnalyses } = useCycleAiAnalyses(cycleId, { enabled: canManage && hasAiFeatures === true });
+  const aiRequest = useRequestAiAnalysis(cycleId);
+  const [aiQueuedMessage, setAiQueuedMessage] = useState<string | null>(null);
+
+  const aiAnalysisByKey = useMemo(() => {
+    const byKey = new Map<string, AiAnalysis>();
+    for (const analysis of aiAnalyses ?? []) {
+      byKey.set(comparisonKey(analysis.evaluatedUserId, analysis.templateId), analysis);
+    }
+    return byKey;
+  }, [aiAnalyses]);
+
+  async function handleAnalyse(input: { evaluatedUserId?: number; templateId?: number; force?: boolean }, key: string) {
+    setAiQueuedMessage(null);
+    try {
+      const result = await aiRequest.request(input, key);
+      if (key === "cycle") {
+        setAiQueuedMessage(
+          result.created === 0
+            ? "Los análisis ya están al día: ninguna evaluación ha cambiado desde el último análisis."
+            : `Se ${result.created === 1 ? "ha" : "han"} puesto en cola ${result.created} análisis. Aparecerán en cada empleado en cuanto estén listos.`,
+        );
+      }
+    } catch {
+      // Error is surfaced via `aiRequest.error`.
+    }
+  }
 
   const resultIdByKey = useMemo(() => {
     const byKey = new Map<string, number>();
@@ -123,22 +159,42 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
             </div>
           </div>
 
-          {data && !isCompleted && (
+          {data && (
             <div className="flex flex-col items-end gap-1">
-              <Button
-                type="button"
-                onClick={() => setShowComplete(true)}
-                disabled={pendingImbalances > 0}
-                title={
-                  pendingImbalances > 0
-                    ? "Acepta todos los desequilibrios para poder completar la evaluación"
-                    : undefined
-                }
-              >
-                <CheckCircleIcon className="h-4 w-4" />
-                Completar evaluación
-              </Button>
-              {pendingImbalances > 0 && (
+              <div className="flex flex-wrap justify-end gap-2">
+                {canManage && comparable.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleAnalyse({}, "cycle")}
+                    disabled={hasAiFeatures !== true || aiRequest.pendingKey !== null}
+                    title={
+                      hasAiFeatures === false
+                        ? "El análisis con IA está disponible en los planes Growth y Enterprise"
+                        : "Analiza con IA las evaluaciones completadas de todos los empleados"
+                    }
+                  >
+                    <SparkleIcon className="h-4 w-4" />
+                    {aiRequest.pendingKey === "cycle" ? "Solicitando…" : "Analizar con IA"}
+                  </Button>
+                )}
+                {!isCompleted && (
+                  <Button
+                    type="button"
+                    onClick={() => setShowComplete(true)}
+                    disabled={pendingImbalances > 0}
+                    title={
+                      pendingImbalances > 0
+                        ? "Acepta todos los desequilibrios para poder completar la evaluación"
+                        : undefined
+                    }
+                  >
+                    <CheckCircleIcon className="h-4 w-4" />
+                    Completar evaluación
+                  </Button>
+                )}
+              </div>
+              {!isCompleted && pendingImbalances > 0 && (
                 <p className="text-xs text-red-600">
                   {pendingImbalances} desequilibrio{pendingImbalances === 1 ? "" : "s"} sin aceptar
                 </p>
@@ -146,6 +202,18 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
             </div>
           )}
         </div>
+
+        {aiRequest.error && (
+          <Notice tone="error" icon={<AlertTriangleIcon className="h-5 w-5" />} className="mt-5">
+            {aiRequest.error}
+          </Notice>
+        )}
+
+        {aiQueuedMessage && !aiRequest.error && (
+          <Notice tone="info" icon={<SparkleIcon className="h-5 w-5" />} className="mt-5">
+            {aiQueuedMessage}
+          </Notice>
+        )}
 
         {isCompleted && (
           <Notice tone="success" icon={<CheckCircleIcon className="h-5 w-5" />} className="mt-5">
@@ -246,6 +314,15 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                   clarifications={clarificationsByKey.get(key) ?? []}
                   isCompleted={isCompleted}
                   resultId={resultIdByKey.get(key) ?? null}
+                  aiAnalysis={aiAnalysisByKey.get(key)}
+                  hasAiFeatures={hasAiFeatures}
+                  isRequestingAi={aiRequest.pendingKey === key}
+                  onAnalyse={(force) =>
+                    handleAnalyse(
+                      { evaluatedUserId: comparison.evaluatedUserId, templateId: comparison.templateId, force },
+                      key,
+                    )
+                  }
                   onAcceptDiscrepancies={(questions) =>
                     setAcceptTarget({
                       evaluatedUserId: comparison.evaluatedUserId,
@@ -258,7 +335,7 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                   }
                   expanded={expandedKey === key}
                   onToggle={() => setExpandedKey(expandedKey === key ? null : key)}
-                  onRequestClarification={(question) =>
+                  onRequestClarification={(question, initialMessage) =>
                     setClarificationTarget({
                       evaluatedUserId: comparison.evaluatedUserId,
                       evaluatedUserName: comparison.evaluatedUserName,
@@ -266,6 +343,7 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                       templateId: comparison.templateId,
                       templateTitle: comparison.templateTitle,
                       question,
+                      initialMessage,
                     })
                   }
                 />
@@ -302,7 +380,10 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
   );
 }
 
-type RequestClarification = (question: { questionId: number; texto: string } | null) => void;
+type RequestClarification = (
+  question: { questionId: number; texto: string } | null,
+  initialMessage?: string,
+) => void;
 
 type AcceptDiscrepancies = (questions: QuestionComparisonResponse[]) => void;
 
@@ -318,6 +399,10 @@ function EmployeeComparisonCard({
   clarifications,
   isCompleted,
   resultId,
+  aiAnalysis,
+  hasAiFeatures,
+  isRequestingAi,
+  onAnalyse,
   onAcceptDiscrepancies,
   expanded,
   onToggle,
@@ -328,6 +413,10 @@ function EmployeeComparisonCard({
   clarifications: ClarificationResponse[];
   isCompleted: boolean;
   resultId: number | null;
+  aiAnalysis: AiAnalysis | undefined;
+  hasAiFeatures: boolean | undefined;
+  isRequestingAi: boolean;
+  onAnalyse: (force: boolean) => void;
   onAcceptDiscrepancies: AcceptDiscrepancies;
   expanded: boolean;
   onToggle: () => void;
@@ -340,6 +429,11 @@ function EmployeeComparisonCard({
   const imbalancesAccepted = summary?.hasImbalances === true && pendingImbalances.length === 0;
   const pendingClarifications = clarifications.filter((c) => c.estado !== "Respondida").length;
   const isReview = source !== null;
+  const questionTexts = useMemo(
+    () => new Map(comparison.questions.map((q) => [q.questionId, q.texto])),
+    [comparison.questions],
+  );
+  const aiRisk = aiAnalysis?.estado === "Completado" ? aiAnalysis.result?.nivelRiesgo : undefined;
 
   return (
     <div className="rounded-xl border border-slate-100">
@@ -406,6 +500,15 @@ function EmployeeComparisonCard({
                     </button>
                   )}
                 </>
+              )}
+              {aiRisk && (
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700"
+                  title="Análisis con IA disponible en el detalle"
+                >
+                  <SparkleIcon className="h-3.5 w-3.5" />
+                  IA · riesgo {aiRisk.toLowerCase()}
+                </span>
               )}
               {resultId !== null && <DownloadReportLink resultId={resultId} />}
               <button
@@ -478,6 +581,22 @@ function EmployeeComparisonCard({
 
       {expanded && (
         <div className="space-y-5 border-t border-slate-100 bg-slate-50/50 px-4 py-4">
+          <AiAnalysisPanel
+            analysis={aiAnalysis}
+            hasAiFeatures={hasAiFeatures}
+            canAnalyse={isReady(comparison, source) && summary !== null}
+            isRequesting={isRequestingAi}
+            questionTexts={questionTexts}
+            canRequestClarification={!isCompleted}
+            onAnalyse={onAnalyse}
+            onSuggestedClarification={(questionId, mensaje) => {
+              const texto = questionId === null ? undefined : questionTexts.get(questionId);
+              onRequestClarification(
+                questionId !== null && texto ? { questionId, texto } : null,
+                mensaje,
+              );
+            }}
+          />
           {comparison.topics.length > 0 && <TopicsTable topics={comparison.topics} source={source} />}
           <QuestionsList
             questions={comparison.questions}

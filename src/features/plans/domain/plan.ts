@@ -13,6 +13,8 @@ export interface Plan {
   maxCustomTemplates: number | null;
   maxDepartments: number | null;
   hasAiFeatures: boolean;
+  /** AI analyses per calendar month. */
+  maxAiAnalysesPerMonth: number | null;
 }
 
 export interface PlanUsage {
@@ -21,6 +23,7 @@ export interface PlanUsage {
   cyclesThisYear: number;
   customTemplates: number;
   departments: number;
+  aiAnalysesThisMonth: number;
 }
 
 export interface CompanyPlan {
@@ -29,7 +32,13 @@ export interface CompanyPlan {
 }
 
 /** A capped resource: its usage field and its limit field. */
-export type PlanResource = "employees" | "activeCycles" | "cyclesThisYear" | "customTemplates" | "departments";
+export type PlanResource =
+  | "employees"
+  | "activeCycles"
+  | "cyclesThisYear"
+  | "customTemplates"
+  | "departments"
+  | "aiAnalysesThisMonth";
 
 const LIMIT_FIELD: Record<PlanResource, keyof Plan> = {
   employees: "maxEmployees",
@@ -37,6 +46,7 @@ const LIMIT_FIELD: Record<PlanResource, keyof Plan> = {
   cyclesThisYear: "maxCyclesPerYear",
   customTemplates: "maxCustomTemplates",
   departments: "maxDepartments",
+  aiAnalysesThisMonth: "maxAiAnalysesPerMonth",
 };
 
 export function planLimit(plan: Plan, resource: PlanResource): number | null {
