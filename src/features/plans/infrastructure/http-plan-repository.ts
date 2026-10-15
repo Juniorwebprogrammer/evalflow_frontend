@@ -47,7 +47,16 @@ export class HttpPlanRepository implements PlanRepository {
     if (!plan) throw new UpstreamError("The server did not return the company plan");
 
     const count = (name: string) => pick<number>(usage, name) ?? 0;
+    const status = (dto && pick<Record<string, unknown>>(dto, "Status")) ?? {};
     return {
+      state: {
+        status: (pick<string>(status, "Status") ?? "active") as CompanyPlan["state"]["status"],
+        hasAccess: pick<boolean>(status, "HasAccess") ?? true,
+        accessEndsAt: pick<string | null>(status, "AccessEndsAt") ?? null,
+        trialEndsAt: pick<string | null>(status, "TrialEndsAt") ?? null,
+        manual: Boolean(pick<boolean>(status, "Manual")),
+        manageUrl: pick<string>(status, "ManageUrl") ?? "",
+      },
       plan: mapPlan(plan),
       usage: {
         employees: count("Employees"),

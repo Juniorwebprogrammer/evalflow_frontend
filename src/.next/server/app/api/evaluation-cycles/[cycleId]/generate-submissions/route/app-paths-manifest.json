@@ -1,0 +1,3 @@
+{
+  "/api/evaluation-cycles/[cycleId]/generate-submissions/route": "app/api/evaluation-cycles/[cycleId]/generate-submissions/route.js"
+}

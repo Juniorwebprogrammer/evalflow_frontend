@@ -1,4 +1,5 @@
 import { ApiError, parseMessage } from "@/shared/lib/api-error";
+import type { Invitation } from "@/features/team/domain/team";
 
 export interface InviteEmployeeResponse {
   message: string;
@@ -194,23 +195,10 @@ export async function fetchOrgChart(): Promise<OrgChartData> {
  * Completes an employee invitation via our own route handler. Public — no
  * session cookie involved.
  */
-export async function acceptInvite(input: {
-  token: string;
-  nombre: string;
-  apellidos: string;
-  password: string;
-}): Promise<MessageResponse> {
-  const res = await fetch("/api/team/accept-invite", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      Token: input.token,
-      Nombre: input.nombre,
-      Apellidos: input.apellidos,
-      Password: input.password,
-    }),
-  });
-
+/** The invitation behind an email link, or null if it doesn't exist (or was already accepted). Public. */
+export async function fetchInvitation(token: string): Promise<Invitation | null> {
+  const res = await fetch(`/api/team/invitation/${encodeURIComponent(token)}`);
+  if (res.status === 404) return null;
   if (!res.ok) throw new ApiError(await parseMessage(res), res.status);
-  return (await res.json()) as MessageResponse;
+  return (await res.json()) as Invitation;
 }

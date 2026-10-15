@@ -1,0 +1,3 @@
+{
+  "/api/favorite-lists/[listId]/templates/[templateId]/toggle/route": "app/api/favorite-lists/[listId]/templates/[templateId]/toggle/route.js"
+}

@@ -9,19 +9,20 @@ import {
   brandStyle,
 } from "@/features/company/presentation/lib/brand";
 import { BrandPanel } from "@/features/auth/presentation/components/brand-panel";
-import { LoginForm } from "@/features/auth/presentation/components/login-form";
+import type { NeedsOnboardingResponse } from "@/features/auth/presentation/api/auth-client";
+import { LoginPanel } from "@/features/auth/presentation/components/login-panel";
 import { OnboardingPanel } from "@/features/onboarding/presentation/components/onboarding-panel";
 
 /**
  * Orchestrates the login screen.
  *  - If a company name was present in the URL, it is resolved through our
  *    Next.js route handler and its brand colors are applied.
- *  - If no company name was provided, the onboarding panel opens automatically.
+ *  - Signing in with Vexxen as someone without a company opens the onboarding.
  */
 export function LoginView({ companyName }: { companyName: string | null }) {
   const [company, setCompany] = useState<Company | null>(null);
   const [resolving, setResolving] = useState<boolean>(Boolean(companyName));
-  const [showOnboarding, setShowOnboarding] = useState<boolean>(!companyName);
+  const [onboarding, setOnboarding] = useState<NeedsOnboardingResponse | null>(null);
 
   useEffect(() => {
     if (!companyName) return;
@@ -30,14 +31,10 @@ export function LoginView({ companyName }: { companyName: string | null }) {
       try {
         const result = await fetchCompanyByName(companyName);
         if (cancelled) return;
-        if (result) {
-          setCompany(result);
-        } else {
-          // Company in URL does not exist → fall back to onboarding.
-          setShowOnboarding(true);
-        }
+        // A company that doesn't exist just leaves the screen unbranded.
+        if (result) setCompany(result);
       } catch {
-        if (!cancelled) setShowOnboarding(true);
+        // Same: unbranded.
       } finally {
         if (!cancelled) setResolving(false);
       }
@@ -61,10 +58,10 @@ export function LoginView({ companyName }: { companyName: string | null }) {
       <BrandPanel companyName={company?.nombre} logoUrl={companyInfo?.logoUrl} />
 
       <div className="flex items-center justify-center bg-slate-50 px-6 py-12">
-        <LoginForm company={company} resolving={resolving} />
+        <LoginPanel company={company} resolving={resolving} onNeedsOnboarding={setOnboarding} />
       </div>
 
-      {showOnboarding && <OnboardingPanel />}
+      {onboarding && <OnboardingPanel account={onboarding} onClose={() => setOnboarding(null)} />}
     </div>
   );
 }

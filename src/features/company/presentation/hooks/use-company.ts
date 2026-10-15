@@ -69,6 +69,6 @@ export function useUpdateCompany(identificationId: string) {
 /** Mutation to permanently delete the caller's company. */
 export function useDeleteCompany() {
   return useMutation({
-    mutationFn: (input: { password: string }) => deleteCompany(input),
+    mutationFn: (input: { companyName: string }) => deleteCompany(input),
   });
 }

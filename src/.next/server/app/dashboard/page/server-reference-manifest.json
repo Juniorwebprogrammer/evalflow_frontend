@@ -1,0 +1,17 @@
+{
+  "node": {
+    "4091aee0eae3033f23be6663086e34b06bae765a33": {
+      "workers": {
+        "app/dashboard/page": {
+          "moduleId": 31785,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        }
+      },
+      "exportedName": "logout",
+      "filename": "src/app/dashboard/actions.ts"
+    }
+  },
+  "edge": {}
+}

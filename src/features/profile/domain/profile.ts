@@ -1,6 +1,7 @@
 /**
- * Profile entities — the authenticated user's own profile.
- * Mirrors the backend `Profile/me` and `Profile/update` contracts.
+ * Profile entities — the authenticated user's own profile (backend `Profile/me`).
+ * Name, email, password and two-step verification belong to the Vexxen account:
+ * they're edited in Vexxen and copied here on every sign-in.
  */
 export interface Profile {
   nombre: string;
@@ -17,20 +18,6 @@ export interface Profile {
   planId: number;
   direccionFiscal: string;
   cif: string;
-  /** Whether 2FA login is enabled (backend `TwoFactorAuthentication`). */
-  twoFactorEnabled: boolean;
   /** When the profile picture last changed (ISO), or null without one. Also its cache-buster. */
   avatarUpdatedAt: string | null;
-}
-
-/** Fields the backend `Profile/update` endpoint accepts. */
-export interface UpdateProfileInput {
-  Nombre: string;
-  Apellidos: string;
-}
-
-/** Body for the backend `Profile/change-password` endpoint. */
-export interface ChangePasswordInput {
-  CurrentPassword: string;
-  NewPassword: string;
 }

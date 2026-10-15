@@ -98,7 +98,7 @@ export class HttpCompanyRepository implements CompanyRepository {
     await this.client.request<unknown>("/Company/delete", {
       method: "DELETE",
       accessToken,
-      body: { Password: input.Password },
+      body: { CompanyName: input.CompanyName },
     });
   }
 

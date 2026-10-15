@@ -6,9 +6,22 @@
 
 export class ApiError extends Error {
   readonly status: number;
-  constructor(message: string, status: number) {
+  /** Stable reason from the backend (e.g. "PLAN_INACTIVE"), when there is one. */
+  readonly code?: string;
+  constructor(message: string, status: number, code?: string) {
     super(message);
     this.status = status;
+    this.code = code;
+  }
+}
+
+/** Like `parseMessage`, plus the backend's `code`: build an `ApiError` from a failed Response. */
+export async function toApiError(res: Response): Promise<ApiError> {
+  try {
+    const data = await res.json();
+    return new ApiError(data?.message ?? `Error ${res.status}`, res.status, data?.code);
+  } catch {
+    return new ApiError(`Error ${res.status}`, res.status);
   }
 }
 
@@ -80,6 +93,10 @@ export function errorMessage(
   options: ErrorMessageOptions = {},
 ): string {
   if (error instanceof ApiError) {
+    // A company without a plan is read-only: say so instead of "no permission".
+    if (error.code === "PLAN_INACTIVE") {
+      return `${action} Your company doesn't have an active EvalFlow plan, so it's read-only. Ask the account owner to choose a plan.`;
+    }
     const detail = error.message.toLowerCase();
     const known = options.byDetail?.find(([match]) =>
       detail.includes(match.toLowerCase()),

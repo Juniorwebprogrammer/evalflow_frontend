@@ -1,7 +1,7 @@
 /**
  * AI analysis of one employee's evaluation (per cycle and template). Mirrors
  * the backend `AiEvaluationAnalysisDto` / `AiAnalysisResultDto`
- * (`GET|POST /evaluation-cycles/{id}/ai-analysis`). Growth and Enterprise only.
+ * (`GET|POST /evaluation-cycles/{id}/ai-analysis`). Professional and Enterprise only.
  */
 export type AiAnalysisStatus = "Pendiente" | "Procesando" | "Completado" | "Error";
 

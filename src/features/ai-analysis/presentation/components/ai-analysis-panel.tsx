@@ -31,7 +31,7 @@ const CONFIDENCE_CLASS: Record<AiConfidence, string> = {
 /**
  * "AI analysis" block of an employee's comparison card: explains the
  * imbalances (360) or strengths / areas to improve (Auto, 180) from the
- * answers and the information requests. Growth / Enterprise only.
+ * answers and the information requests. Professional / Enterprise only.
  */
 export function AiAnalysisPanel({
   analysis,
@@ -92,7 +92,7 @@ export function AiAnalysisPanel({
       {!hasAiFeatures && (
         <p className="mt-3 flex items-center gap-2 text-sm text-slate-500">
           <CrownIcon style={{ width: 14, height: 14 }} className="text-amber-500" />
-          Available on the Growth and Enterprise plans. Contact EvalFlow to upgrade your plan.
+          Available on the Professional and Enterprise plans. Contact EvalFlow to upgrade your plan.
         </p>
       )}
 

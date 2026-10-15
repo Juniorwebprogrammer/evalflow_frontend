@@ -1,8 +1,6 @@
 import "server-only";
 import type {
   Profile,
-  UpdateProfileInput,
-  ChangePasswordInput,
 } from "@/features/profile/domain/profile";
 import type { ProfileRepository } from "@/features/profile/domain/profile-repository";
 import { BackendClient, type BackendFile } from "@/core/http/backend-client";
@@ -32,8 +30,6 @@ interface ProfileDto {
   direccionFiscal?: string;
   Cif?: string;
   cif?: string;
-  TwoFactorAuthentication?: boolean;
-  twoFactorAuthentication?: boolean;
   AvatarUpdatedAt?: string | null;
   avatarUpdatedAt?: string | null;
 }
@@ -65,40 +61,11 @@ export class HttpProfileRepository implements ProfileRepository {
       planId: dto.PlanId ?? dto.planId ?? 0,
       direccionFiscal: dto.DireccionFiscal ?? dto.direccionFiscal ?? "",
       cif: dto.Cif ?? dto.cif ?? "",
-      twoFactorEnabled: Boolean(
-        dto.TwoFactorAuthentication ?? dto.twoFactorAuthentication ?? false,
-      ),
       avatarUpdatedAt: dto.AvatarUpdatedAt ?? dto.avatarUpdatedAt ?? null,
     };
   }
 
-  async update(
-    input: UpdateProfileInput,
-    accessToken: string,
-  ): Promise<void> {
-    await this.client.request<unknown>("/Profile/update", {
-      method: "PUT",
-      accessToken,
-      body: {
-        Nombre: input.Nombre,
-        Apellidos: input.Apellidos,
-      },
-    });
-  }
 
-  async changePassword(
-    input: ChangePasswordInput,
-    accessToken: string,
-  ): Promise<void> {
-    await this.client.request<unknown>("/Profile/change-password", {
-      method: "PUT",
-      accessToken,
-      body: {
-        CurrentPassword: input.CurrentPassword,
-        NewPassword: input.NewPassword,
-      },
-    });
-  }
 
   async uploadAvatar(data: string, accessToken: string): Promise<string | null> {
     const dto = await this.client.request<{ AvatarUpdatedAt?: string; avatarUpdatedAt?: string }>(

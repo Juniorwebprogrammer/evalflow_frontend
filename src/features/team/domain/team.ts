@@ -107,18 +107,13 @@ export interface ToggleUserStatusResult {
 }
 
 /**
- * Body for the backend `POST /team/accept-invite`. Public flow — completes
- * the invitation started by `Team/invite`, setting the employee's own name
- * and password.
+ * Mirrors the backend `GET /Team/invitation/{token}`: who was invited to which company. Public — the accept
+ * page shows it before the person signs in with Vexxen using that email (that's what accepts it).
  */
-export interface AcceptInviteInput {
-  Token: string;
-  Nombre: string;
-  Apellidos: string;
-  Password: string;
-}
-
-/** Mirrors the backend `POST /team/accept-invite` response — a generic message. */
-export interface AcceptInviteResult {
-  message: string;
+export interface Invitation {
+  companyNombre: string;
+  companyColors: string;
+  nombre: string;
+  email: string;
+  expired: boolean;
 }

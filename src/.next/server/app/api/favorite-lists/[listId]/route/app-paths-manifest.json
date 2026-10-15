@@ -1,0 +1,3 @@
+{
+  "/api/favorite-lists/[listId]/route": "app/api/favorite-lists/[listId]/route.js"
+}

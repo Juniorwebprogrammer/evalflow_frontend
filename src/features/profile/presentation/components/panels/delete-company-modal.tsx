@@ -7,17 +7,17 @@ import { errorMessage } from "@/shared/lib/api-error";
 import { Field } from "@/shared/ui/field";
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
-import { LockIcon, ShieldIcon } from "@/shared/ui/icons";
+import { BuildingIcon, ShieldIcon } from "@/shared/ui/icons";
 
 /**
- * Confirmation modal for deleting the company. Requires the current account
- * password. On success it performs a full logout (cookies are cleared
- * server-side; here we wipe localStorage + the query cache) and reloads /login.
+ * Confirmation modal for deleting the company: the owner types its name. On success it performs a full
+ * logout (cookies are cleared server-side; here we wipe localStorage + the query cache) and reloads /login.
+ * The EvalFlow subscription lives in Vexxen and isn't touched: the owner cancels it there.
  */
-export function DeleteCompanyModal({ onClose }: { onClose: () => void }) {
+export function DeleteCompanyModal({ companyName, onClose }: { companyName: string; onClose: () => void }) {
   const deleteMutation = useDeleteCompany();
   const queryClient = useQueryClient();
-  const [password, setPassword] = useState("");
+  const [typedName, setTypedName] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const pending = deleteMutation.isPending;
@@ -25,12 +25,12 @@ export function DeleteCompanyModal({ onClose }: { onClose: () => void }) {
   async function confirm(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!password) {
-      setError("Enter your password to confirm.");
+    if (typedName.trim().toLowerCase() !== companyName.trim().toLowerCase()) {
+      setError("Type the company name exactly as shown to confirm.");
       return;
     }
     try {
-      await deleteMutation.mutateAsync({ password });
+      await deleteMutation.mutateAsync({ companyName: typedName.trim() });
       // Full session teardown, then a hard reload so no stale state remains.
       queryClient.clear();
       try {
@@ -43,7 +43,7 @@ export function DeleteCompanyModal({ onClose }: { onClose: () => void }) {
       setError(
         errorMessage(err, "We couldn't delete the company.", {
           byDetail: [
-            ["incorrect password", "The password is incorrect. Check it and try again."],
+            ["doesn't match", "The company name doesn't match. Check it and try again."],
           ],
         }),
       );
@@ -69,18 +69,20 @@ export function DeleteCompanyModal({ onClose }: { onClose: () => void }) {
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-500">
           This <strong>permanently</strong> deletes the company and{" "}
-          <strong>all of its users</strong>. It can&apos;t be undone. Enter your
-          current password to confirm.
+          <strong>all of its users</strong>. It can&apos;t be undone. Type{" "}
+          <strong>{companyName}</strong> to confirm.
+        </p>
+        <p className="mt-2 text-xs leading-relaxed text-slate-500">
+          Your EvalFlow subscription is managed in Vexxen: cancel it there so you aren&apos;t charged again.
         </p>
 
         <Field
           className="mt-5"
-          label="Current password"
-          type="password"
-          icon={<LockIcon className="h-4 w-4" />}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
+          label="Company name"
+          icon={<BuildingIcon className="h-4 w-4" />}
+          value={typedName}
+          onChange={(e) => setTypedName(e.target.value)}
+          placeholder={companyName}
           autoFocus
         />
 

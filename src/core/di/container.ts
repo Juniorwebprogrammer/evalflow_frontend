@@ -7,7 +7,6 @@ import { HttpTeamRepository } from "@/features/team/infrastructure/http-team-rep
 import { HttpProfileRepository } from "@/features/profile/infrastructure/http-profile-repository";
 import { HttpPlanRepository } from "@/features/plans/infrastructure/http-plan-repository";
 import { GetPlans, GetCompanyPlan } from "@/features/plans/application/get-plans";
-import { HttpSettingsRepository } from "@/features/settings/infrastructure/http-settings-repository";
 import { HttpDepartmentRepository } from "@/features/departments/infrastructure/http-department-repository";
 import { HttpJobPositionRepository } from "@/features/job-positions/infrastructure/http-job-position-repository";
 import { HttpTemplateRepository } from "@/features/templates/infrastructure/http-template-repository";
@@ -27,27 +26,18 @@ import { GetCompanyByIdentificationId } from "@/features/company/application/get
 import { UpdateCompany } from "@/features/company/application/update-company";
 import { DeleteCompany } from "@/features/company/application/delete-company";
 import { RegisterOwner } from "@/features/onboarding/application/register-owner";
-import { LoginUser } from "@/features/auth/application/login-user";
 import { GetMyFeatures } from "@/features/auth/application/get-my-features";
-import { VerifyEmail } from "@/features/auth/application/verify-email";
-import { Verify2FA } from "@/features/auth/application/verify-2fa";
-import { Resend2FA } from "@/features/auth/application/resend-2fa";
-import { ResendVerification } from "@/features/auth/application/resend-verification";
-import { ForgotPassword } from "@/features/auth/application/forgot-password";
-import { ResetPassword } from "@/features/auth/application/reset-password";
+import { Logout, RefreshSession, SignInWithVexxen } from "@/features/auth/application/vexxen-session";
 import { InviteEmployee } from "@/features/team/application/invite-employee";
+import { GetInvitation } from "@/features/team/application/get-invitation";
 import { AssignDepartment } from "@/features/team/application/assign-department";
 import { AssignSuperior } from "@/features/team/application/assign-superior";
 import { AssignJobPosition } from "@/features/team/application/assign-job-position";
 import { GetSubordinates } from "@/features/team/application/get-subordinates";
 import { ToggleUserStatus } from "@/features/team/application/toggle-user-status";
-import { AcceptInvite } from "@/features/team/application/accept-invite";
 import { GetEmployees } from "@/features/team/application/get-employees";
 import { GetMyProfile } from "@/features/profile/application/get-my-profile";
-import { UpdateProfile } from "@/features/profile/application/update-profile";
-import { ChangePassword } from "@/features/profile/application/change-password";
 import { UploadAvatar, DeleteAvatar, GetAvatar } from "@/features/profile/application/profile-avatar";
-import { Toggle2FA } from "@/features/settings/application/toggle-2fa";
 import { CreateDepartment } from "@/features/departments/application/create-department";
 import { GetDepartment } from "@/features/departments/application/get-department";
 import { ListDepartments } from "@/features/departments/application/list-departments";
@@ -106,7 +96,6 @@ const authRepository = new HttpAuthRepository(backendClient);
 const teamRepository = new HttpTeamRepository(backendClient);
 const profileRepository = new HttpProfileRepository(backendClient);
 const planRepository = new HttpPlanRepository(backendClient);
-const settingsRepository = new HttpSettingsRepository(backendClient);
 const departmentRepository = new HttpDepartmentRepository(backendClient);
 const jobPositionRepository = new HttpJobPositionRepository(backendClient);
 const templateRepository = new HttpTemplateRepository(backendClient);
@@ -128,31 +117,24 @@ export const useCases = {
   updateCompany: new UpdateCompany(companyRepository),
   deleteCompany: new DeleteCompany(companyRepository),
   registerOwner: new RegisterOwner(onboardingRepository),
-  loginUser: new LoginUser(authRepository),
+  signInWithVexxen: new SignInWithVexxen(authRepository),
+  refreshSession: new RefreshSession(authRepository),
+  logout: new Logout(authRepository),
   getMyFeatures: new GetMyFeatures(authRepository),
-  verifyEmail: new VerifyEmail(authRepository),
-  verify2FA: new Verify2FA(authRepository),
-  resend2FA: new Resend2FA(authRepository),
-  resendVerification: new ResendVerification(authRepository),
-  forgotPassword: new ForgotPassword(authRepository),
-  resetPassword: new ResetPassword(authRepository),
   inviteEmployee: new InviteEmployee(teamRepository),
+  getInvitation: new GetInvitation(teamRepository),
   assignDepartment: new AssignDepartment(teamRepository),
   assignSuperior: new AssignSuperior(teamRepository),
   assignJobPosition: new AssignJobPosition(teamRepository),
   getSubordinates: new GetSubordinates(teamRepository),
   toggleUserStatus: new ToggleUserStatus(teamRepository),
-  acceptInvite: new AcceptInvite(teamRepository),
   getEmployees: new GetEmployees(teamRepository),
   getMyProfile: new GetMyProfile(profileRepository),
-  updateProfile: new UpdateProfile(profileRepository),
-  changePassword: new ChangePassword(profileRepository),
   uploadAvatar: new UploadAvatar(profileRepository),
   deleteAvatar: new DeleteAvatar(profileRepository),
   getAvatar: new GetAvatar(profileRepository),
   getPlans: new GetPlans(planRepository),
   getCompanyPlan: new GetCompanyPlan(planRepository),
-  toggle2FA: new Toggle2FA(settingsRepository),
   createDepartment: new CreateDepartment(departmentRepository),
   getDepartment: new GetDepartment(departmentRepository),
   listDepartments: new ListDepartments(departmentRepository),

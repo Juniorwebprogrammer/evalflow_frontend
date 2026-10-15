@@ -65,10 +65,12 @@ export async function DELETE(request: NextRequest) {
       | null;
 
     const input: DeleteCompanyInput = {
-      Password: String(body?.Password ?? ""),
+      CompanyName: String(body?.CompanyName ?? ""),
     };
 
     await useCases.deleteCompany.execute(input, session.jwt);
+    // The account no longer exists here: end the Vexxen session too.
+    await useCases.logout.execute(session.refreshToken);
     await clearSession();
 
     return Response.json({ message: "Company deleted" });

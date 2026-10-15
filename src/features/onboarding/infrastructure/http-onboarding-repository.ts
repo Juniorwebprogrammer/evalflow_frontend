@@ -7,42 +7,36 @@ import type { OnboardingRepository } from "@/features/onboarding/domain/onboardi
 import { BackendClient } from "@/core/http/backend-client";
 import { UpstreamError } from "@/core/errors/errors";
 
-/** Raw backend RegisterOwnerResponse (PascalCase). */
+/** Raw backend RegisterOwnerResponse (camelCase from the minimal APIs). */
 interface RegisterOwnerDto {
-  Message?: string;
   message?: string;
-  UserNombre?: string;
   userNombre?: string;
-  Jwt?: string;
   jwt?: string;
-  RefreshToken?: string;
-  refreshToken?: string;
+  identificationId?: string;
+  planId?: number;
+  planStatus?: string;
 }
 
 export class HttpOnboardingRepository implements OnboardingRepository {
   constructor(private readonly client: BackendClient) {}
 
-  async registerOwner(input: RegisterOwnerInput): Promise<RegisterOwnerResult> {
+  async registerOwner(input: RegisterOwnerInput, vexxenAccessToken: string): Promise<RegisterOwnerResult> {
     const dto = await this.client.request<RegisterOwnerDto>(
       "/Onboarding/register-owner",
-      { method: "POST", body: input },
+      { method: "POST", body: { ...input, VexxenAccessToken: vexxenAccessToken } },
     );
 
-    if (!dto) {
-      throw new UpstreamError("The server did not return a registration response");
-    }
-
-    const jwt = dto.Jwt ?? dto.jwt;
-    const refreshToken = dto.RefreshToken ?? dto.refreshToken;
-    if (!jwt || !refreshToken) {
+    if (!dto?.jwt) {
       throw new UpstreamError("The registration response is incomplete");
     }
 
     return {
-      message: dto.Message ?? dto.message ?? "Registration completed",
-      userNombre: dto.UserNombre ?? dto.userNombre ?? input.UserNombre,
-      jwt,
-      refreshToken,
+      message: dto.message ?? "Registration completed",
+      userNombre: dto.userNombre ?? "",
+      jwt: dto.jwt,
+      identificationId: dto.identificationId ?? "",
+      planId: Number(dto.planId ?? 0),
+      planStatus: dto.planStatus ?? "none",
     };
   }
 }

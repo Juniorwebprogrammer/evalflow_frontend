@@ -1,13 +1,16 @@
 import "server-only";
 import { cookies } from "next/headers";
 import type { AuthSession } from "@/features/auth/domain/auth";
-
-const JWT_COOKIE = "ef_jwt";
-const REFRESH_COOKIE = "ef_refresh";
-
-// The JWT is short-lived; the refresh token lives longer.
-const JWT_MAX_AGE = 60 * 60; // 1 hour
-const REFRESH_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+import {
+  JWT_COOKIE,
+  JWT_MAX_AGE,
+  PENDING_ACCESS_COOKIE,
+  PENDING_MAX_AGE,
+  PENDING_REFRESH_COOKIE,
+  REFRESH_COOKIE,
+  REFRESH_MAX_AGE,
+  sessionCookieOptions,
+} from "@/features/auth/infrastructure/session-config";
 
 /**
  * Persists the auth tokens as httpOnly cookies. Must be called from a Route
@@ -15,13 +18,7 @@ const REFRESH_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
  */
 export async function persistSession(session: AuthSession): Promise<void> {
   const store = await cookies();
-  const secure = process.env.NODE_ENV === "production";
-  const base = {
-    httpOnly: true,
-    secure,
-    sameSite: "lax" as const,
-    path: "/",
-  };
+  const base = sessionCookieOptions();
 
   store.set(JWT_COOKIE, session.jwt, { ...base, maxAge: JWT_MAX_AGE });
   store.set(REFRESH_COOKIE, session.refreshToken, {
@@ -39,9 +36,37 @@ export async function readSession(): Promise<AuthSession | null> {
   return { jwt, refreshToken };
 }
 
-/** Clears the session cookies (logout). */
+/** Clears the session cookies (logout), the pending onboarding ones included. */
 export async function clearSession(): Promise<void> {
   const store = await cookies();
   store.delete(JWT_COOKIE);
   store.delete(REFRESH_COOKIE);
+  store.delete(PENDING_ACCESS_COOKIE);
+  store.delete(PENDING_REFRESH_COOKIE);
+}
+
+/** Vexxen tokens of someone who still has to create their company (onboarding). */
+export interface PendingVexxenSession {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export async function persistPendingVexxen(pending: PendingVexxenSession): Promise<void> {
+  const store = await cookies();
+  const base = sessionCookieOptions();
+  store.set(PENDING_ACCESS_COOKIE, pending.accessToken, { ...base, maxAge: PENDING_MAX_AGE });
+  store.set(PENDING_REFRESH_COOKIE, pending.refreshToken, { ...base, maxAge: PENDING_MAX_AGE });
+}
+
+export async function readPendingVexxen(): Promise<PendingVexxenSession | null> {
+  const store = await cookies();
+  const accessToken = store.get(PENDING_ACCESS_COOKIE)?.value;
+  const refreshToken = store.get(PENDING_REFRESH_COOKIE)?.value;
+  return accessToken && refreshToken ? { accessToken, refreshToken } : null;
+}
+
+export async function clearPendingVexxen(): Promise<void> {
+  const store = await cookies();
+  store.delete(PENDING_ACCESS_COOKIE);
+  store.delete(PENDING_REFRESH_COOKIE);
 }

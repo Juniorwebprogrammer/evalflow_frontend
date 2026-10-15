@@ -85,7 +85,7 @@ export function PlanUsagePanel() {
               className={`h-4 w-4 ${data.plan.hasAiFeatures ? "text-emerald-500" : "text-slate-300"}`}
             />
             <span className={data.plan.hasAiFeatures ? "text-slate-700" : "text-slate-400"}>
-              AI features {data.plan.hasAiFeatures ? "included" : "not included (available on Growth and Enterprise)"}
+              AI features {data.plan.hasAiFeatures ? "included" : "not included (available on Professional and Enterprise)"}
             </span>
           </div>
           <p className="mt-3 text-xs text-slate-400">

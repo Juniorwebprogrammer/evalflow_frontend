@@ -1,0 +1,3 @@
+{
+  "/api/evaluation-cycles/[cycleId]/ai-analysis/route": "app/api/evaluation-cycles/[cycleId]/ai-analysis/route.js"
+}

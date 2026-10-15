@@ -60,7 +60,7 @@ export function OrganizationPanel({
 
       <PlanUsagePanel />
 
-      {canDelete && <DangerZone />}
+      {canDelete && company && <DangerZone companyName={company.nombre} />}
     </div>
   );
 }

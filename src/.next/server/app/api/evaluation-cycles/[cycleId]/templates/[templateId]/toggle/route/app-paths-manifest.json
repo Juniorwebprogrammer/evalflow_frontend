@@ -1,0 +1,3 @@
+{
+  "/api/evaluation-cycles/[cycleId]/templates/[templateId]/toggle/route": "app/api/evaluation-cycles/[cycleId]/templates/[templateId]/toggle/route.js"
+}

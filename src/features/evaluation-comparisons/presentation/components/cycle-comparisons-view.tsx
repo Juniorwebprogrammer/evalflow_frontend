@@ -172,7 +172,7 @@ export function CycleComparisonsView({ cycleId }: { cycleId: number }) {
                     disabled={hasAiFeatures !== true || aiRequest.pendingKey !== null}
                     title={
                       hasAiFeatures === false
-                        ? "AI analysis is available on the Growth and Enterprise plans"
+                        ? "AI analysis is available on the Professional and Enterprise plans"
                         : "Analyze every employee's completed evaluations with AI"
                     }
                   >

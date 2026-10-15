@@ -20,7 +20,7 @@ export function cycleAiAnalysesQueryKey(cycleId: number) {
   return ["ai-analyses", cycleId] as const;
 }
 
-/** Whether the company's plan includes AI (Growth / Enterprise). `undefined` while loading. */
+/** Whether the company's plan includes AI (Professional / Enterprise). `undefined` while loading. */
 export function useHasAiFeatures(): boolean | undefined {
   const { data } = useCompanyPlan();
   return data?.plan.hasAiFeatures;
@@ -57,7 +57,7 @@ export function useRequestAiAnalysis(cycleId: number) {
           byDetail: [
             [
               "planes growth",
-              "AI analysis is available on the Growth and Enterprise plans. Upgrade your plan to use it.",
+              "AI analysis is available on the Professional and Enterprise plans. Upgrade your plan to use it.",
             ],
             [
               "al mes",

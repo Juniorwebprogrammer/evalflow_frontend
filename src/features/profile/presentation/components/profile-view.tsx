@@ -30,7 +30,7 @@ export function ProfileView({ initialProfile }: { initialProfile: Profile }) {
 
         <div>
           {tab === "personal" && <PersonalDataPanel profile={profile} />}
-          {tab === "security" && <SecurityPanel profile={profile} />}
+          {tab === "security" && <SecurityPanel />}
           {tab === "role" && <RolePanel rol={profile.rol} />}
           {tab === "organization" && canOpenProfileTab(profile.rol, tab) && (
             <OrganizationPanel

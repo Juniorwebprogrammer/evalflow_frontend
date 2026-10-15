@@ -3,6 +3,7 @@ import type { Profile } from "@/features/profile/domain/profile";
 import { Sidebar } from "@/shared/components/sidebar";
 import { MobileNav } from "@/shared/components/mobile-nav";
 import { RealtimeProvider } from "@/features/realtime/presentation/components/realtime-provider";
+import { PlanStatusBanner } from "@/features/plans/presentation/components/plan-status-banner";
 
 /**
  * Authenticated app shell: navigation plus a scrollable main area. Desktop
@@ -26,6 +27,7 @@ export function AppShell({
       <Sidebar initialProfile={initialProfile} />
       <MobileNav initialProfile={initialProfile} />
       <main className="min-w-0 flex-1">
+        <PlanStatusBanner />
         <RealtimeProvider>{children}</RealtimeProvider>
       </main>
     </div>

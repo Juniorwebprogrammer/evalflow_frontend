@@ -1,11 +1,13 @@
 import type { RegisterOwnerInput } from "@/features/onboarding/domain/registration";
-import { ApiError, parseMessage } from "@/shared/lib/api-error";
+import { toApiError } from "@/shared/lib/api-error";
 
 export interface RegisterOwnerResponse {
   message: string;
   userNombre: string;
+  planStatus: string;
 }
 
+/** Creates the company; on success the owner is already signed in (session cookies set). */
 export async function registerOwner(
   input: RegisterOwnerInput,
 ): Promise<RegisterOwnerResponse> {
@@ -15,6 +17,6 @@ export async function registerOwner(
     body: JSON.stringify(input),
   });
 
-  if (!res.ok) throw new ApiError(await parseMessage(res), res.status);
+  if (!res.ok) throw await toApiError(res);
   return (await res.json()) as RegisterOwnerResponse;
 }

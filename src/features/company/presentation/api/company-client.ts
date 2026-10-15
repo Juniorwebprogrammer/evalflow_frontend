@@ -59,12 +59,12 @@ export async function updateCompany(input: {
  * clear the session; the caller is responsible for wiping client state.
  */
 export async function deleteCompany(input: {
-  password: string;
+  companyName: string;
 }): Promise<void> {
   const res = await fetch("/api/company", {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ Password: input.password }),
+    body: JSON.stringify({ CompanyName: input.companyName }),
   });
 
   if (!res.ok) throw new ApiError(await parseMessage(res), res.status);

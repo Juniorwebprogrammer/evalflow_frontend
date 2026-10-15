@@ -11,8 +11,7 @@ import type {
   Subordinate,
   ToggleUserStatusInput,
   ToggleUserStatusResult,
-  AcceptInviteInput,
-  AcceptInviteResult,
+  Invitation,
   Employee,
 } from "@/features/team/domain/team";
 import type { TeamRepository } from "@/features/team/domain/team-repository";
@@ -274,22 +273,19 @@ export class HttpTeamRepository implements TeamRepository {
     });
   }
 
-  async acceptInvite(input: AcceptInviteInput): Promise<AcceptInviteResult> {
-    const dto = await this.client.request<MessageDto>("/team/accept-invite", {
-      method: "POST",
-      body: {
-        Token: input.Token,
-        Nombre: input.Nombre,
-        Apellidos: input.Apellidos,
-        Password: input.Password,
-      },
-    });
-
+  async getInvitation(token: string): Promise<Invitation | null> {
+    const dto = await this.client.request<Partial<Invitation>>(
+      `/Team/invitation/${encodeURIComponent(token)}`,
+      { method: "GET", allowNotFound: true },
+    );
+    if (!dto) return null;
     return {
-      message:
-        dto?.Message ??
-        dto?.message ??
-        "Invitation accepted. You can now sign in.",
+      companyNombre: String(dto.companyNombre ?? ""),
+      companyColors: String(dto.companyColors ?? ""),
+      nombre: String(dto.nombre ?? ""),
+      email: String(dto.email ?? ""),
+      expired: Boolean(dto.expired),
     };
   }
+
 }

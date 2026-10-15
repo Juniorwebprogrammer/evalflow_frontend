@@ -1,0 +1,3 @@
+{
+  "/api/clarifications/[clarificationId]/response/route": "app/api/clarifications/[clarificationId]/response/route.js"
+}

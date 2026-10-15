@@ -14,11 +14,15 @@ const WELCOME_POINTS = [
 ];
 
 export function WelcomeStep({
+  firstName,
+  email,
   onStart,
-  onExistingAccount,
+  onCancel,
 }: {
+  firstName: string;
+  email: string;
   onStart: () => void;
-  onExistingAccount: () => void;
+  onCancel: () => void;
 }) {
   return (
     <div>
@@ -29,7 +33,7 @@ export function WelcomeStep({
         <SparkleIcon className="h-6 w-6" />
       </span>
       <h2 className="mt-5 text-2xl font-bold text-slate-900">
-        Welcome to EvalFlow
+        Welcome to EvalFlow{firstName ? `, ${firstName}` : ""}
       </h2>
       <p className="mt-2 text-sm leading-relaxed text-slate-500">
         EvalFlow is the neutral referee for your performance evaluations. It
@@ -56,13 +60,19 @@ export function WelcomeStep({
 
       <div className="mt-7 flex flex-col gap-2">
         <Button onClick={onStart}>
-          Create an account
+          Set up my company
           <ArrowRightIcon className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" onClick={onExistingAccount}>
-          I already have an account
+        <Button variant="ghost" onClick={onCancel}>
+          Cancel
         </Button>
       </div>
+
+      <p className="mt-4 text-xs leading-relaxed text-slate-500">
+        You&apos;re signed in with Vexxen as{" "}
+        <span className="font-semibold text-slate-700">{email}</span>. Were you invited by your company? Open the
+        link in your invitation email instead.
+      </p>
     </div>
   );
 }

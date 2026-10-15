@@ -1,45 +1,8 @@
 import "server-only";
-import type {
-  LoginInput,
-  LoginResult,
-  MyFeatures,
-  Feature,
-  VerifyEmailInput,
-  VerifyEmailResult,
-  AuthTokensResult,
-  Verify2FAInput,
-  Resend2FAInput,
-  Resend2FAResult,
-  ResendVerificationInput,
-  ResendVerificationResult,
-  ForgotPasswordInput,
-  ForgotPasswordResult,
-  ResetPasswordInput,
-  ResetPasswordResult,
-} from "@/features/auth/domain/auth";
+import type { Feature, MyFeatures, SignedInResult, VexxenSignInResult } from "@/features/auth/domain/auth";
 import type { AuthRepository } from "@/features/auth/domain/auth-repository";
 import { BackendClient } from "@/core/http/backend-client";
 import { UpstreamError } from "@/core/errors/errors";
-
-/**
- * Raw backend LoginResponse (PascalCase, tolerant to variations). Also
- * covers the 2FA-challenge shape (`Requires2FA` + `Email`, no tokens) and the
- * `Auth/verify-2fa` success shape (same as a normal login).
- */
-interface LoginDto {
-  Message?: string;
-  message?: string;
-  Username?: string;
-  username?: string;
-  Jwt?: string;
-  jwt?: string;
-  RefreshToken?: string;
-  refreshToken?: string;
-  Requires2FA?: boolean;
-  requires2FA?: boolean;
-  Email?: string;
-  email?: string;
-}
 
 /** Raw backend feature entry (PascalCase, tolerant to variations). */
 interface FeatureDto {
@@ -66,55 +29,53 @@ function toFeature(dto: FeatureDto): Feature {
   };
 }
 
-/**
- * Raw backend `Auth/verify-email` response (PascalCase, tolerant to
- * variations). `TenantId` is only present once the account has a company.
- */
-interface VerifyEmailDto {
-  Message?: string;
-  message?: string;
-  TenantId?: string | number | null;
-  tenantId?: string | number | null;
+/** Backend `Auth/vexxen` / `Auth/refresh` (camelCase from the minimal APIs). */
+interface SessionDto {
+  status?: string;
+  jwt?: string;
+  refreshToken?: string | null;
+  username?: string;
+  rol?: string;
+  identificationId?: string;
+  planStatus?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  hasPlan?: boolean;
+  catalogUrl?: string;
 }
 
 export class HttpAuthRepository implements AuthRepository {
   constructor(private readonly client: BackendClient) {}
 
-  async login(input: LoginInput): Promise<LoginResult> {
-    const dto = await this.client.request<LoginDto>("/Auth/login", {
+  async signInWithVexxen(vexxenAccessToken: string): Promise<VexxenSignInResult> {
+    const dto = await this.client.request<SessionDto>("/Auth/vexxen", {
       method: "POST",
-      body: {
-        Email: input.Email,
-        Password: input.Password,
-        IdentificationId: input.IdentificationId,
-      },
+      body: { accessToken: vexxenAccessToken },
     });
-
-    if (!dto) {
-      throw new UpstreamError("The server did not return a sign-in response");
-    }
-
-    if (dto.Requires2FA ?? dto.requires2FA ?? false) {
+    if (dto?.status === "needs_onboarding") {
       return {
-        requires2FA: true,
-        message: dto.Message ?? dto.message ?? "2FA code sent by email.",
-        email: dto.Email ?? dto.email ?? input.Email,
+        status: "needs_onboarding",
+        email: String(dto.email ?? ""),
+        firstName: String(dto.firstName ?? ""),
+        lastName: String(dto.lastName ?? ""),
+        hasPlan: Boolean(dto.hasPlan),
+        catalogUrl: String(dto.catalogUrl ?? ""),
       };
     }
+    return toSignedIn(dto);
+  }
 
-    const jwt = dto.Jwt ?? dto.jwt;
-    const refreshToken = dto.RefreshToken ?? dto.refreshToken;
-    if (!jwt || !refreshToken) {
-      throw new UpstreamError("The sign-in response is incomplete");
-    }
+  async refreshSession(refreshToken: string): Promise<SignedInResult> {
+    const dto = await this.client.request<SessionDto>("/Auth/refresh", {
+      method: "POST",
+      body: { refreshToken },
+    });
+    return toSignedIn(dto);
+  }
 
-    return {
-      requires2FA: false,
-      message: dto.Message ?? dto.message ?? "Signed in successfully",
-      username: dto.Username ?? dto.username ?? "",
-      jwt,
-      refreshToken,
-    };
+  async logout(refreshToken: string): Promise<void> {
+    await this.client.request("/Auth/logout", { method: "POST", body: { refreshToken } }).catch(() => undefined);
   }
 
   async getMyFeatures(accessToken: string): Promise<MyFeatures> {
@@ -134,117 +95,19 @@ export class HttpAuthRepository implements AuthRepository {
       features: rawFeatures.map(toFeature),
       description: dto?.Description ?? dto?.description ?? "",
     };
+  }}
+
+function toSignedIn(dto: SessionDto | null): SignedInResult {
+  if (dto?.status !== "signed_in" || !dto.jwt) {
+    throw new UpstreamError("The EvalFlow server sent an unexpected sign-in response.");
   }
-
-  async verifyEmail(input: VerifyEmailInput): Promise<VerifyEmailResult> {
-    // Invalid/expired/unknown tokens come back as 400 with a Message (not
-    // 404), so the generic error path in BackendClient already surfaces them.
-    const dto = await this.client.request<VerifyEmailDto>("/auth/verify-email", {
-      method: "POST",
-      body: { Token: input.Token },
-    });
-
-    if (!dto) {
-      throw new UpstreamError("The server did not return a verification response");
-    }
-
-    const tenantId = dto.TenantId ?? dto.tenantId ?? null;
-
-    return {
-      message: dto.Message ?? dto.message ?? "Email verified",
-      tenantId: tenantId == null ? null : String(tenantId),
-    };
-  }
-
-  async verify2FA(input: Verify2FAInput): Promise<AuthTokensResult> {
-    // Wrong/expired/missing codes come back as 400 with a Message, which the
-    // generic error path in BackendClient already surfaces.
-    const dto = await this.client.request<LoginDto>("/auth/verify-2fa", {
-      method: "POST",
-      body: { Email: input.Email, Code: input.Code },
-    });
-
-    if (!dto) {
-      throw new UpstreamError("The server did not return a verification response");
-    }
-
-    const jwt = dto.Jwt ?? dto.jwt;
-    const refreshToken = dto.RefreshToken ?? dto.refreshToken;
-    if (!jwt || !refreshToken) {
-      throw new UpstreamError("The verification response is incomplete");
-    }
-
-    return {
-      message: dto.Message ?? dto.message ?? "Authentication completed",
-      username: dto.Username ?? dto.username ?? "",
-      jwt,
-      refreshToken,
-    };
-  }
-
-  async resend2FA(input: Resend2FAInput): Promise<Resend2FAResult> {
-    // The backend always answers 200 with a generic message, whether or not
-    // the email/2FA state actually matched — nothing to branch on here.
-    const dto = await this.client.request<{ Message?: string; message?: string }>(
-      "/auth/resend-2fa",
-      { method: "POST", body: { Email: input.Email } },
-    );
-
-    return {
-      message:
-        dto?.Message ??
-        dto?.message ??
-        "If the email is registered and 2FA is enabled, a new code has been sent.",
-    };
-  }
-
-  async resendVerification(
-    input: ResendVerificationInput,
-  ): Promise<ResendVerificationResult> {
-    // The backend always answers 200 with a generic message, whether or not
-    // the email matched or was already verified — nothing to branch on here.
-    const dto = await this.client.request<{ Message?: string; message?: string }>(
-      "/auth/resend-verification",
-      { method: "POST", body: { Email: input.Email } },
-    );
-
-    return {
-      message:
-        dto?.Message ??
-        dto?.message ??
-        "If the email is registered and pending verification, a new link has been sent.",
-    };
-  }
-
-  async forgotPassword(input: ForgotPasswordInput): Promise<ForgotPasswordResult> {
-    // The backend always answers 200 with a generic message, whether or not
-    // the email matched an active account — nothing to branch on here.
-    const dto = await this.client.request<{ Message?: string; message?: string }>(
-      "/auth/forgot-password",
-      { method: "POST", body: { Email: input.Email } },
-    );
-
-    return {
-      message:
-        dto?.Message ??
-        dto?.message ??
-        "If the email exists in our system, you will receive a link to reset your password.",
-    };
-  }
-
-  async resetPassword(input: ResetPasswordInput): Promise<ResetPasswordResult> {
-    // Invalid/expired tokens come back as 400 with a Message (not 404), so
-    // the generic error path in BackendClient already surfaces them.
-    const dto = await this.client.request<{ Message?: string; message?: string }>(
-      "/auth/reset-password",
-      { method: "POST", body: { Token: input.Token, NewPassword: input.NewPassword } },
-    );
-
-    return {
-      message:
-        dto?.Message ??
-        dto?.message ??
-        "Your password has been updated. You can now sign in.",
-    };
-  }
+  return {
+    status: "signed_in",
+    jwt: dto.jwt,
+    refreshToken: dto.refreshToken ?? null,
+    username: String(dto.username ?? ""),
+    rol: String(dto.rol ?? ""),
+    identificationId: String(dto.identificationId ?? ""),
+    planStatus: (dto.planStatus ?? "none") as SignedInResult["planStatus"],
+  };
 }

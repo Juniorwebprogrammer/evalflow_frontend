@@ -56,8 +56,8 @@ export class BackendClient {
     }
 
     if (!response.ok) {
-      const detail = await this.safeErrorMessage(response);
-      throw new UpstreamError(detail, response.status);
+      const { message, code } = await this.parseError(response);
+      throw new UpstreamError(message, response.status, code);
     }
 
     if (response.status === 204) return null;
@@ -98,6 +98,22 @@ export class BackendClient {
       contentType: response.headers.get("content-type") ?? "application/octet-stream",
       contentDisposition: response.headers.get("content-disposition"),
     };
+  }
+
+  /** The backend's message plus its stable `code` (Vexxen sign-in, plan errors…), if any. */
+  private async parseError(response: Response): Promise<{ message: string; code?: string }> {
+    const text = await response.text().catch(() => "");
+    if (!text) return { message: `Server error ${response.status}` };
+    try {
+      const parsed = JSON.parse(text);
+      const code = parsed.code ?? parsed.Code;
+      return {
+        message: parsed.message ?? parsed.Message ?? parsed.title ?? parsed.detail ?? text,
+        code: typeof code === "string" ? code : undefined,
+      };
+    } catch {
+      return { message: text };
+    }
   }
 
   private async safeErrorMessage(response: Response): Promise<string> {

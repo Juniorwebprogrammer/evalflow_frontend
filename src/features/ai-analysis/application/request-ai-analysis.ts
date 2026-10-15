@@ -6,7 +6,7 @@ import type { AiAnalysisRepository } from "@/features/ai-analysis/domain/ai-anal
 import { DomainError } from "@/core/errors/errors";
 
 /**
- * Queues an AI analysis of a cycle's evaluations (Owner/HR, Growth and
+ * Queues an AI analysis of a cycle's evaluations (Owner/HR, Professional and
  * Enterprise plans). The backend reuses unchanged analyses and enforces the
  * monthly quota.
  */

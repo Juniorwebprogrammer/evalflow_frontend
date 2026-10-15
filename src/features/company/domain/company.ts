@@ -33,9 +33,9 @@ export interface UpdateCompanyInput {
   DireccionFiscal: string;
 }
 
-/** Body for the backend `Company/delete` endpoint. */
+/** Body for the backend `Company/delete` endpoint: confirmed by typing the company name. */
 export interface DeleteCompanyInput {
-  Password: string;
+  CompanyName: string;
 }
 
 /** Parsed brand colors ready to be applied as CSS custom properties. */

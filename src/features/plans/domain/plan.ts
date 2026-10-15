@@ -26,9 +26,24 @@ export interface PlanUsage {
   aiAnalysesThisMonth: number;
 }
 
+/**
+ * Where the plan stands, from Vexxen (the owner's subscription): trialing, active, canceling (ends at
+ * `accessEndsAt`), past_due (a payment failed) or none (read-only). `manageUrl` is the Vexxen catalog.
+ */
+export interface PlanState {
+  status: "trialing" | "active" | "canceling" | "past_due" | "none";
+  hasAccess: boolean;
+  accessEndsAt: string | null;
+  trialEndsAt: string | null;
+  /** Set by hand by EvalFlow (e.g. Enterprise): not managed in Vexxen. */
+  manual: boolean;
+  manageUrl: string;
+}
+
 export interface CompanyPlan {
   plan: Plan;
   usage: PlanUsage;
+  state: PlanState;
 }
 
 /** A capped resource: its usage field and its limit field. */

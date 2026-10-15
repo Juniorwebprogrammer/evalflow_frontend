@@ -1,200 +1,113 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { acceptInvite } from "@/features/team/presentation/api/team-client";
-import { errorMessage } from "@/shared/lib/api-error";
-import { Field } from "@/shared/ui/field";
+import type { Invitation } from "@/features/team/domain/team";
+import { fetchInvitation } from "@/features/team/presentation/api/team-client";
+import { VexxenSignIn } from "@/features/auth/presentation/components/vexxen-sign-in";
+import { BrandPanel } from "@/features/auth/presentation/components/brand-panel";
+import { brandStyle, parseBrandColors } from "@/features/company/presentation/lib/brand";
 import { Button } from "@/shared/ui/button";
 import { Notice } from "@/shared/ui/notice";
-import { BrandPanel } from "@/features/auth/presentation/components/brand-panel";
-import {
-  UserIcon,
-  LockIcon,
-  CheckCircleIcon,
-  AlertTriangleIcon,
-} from "@/shared/ui/icons";
+import { AlertTriangleIcon } from "@/shared/ui/icons";
 
-const MIN_PASSWORD_LENGTH = 8;
-
-interface FormState {
-  nombre: string;
-  apellidos: string;
-  password: string;
-  confirmPassword: string;
-}
-
-const EMPTY: FormState = {
-  nombre: "",
-  apellidos: "",
-  password: "",
-  confirmPassword: "",
-};
+type State =
+  | { kind: "loading" }
+  | { kind: "invalid" }
+  | { kind: "error" }
+  | { kind: "ready"; invitation: Invitation };
 
 /**
  * Landing screen for the invitation email link, e.g.
  *   /accept-invite?token=xxxxx
  *
- * Completes the invitation against the backend `Team/accept-invite` — the
- * invitee sets their own name and password. Public flow, no session required.
+ * Accepting is signing in with Vexxen using the invited email: the backend links the Vexxen account to the
+ * invited user on the first sign-in. People without a Vexxen account create it in the same popup.
  */
 export function AcceptInviteView({ token }: { token: string | null }) {
   const router = useRouter();
-  const [form, setForm] = useState<FormState>(EMPTY);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [accepted, setAccepted] = useState(false);
+  const [state, setState] = useState<State>(token ? { kind: "loading" } : { kind: "invalid" });
+  const [wrongEmail, setWrongEmail] = useState<string | null>(null);
 
-  function update(patch: Partial<FormState>) {
-    setForm((prev) => ({ ...prev, ...patch }));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-
-    if (form.password.length < MIN_PASSWORD_LENGTH) {
-      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
-      return;
-    }
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords don't match.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      await acceptInvite({
-        token: token as string,
-        nombre: form.nombre,
-        apellidos: form.apellidos,
-        password: form.password,
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    fetchInvitation(token)
+      .then((invitation) => {
+        if (!cancelled) setState(invitation ? { kind: "ready", invitation } : { kind: "invalid" });
+      })
+      .catch(() => {
+        if (!cancelled) setState({ kind: "error" });
       });
-      setAccepted(true);
-    } catch (err) {
-      setError(
-        errorMessage(err, "We couldn't accept the invitation.", {
-          byDetail: [
-            [
-              "caducado",
-              "This invitation has expired. Ask your administrator to send you a new one.",
-            ],
-            [
-              "inválido o no existe",
-              "This invitation link is not valid. Check the invitation email, or ask your administrator to send you a new one.",
-            ],
-            [
-              "invitation link is not valid",
-              "This invitation link is not valid. Check the invitation email, or ask your administrator to send you a new one.",
-            ],
-          ],
-        }),
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const invitation = state.kind === "ready" ? state.invitation : null;
+  const rootStyle = brandStyle(parseBrandColors(invitation?.companyColors));
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <BrandPanel />
+    <div style={rootStyle} className="grid min-h-screen lg:grid-cols-2">
+      <BrandPanel companyName={invitation?.companyNombre} />
 
       <div className="flex items-center justify-center bg-slate-50 px-6 py-12">
         <div className="w-full max-w-sm">
-          {!token ? (
+          {state.kind === "loading" && <p className="text-sm text-slate-500">Loading your invitation…</p>}
+
+          {(state.kind === "invalid" || state.kind === "error") && (
             <div className="text-center">
               <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-500">
                 <AlertTriangleIcon className="h-6 w-6" />
               </span>
               <h1 className="mt-4 text-xl font-bold text-slate-900">
-                Invalid invitation link
+                {state.kind === "invalid" ? "This invitation isn't valid" : "We couldn't load your invitation"}
               </h1>
               <p className="mt-2 text-sm text-slate-500">
-                Check the invitation email and try again, or ask your
-                administrator to send you a new one.
+                {state.kind === "invalid"
+                  ? "It may have been accepted already. If so, just sign in. Otherwise, ask your administrator to send you a new one."
+                  : "Please try again in a few minutes."}
               </p>
-              <Button
-                type="button"
-                className="mt-6 w-full"
-                onClick={() => router.push("/login")}
-              >
+              <Button type="button" className="mt-6 w-full" onClick={() => router.push("/login")}>
                 Go to sign in
               </Button>
             </div>
-          ) : accepted ? (
-            <div className="text-center">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
-                <CheckCircleIcon className="h-6 w-6" />
-              </span>
-              <h1 className="mt-4 text-xl font-bold text-slate-900">
-                Invitation accepted!
-              </h1>
-              <p className="mt-2 text-sm text-slate-500">
-                You can now sign in with your email and new password.
-              </p>
-              <Button
-                type="button"
-                className="mt-6 w-full"
-                onClick={() => router.push("/login")}
-              >
-                Go to sign in
-              </Button>
-            </div>
-          ) : (
+          )}
+
+          {invitation && (
             <>
-              <h2 className="text-2xl font-bold text-slate-900">
-                Complete your registration
-              </h2>
+              <h2 className="text-2xl font-bold text-slate-900">Join {invitation.companyNombre}</h2>
               <p className="mt-1 text-sm text-slate-500">
-                Confirm your details and create a password to access EvalFlow.
+                You&apos;ve been invited to the {invitation.companyNombre} evaluation dashboard on EvalFlow.
               </p>
 
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Field
-                    label="First name"
-                    icon={<UserIcon className="h-4 w-4" />}
-                    value={form.nombre}
-                    onChange={(e) => update({ nombre: e.target.value })}
-                    placeholder="Laura"
-                    required
-                  />
-                  <Field
-                    label="Last name"
-                    value={form.apellidos}
-                    onChange={(e) => update({ apellidos: e.target.value })}
-                    placeholder="Martinez"
-                    required
-                  />
-                </div>
-
-                <Field
-                  label="Password"
-                  type="password"
-                  icon={<LockIcon className="h-4 w-4" />}
-                  value={form.password}
-                  onChange={(e) => update({ password: e.target.value })}
-                  placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
-                  minLength={MIN_PASSWORD_LENGTH}
-                  required
-                />
-                <Field
-                  label="Confirm password"
-                  type="password"
-                  icon={<LockIcon className="h-4 w-4" />}
-                  value={form.confirmPassword}
-                  onChange={(e) => update({ confirmPassword: e.target.value })}
-                  placeholder="Repeat your password"
-                  minLength={MIN_PASSWORD_LENGTH}
-                  required
-                />
-
-                {error && <Notice tone="error">{error}</Notice>}
-
-                <Button type="submit" className="w-full" loading={submitting}>
-                  Accept invitation
-                </Button>
-              </form>
+              {invitation.expired ? (
+                <Notice tone="warning" className="mt-6">
+                  This invitation has expired. Ask your administrator to send you a new one.
+                </Notice>
+              ) : (
+                <>
+                  <p className="mt-6 text-sm text-slate-700">
+                    Sign in with Vexxen using{" "}
+                    <span className="font-semibold text-slate-900">{invitation.email}</span>. If you don&apos;t have a
+                    Vexxen account yet, you can create one in the same window.
+                  </p>
+                  <div className="mt-4">
+                    <VexxenSignIn
+                      mode="login"
+                      label="Accept with Vexxen"
+                      onSignedIn={() => router.push("/dashboard")}
+                      onNeedsOnboarding={(account) => setWrongEmail(account.email)}
+                    />
+                  </div>
+                  {wrongEmail && (
+                    <Notice tone="warning" className="mt-4">
+                      You signed in as {wrongEmail}, but the invitation is for {invitation.email}. Sign in with that
+                      email to accept it.
+                    </Notice>
+                  )}
+                </>
+              )}
             </>
           )}
         </div>

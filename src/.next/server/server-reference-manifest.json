@@ -1,0 +1,102 @@
+{
+  "node": {
+    "4091aee0eae3033f23be6663086e34b06bae765a33": {
+      "workers": {
+        "app/dashboard/ciclos-evaluacion/[id]/comparacion/page": {
+          "moduleId": 85240,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/ciclos-evaluacion/[id]/page": {
+          "moduleId": 8021,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/ciclos-evaluacion/page": {
+          "moduleId": 73886,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/departamentos/[id]/page": {
+          "moduleId": 51103,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/listas-favoritas/[id]/page": {
+          "moduleId": 7597,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/listas-favoritas/page": {
+          "moduleId": 65198,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/mis-evaluaciones/[submissionId]/page": {
+          "moduleId": 69325,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/mis-evaluaciones/page": {
+          "moduleId": 79989,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/page": {
+          "moduleId": 31785,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/perfil/page": {
+          "moduleId": 40091,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/plantillas/[id]/page": {
+          "moduleId": 51371,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/plantillas/page": {
+          "moduleId": 96526,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/resultados-evaluacion/page": {
+          "moduleId": 76629,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/solicitudes-informacion/page": {
+          "moduleId": 51179,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        },
+        "app/dashboard/usuarios/page": {
+          "moduleId": 20422,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "src/app/dashboard/actions.ts"
+        }
+      },
+      "filename": "src/app/dashboard/actions.ts",
+      "exportedName": "logout"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "lzo4XxsumjvR0zCmhcBLdNuS4Qz2fHo+S4XMNQjJa80="
+}

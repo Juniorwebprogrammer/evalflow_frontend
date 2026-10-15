@@ -1,0 +1,3 @@
+{
+  "/api/evaluation-cycles/[cycleId]/comparisons/route": "app/api/evaluation-cycles/[cycleId]/comparisons/route.js"
+}

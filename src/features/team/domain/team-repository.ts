@@ -10,8 +10,7 @@ import type {
   Subordinate,
   ToggleUserStatusInput,
   ToggleUserStatusResult,
-  AcceptInviteInput,
-  AcceptInviteResult,
+  Invitation,
   Employee,
 } from "@/features/team/domain/team";
 
@@ -57,7 +56,8 @@ export interface TeamRepository {
   ): Promise<ToggleUserStatusResult>;
 
   /** Completes an invitation. Public — no session required. */
-  acceptInvite(input: AcceptInviteInput): Promise<AcceptInviteResult>;
+  /** Null when the invitation doesn't exist or was already accepted. */
+  getInvitation(token: string): Promise<Invitation | null>;
 
   /** Lists every employee of the caller's company (tenant-scoped). */
   getEmployees(accessToken: string): Promise<Employee[]>;

@@ -5,7 +5,7 @@ import { Button } from "@/shared/ui/button";
 import { DeleteCompanyModal } from "@/features/profile/presentation/components/panels/delete-company-modal";
 
 /** Destructive company actions. Only rendered for roles allowed to delete. */
-export function DangerZone() {
+export function DangerZone({ companyName }: { companyName: string }) {
   const [confirming, setConfirming] = useState(false);
 
   return (
@@ -26,7 +26,7 @@ export function DangerZone() {
       </div>
 
       {confirming && (
-        <DeleteCompanyModal onClose={() => setConfirming(false)} />
+        <DeleteCompanyModal companyName={companyName} onClose={() => setConfirming(false)} />
       )}
     </div>
   );

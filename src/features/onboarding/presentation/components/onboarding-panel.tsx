@@ -3,87 +3,74 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { registerOwner } from "@/features/onboarding/presentation/api/onboarding-client";
-import { fetchCompanyByName } from "@/features/company/presentation/api/company-client";
-import { CheckEmailNotice } from "@/features/auth/presentation/components/check-email-notice";
-import { errorMessage } from "@/shared/lib/api-error";
+import {
+  recheckVexxen,
+  type NeedsOnboardingResponse,
+} from "@/features/auth/presentation/api/auth-client";
+import { ApiError, errorMessage } from "@/shared/lib/api-error";
 import { WelcomeStep } from "@/features/onboarding/presentation/components/welcome-step";
-import { AccountStep } from "@/features/onboarding/presentation/components/account-step";
+import { PlanStep } from "@/features/onboarding/presentation/components/plan-step";
 import { CompanyStep } from "@/features/onboarding/presentation/components/company-step";
-import { CompanyLookupStep } from "@/features/onboarding/presentation/components/company-lookup-step";
 import type {
-  AccountData,
   CompanyData,
   OnboardingStep,
 } from "@/features/onboarding/presentation/components/types";
 import { SECTORS } from "@/shared/data/sectors";
 
+const SIGN_IN_AGAIN = "Your Vexxen sign-in has expired. Close this window and sign in again.";
+
 /**
- * Modal wizard that registers the owner + company. Owns the wizard state and
- * submission; each step is a presentational component. The modal cannot be
- * dismissed — the user must either register or find their company.
+ * Wizard for someone signed in with Vexxen who doesn't belong to any company yet: welcome → choose a plan in
+ * Vexxen (only if they don't have one) → their company. Creating the company signs them in as its owner.
  */
-export function OnboardingPanel() {
+export function OnboardingPanel({
+  account,
+  onClose,
+}: {
+  account: NeedsOnboardingResponse;
+  onClose: () => void;
+}) {
   const router = useRouter();
   const [step, setStep] = useState<OnboardingStep>("welcome");
+  const [hasPlan, setHasPlan] = useState(account.hasPlan);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [account, setAccount] = useState<AccountData>({
-    UserNombre: "",
-    Apellidos: "",
-    Email: "",
-    Password: "",
-  });
   const [company, setCompany] = useState<CompanyData>({
     CompanyNombre: "",
     CompanyColors: "#2563eb",
-    PlanId: 2,
     Sector: SECTORS[0],
     DireccionFiscal: "",
     Cif: "",
   });
-  const [existingCompany, setExistingCompany] = useState("");
 
   function goTo(next: OnboardingStep) {
     setError(null);
     setStep(next);
   }
 
-  async function findCompany(e: React.FormEvent) {
-    e.preventDefault();
-    const name = existingCompany.trim();
-    if (!name) {
-      setError("Enter your company name.");
-      return;
-    }
+  // Back from Vexxen: has the plan (or trial) started yet?
+  async function checkPlan() {
     setError(null);
     setSubmitting(true);
     try {
-      const found = await fetchCompanyByName(name);
-      if (!found) {
-        setError(
-          "We couldn't find a company with that name. Check it and try again.",
-        );
-        setSubmitting(false);
+      const result = await recheckVexxen();
+      if (result.status === "signed_in") {
+        // They were invited to a company meanwhile: nothing to set up.
+        router.push("/dashboard");
         return;
       }
-      // Redirect to the branded login using the canonical name, where the
-      // company (and its identificationId) is resolved from the URL.
-      router.push(`/login/${encodeURIComponent(found.nombre)}`);
+      if (result.hasPlan) {
+        setHasPlan(true);
+        goTo("company");
+      } else {
+        setError("We can't see an EvalFlow plan on your Vexxen account yet. Finish choosing it in Vexxen, then try again.");
+      }
     } catch (err) {
-      setError(errorMessage(err, "We couldn't look up the company."));
+      setError(err instanceof ApiError && err.status === 401 ? SIGN_IN_AGAIN : errorMessage(err, "We couldn't check your plan."));
+    } finally {
       setSubmitting(false);
     }
-  }
-
-  function submitAccount(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    if (account.Password.length < 8) {
-      setError("Your password must be at least 8 characters long.");
-      return;
-    }
-    setStep("company");
   }
 
   async function submitCompany(e: React.FormEvent) {
@@ -91,39 +78,35 @@ export function OnboardingPanel() {
     setError(null);
     setSubmitting(true);
     try {
-      await registerOwner({ ...account, ...company });
-      // The account exists but still needs email verification before the
-      // backend allows login — no session is persisted, so show that step
-      // instead of entering the dashboard.
-      setStep("verify-email");
-      setSubmitting(false);
+      await registerOwner(company);
+      router.push("/dashboard");
     } catch (err) {
-      setError(
-        errorMessage(err, "We couldn't complete your registration.", {
-          byDetail: [
-            ["ya existe", "An account with this email already exists. Sign in instead, or use a different email."],
-            ["plan seleccionado", "The selected plan isn't available. Please choose another one."],
-            ["email no es válido", "Please enter a valid email address."],
-            ["al menos", "Your password is too short. Please choose a longer one."],
-          ],
-          byStatus: {
-            409: "An account with this email already exists. Sign in instead, or use a different email.",
-          },
-        }),
-      );
+      if (err instanceof ApiError && err.code === "NO_PLAN") {
+        setHasPlan(false);
+        goTo("plan");
+      } else if (err instanceof ApiError && err.status === 401) {
+        setError(SIGN_IN_AGAIN);
+      } else {
+        setError(
+          errorMessage(err, "We couldn't create your company.", {
+            byStatus: {
+              409: "Your Vexxen account already belongs to a company in EvalFlow (or has a pending invitation). Sign in instead.",
+            },
+          }),
+        );
+      }
       setSubmitting(false);
     }
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Non-dismissable backdrop — no click-to-close. */}
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
 
       <div className="relative z-10 max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl">
-        {(step === "account" || step === "company") && (
+        {(step === "plan" || step === "company") && (
           <div className="flex items-center gap-2 border-b border-slate-100 px-6 py-4">
-            <StepDot active label="1. Account" done={step === "company"} />
+            <StepDot active label="1. Plan" done={step === "company"} />
             <span className="h-px flex-1 bg-slate-200" />
             <StepDot active={step === "company"} label="2. Company" />
           </div>
@@ -132,29 +115,20 @@ export function OnboardingPanel() {
         <div className="p-5 sm:p-7">
           {step === "welcome" && (
             <WelcomeStep
-              onStart={() => goTo("account")}
-              onExistingAccount={() => goTo("existing")}
+              firstName={account.firstName}
+              email={account.email}
+              onStart={() => goTo(hasPlan ? "company" : "plan")}
+              onCancel={onClose}
             />
           )}
 
-          {step === "existing" && (
-            <CompanyLookupStep
-              value={existingCompany}
-              onChange={setExistingCompany}
+          {step === "plan" && (
+            <PlanStep
+              catalogUrl={account.catalogUrl}
               onBack={() => goTo("welcome")}
-              onSubmit={findCompany}
+              onCheck={checkPlan}
               error={error}
-              submitting={submitting}
-            />
-          )}
-
-          {step === "account" && (
-            <AccountStep
-              value={account}
-              onChange={(patch) => setAccount({ ...account, ...patch })}
-              onBack={() => setStep("welcome")}
-              onSubmit={submitAccount}
-              error={error}
+              checking={submitting}
             />
           )}
 
@@ -162,22 +136,10 @@ export function OnboardingPanel() {
             <CompanyStep
               value={company}
               onChange={(patch) => setCompany({ ...company, ...patch })}
-              onBack={() => setStep("account")}
+              onBack={() => goTo(account.hasPlan ? "welcome" : "plan")}
               onSubmit={submitCompany}
               error={error}
               submitting={submitting}
-            />
-          )}
-
-          {step === "verify-email" && (
-            <CheckEmailNotice
-              title="Account created!"
-              message="Confirm your email before you sign in."
-              email={account.Email}
-              actionLabel="Go to sign in"
-              onAction={() =>
-                router.push(`/login/${encodeURIComponent(company.CompanyNombre)}`)
-              }
             />
           )}
         </div>
